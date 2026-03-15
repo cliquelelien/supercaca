@@ -468,38 +468,38 @@ main{position:relative;z-index:1;}
 <!-- REPAS -->
 <div id="tab-repas" class="tab-content active">
   <div class="card">
-    <div class="card-title">🍽️ Enregistrer un repas</div>
+    <div class="card-title">🍽️ <span id="lbl_repas_title">Enregistrer un repas</span></div>
     <div class="form-group">
-      <label class="form-label">Heure du repas</label>
+      <label class="form-label"><span id="lbl_repas_heure">Heure du repas</span></label>
       <div class="time-row">
         <input type="time" id="repasHeure" class="form-input" style="flex:1">
-        <button class="time-now-btn" onclick="setNow('repasHeure')">⏱️ Maintenant</button>
+        <button class="time-now-btn" onclick="setNow('repasHeure')"><span id="lbl_maintenant_repas">⏱️ Maintenant</span></button>
       </div>
     </div>
     <div class="form-group plat-suggest">
-      <label class="form-label">Chercher un plat type (pré-remplissage auto)</label>
-      <input type="text" id="platSearch" class="form-input" placeholder="Ex: Biryani, Salade niçoise..." oninput="onPlatSearch(this.value)" autocomplete="off">
+      <label class="form-label"><span id="lbl_platSearch">Chercher un plat type (pré-remplissage auto)</span></label>
+      <input type="text" id="platSearch" class="form-input" id="ph_plat_search" id="ph_plat_nom" placeholder="Ex: Biryani, Salade niçoise..." oninput="onPlatSearch(this.value)" autocomplete="off">
       <div class="plat-suggest-list" id="platSuggestList" style="display:none"></div>
     </div>
     <div class="form-group">
-      <label class="form-label">Aliments courants</label>
+      <label class="form-label"><span id="lbl_aliments_courants">Aliments courants</span></label>
       <div class="food-common" id="foodCommon"></div>
     </div>
     <div class="form-group">
-      <label class="form-label">Sélectionnés</label>
+      <label class="form-label"><span id="lbl_selectionnes">Sélectionnés</span></label>
       <div class="food-chips" id="selectedFoodsChips"><span style="font-size:12px;color:var(--text3)">Aucun aliment sélectionné</span></div>
     </div>
     <div class="form-group">
-      <label class="form-label">Texte libre (virgules pour séparer)</label>
+      <label class="form-label"><span id="lbl_texte_libre_repas">Texte libre (virgules pour séparer)</span></label>
       <div class="input-with-btn">
-        <input type="text" id="repasAlimentInput" class="form-input" placeholder="Ex: Quinoa, fromage, tomates...">
-        <button class="btn btn-secondary btn-sm" onclick="addFoodFromInput()">+ Ajouter</button>
+        <input type="text" id="repasAlimentInput" class="form-input" id="ph_repas_input" placeholder="Ex: Quinoa, fromage, tomates...">
+        <button class="btn btn-secondary btn-sm" onclick="addFoodFromInput()"><span id="lbl_ajouter_repas">+ Ajouter</span></button>
       </div>
     </div>
-    <button class="btn btn-primary btn-full" onclick="saveRepas()">💾 Enregistrer le repas</button>
+    <button class="btn btn-primary btn-full" onclick="saveRepas()"><span id="lbl_save_repas">💾 Enregistrer le repas</span></button>
   </div>
   <div class="entries-list">
-    <div class="entries-title">📋 Repas du jour <span id="repasCount" style="font-weight:400"></span></div>
+    <div class="entries-title"><span id="lbl_repas_jour">📋 Repas du jour</span> <span id="repasCount" style="font-weight:400"></span></div>
     <div id="repasList"></div>
   </div>
 </div>
@@ -507,26 +507,26 @@ main{position:relative;z-index:1;}
 <!-- SELLES -->
 <div id="tab-selles" class="tab-content">
   <div class="card">
-    <div class="card-title">🚽 Enregistrer une selle</div>
+    <div class="card-title">🚽 <span id="lbl_selle_title">Enregistrer une selle</span></div>
     <div class="form-group">
-      <label class="form-label">Heure</label>
+      <label class="form-label"><span id="lbl_selle_heure">Heure</span></label>
       <div class="time-row">
         <input type="time" id="selleHeure" class="form-input" style="flex:1">
-        <button class="time-now-btn" onclick="setNow('selleHeure')">⏱️ Maintenant</button>
+        <button class="time-now-btn" onclick="setNow('selleHeure')"><span id="lbl_maintenant_selle">⏱️ Maintenant</span></button>
       </div>
     </div>
     <div class="form-group">
-      <label class="form-label">Quantité (abondance)</label>
+      <label class="form-label"><span id="lbl_quantite">Quantité (abondance)</span></label>
       <div class="qty-scale">
-        <div class="qty-option"><input type="radio" name="selleQty" id="q1" value="1"><label class="qty-label" for="q1"><span class="qty-dots">●</span><span>Très peu</span></label></div>
-        <div class="qty-option"><input type="radio" name="selleQty" id="q2" value="2"><label class="qty-label" for="q2"><span class="qty-dots">●●</span><span>Peu</span></label></div>
-        <div class="qty-option"><input type="radio" name="selleQty" id="q3" value="3"><label class="qty-label" for="q3"><span class="qty-dots">●●●</span><span>Moyen</span></label></div>
-        <div class="qty-option"><input type="radio" name="selleQty" id="q4" value="4"><label class="qty-label" for="q4"><span class="qty-dots">●●●●</span><span>Abondant</span></label></div>
-        <div class="qty-option"><input type="radio" name="selleQty" id="q5" value="5"><label class="qty-label" for="q5"><span class="qty-dots">●●●●●</span><span>Très abon.</span></label></div>
+        <div class="qty-option"><input type="radio" name="selleQty" id="q1" value="1"><label class="qty-label" for="q1"><span class="qty-dots">●</span><span><span id="lbl_qty1">Très peu</span></span></label></div>
+        <div class="qty-option"><input type="radio" name="selleQty" id="q2" value="2"><label class="qty-label" for="q2"><span class="qty-dots">●●</span><span><span id="lbl_qty2">Peu</span></span></label></div>
+        <div class="qty-option"><input type="radio" name="selleQty" id="q3" value="3"><label class="qty-label" for="q3"><span class="qty-dots">●●●</span><span><span id="lbl_qty3">Moyen</span></span></label></div>
+        <div class="qty-option"><input type="radio" name="selleQty" id="q4" value="4"><label class="qty-label" for="q4"><span class="qty-dots">●●●●</span><span><span id="lbl_qty4">Abondant</span></span></label></div>
+        <div class="qty-option"><input type="radio" name="selleQty" id="q5" value="5"><label class="qty-label" for="q5"><span class="qty-dots">●●●●●</span><span><span id="lbl_qty5">Très abon.</span></span></label></div>
       </div>
     </div>
     <div class="form-group">
-      <label class="form-label">Type — Échelle de Bristol</label>
+      <label class="form-label"><span id="lbl_bristol">Type — Échelle de Bristol</span></label>
       <div class="bristol-grid">
         <div class="bristol-option"><input type="radio" name="bristol" id="b1" value="1"><label class="bristol-label" for="b1"><span class="bristol-emoji">🪨</span><span class="bristol-name">Très dur</span><span class="bristol-num">Type 1</span></label></div>
         <div class="bristol-option"><input type="radio" name="bristol" id="b2" value="2"><label class="bristol-label" for="b2"><span class="bristol-emoji">🌰</span><span class="bristol-name">Dur</span><span class="bristol-num">Type 2</span></label></div>
@@ -537,17 +537,17 @@ main{position:relative;z-index:1;}
       </div>
     </div>
     <div class="form-group">
-      <label class="form-label">Symptômes associés</label>
+      <label class="form-label"><span id="lbl_symptomes">Symptômes associés</span></label>
       <div class="checkbox-group">
-        <label class="checkbox-item" id="cbColles"><input type="checkbox" id="sColles"><div class="checkbox-visual"></div><span class="checkbox-icon">🩹</span><span class="checkbox-text">Selles collantes</span></label>
-        <label class="checkbox-item" id="cbDouleur"><input type="checkbox" id="sDouleur"><div class="checkbox-visual"></div><span class="checkbox-icon">😣</span><span class="checkbox-text">Douleur au côlon</span></label>
-        <label class="checkbox-item" id="cbBallons"><input type="checkbox" id="sBallons"><div class="checkbox-visual"></div><span class="checkbox-icon">🎈</span><span class="checkbox-text">Ballonnements / Gaz</span></label>
+        <label class="checkbox-item" id="cbColles"><input type="checkbox" id="sColles"><div class="checkbox-visual"></div><span class="checkbox-icon">🩹</span><span class="checkbox-text"><span id="lbl_collante">Selles collantes</span></span></label>
+        <label class="checkbox-item" id="cbDouleur"><input type="checkbox" id="sDouleur"><div class="checkbox-visual"></div><span class="checkbox-icon">😣</span><span class="checkbox-text"><span id="lbl_douleur">Douleur au côlon</span></span></label>
+        <label class="checkbox-item" id="cbBallons"><input type="checkbox" id="sBallons"><div class="checkbox-visual"></div><span class="checkbox-icon">🎈</span><span class="checkbox-text"><span id="lbl_ballons">Ballonnements / Gaz</span></span></label>
       </div>
     </div>
-    <button class="btn btn-primary btn-full" onclick="saveSelle()">💾 Enregistrer la selle</button>
+    <button class="btn btn-primary btn-full" onclick="saveSelle()"><span id="lbl_save_selle">💾 Enregistrer la selle</span></button>
   </div>
   <div class="entries-list">
-    <div class="entries-title">📋 Selles du jour</div>
+    <div class="entries-title"><span id="lbl_selles_jour">📋 Selles du jour</span></div>
     <div id="sellesList"></div>
   </div>
 </div>
@@ -555,7 +555,7 @@ main{position:relative;z-index:1;}
 <!-- ÉTAT -->
 <div id="tab-etat" class="tab-content">
   <div class="card">
-    <div class="card-title">😊 Humeur</div>
+    <div class="card-title">😊 <span id="lbl_humeur_title">Humeur</span></div>
     <div class="mood-scale">
       <div class="mood-option"><input type="radio" name="humeur" id="h1" value="1"><label class="mood-label" for="h1"><span class="mood-emoji">😫</span><span class="mood-num">1</span></label></div>
       <div class="mood-option"><input type="radio" name="humeur" id="h2" value="2"><label class="mood-label" for="h2"><span class="mood-emoji">😕</span><span class="mood-num">2</span></label></div>
@@ -565,24 +565,24 @@ main{position:relative;z-index:1;}
     </div>
   </div>
   <div class="card">
-    <div class="card-title">💧 Hydratation</div>
+    <div class="card-title">💧 <span id="lbl_hydration_title">Hydratation</span></div>
     <div class="hydration-row">
-      <div class="hydration-option"><input type="radio" name="hydration" id="hyd1" value="faible"><label class="hydration-label" for="hyd1"><span class="hydration-icon">🥤</span>Faible</label></div>
-      <div class="hydration-option"><input type="radio" name="hydration" id="hyd2" value="moyen"><label class="hydration-label" for="hyd2"><span class="hydration-icon">💧</span>Moyen</label></div>
-      <div class="hydration-option"><input type="radio" name="hydration" id="hyd3" value="bon"><label class="hydration-label" for="hyd3"><span class="hydration-icon">💦</span>Bon</label></div>
+      <div class="hydration-option"><input type="radio" name="hydration" id="hyd1" value="faible"><label class="hydration-label" for="hyd1"><span class="hydration-icon">🥤</span><span id="lbl_hyd_faible">Faible</span></label></div>
+      <div class="hydration-option"><input type="radio" name="hydration" id="hyd2" value="moyen"><label class="hydration-label" for="hyd2"><span class="hydration-icon">💧</span><span id="lbl_hyd_moyen">Moyen</span></label></div>
+      <div class="hydration-option"><input type="radio" name="hydration" id="hyd3" value="bon"><label class="hydration-label" for="hyd3"><span class="hydration-icon">💦</span><span id="lbl_hyd_bon">Bon</span></label></div>
     </div>
   </div>
   <div class="card">
-    <div class="card-title">🏃 Activité physique</div>
+    <div class="card-title">🏃 <span id="lbl_sport_title">Activité physique</span></div>
     <div class="sport-types">
-      <div class="sport-option sport-none"><input type="radio" name="sport" id="sp0" value="aucun" checked><label class="sport-label" for="sp0"><span class="sport-icon">💤</span>Aucune</label></div>
-      <div class="sport-option"><input type="radio" name="sport" id="sp1" value="endurance"><label class="sport-label" for="sp1"><span class="sport-icon">🏃</span>Endurance</label></div>
-      <div class="sport-option"><input type="radio" name="sport" id="sp2" value="cardio"><label class="sport-label" for="sp2"><span class="sport-icon">🚴</span>Cardio</label></div>
-      <div class="sport-option"><input type="radio" name="sport" id="sp3" value="musculation"><label class="sport-label" for="sp3"><span class="sport-icon">🏋️</span>Muscu</label></div>
+      <div class="sport-option sport-none"><input type="radio" name="sport" id="sp0" value="aucun" checked><label class="sport-label" for="sp0"><span class="sport-icon">💤</span><span id="lbl_sport_aucune">Aucune</span></label></div>
+      <div class="sport-option"><input type="radio" name="sport" id="sp1" value="endurance"><label class="sport-label" for="sp1"><span class="sport-icon">🏃</span><span id="lbl_sport_endurance">Endurance</span></label></div>
+      <div class="sport-option"><input type="radio" name="sport" id="sp2" value="cardio"><label class="sport-label" for="sp2"><span class="sport-icon">🚴</span><span id="lbl_sport_cardio">Cardio</span></label></div>
+      <div class="sport-option"><input type="radio" name="sport" id="sp3" value="musculation"><label class="sport-label" for="sp3"><span class="sport-icon">🏋️</span><span id="lbl_sport_muscu">Muscu</span></label></div>
     </div>
     <div class="form-group" id="sportDureeGroup" style="display:none">
-      <label class="form-label">Durée (minutes)</label>
-      <input type="number" id="sportDuree" class="form-input" placeholder="Ex: 45" min="0" max="360">
+      <label class="form-label"><span id="lbl_duree">Durée (minutes)</span></label>
+      <input type="number" id="sportDuree" class="form-input" id="ph_duree" placeholder="Ex: 45" min="0" max="360">
     </div>
   </div>
   <div class="card">
@@ -613,7 +613,7 @@ main{position:relative;z-index:1;}
     </div>
   </div>
   <div id="scoreMissing" class="card" style="display:none">
-    <div style="text-align:center;padding:8px 0"><div style="font-size:30px">📊</div><div style="font-size:14px;font-weight:600;color:var(--text2);margin-top:8px">Aucune donnée pour cette date.<br>Enregistrez des selles ou un état général.</div></div>
+    <div style="text-align:center;padding:8px 0"><div style="font-size:30px">📊</div><div style="font-size:14px;font-weight:600;color:var(--text2);margin-top:8px"><span id="lbl_score_missing">Aucune donnée pour cette date.<br>Enregistrez des selles ou un état général.</span></div></div>
   </div>
   <div id="scoreDisplay"></div>
   <div id="scoreBreakdown" class="score-breakdown"></div>
@@ -637,9 +637,9 @@ main{position:relative;z-index:1;}
 <!-- ANALYSE -->
 <div id="tab-analyse" class="tab-content">
   <div class="card">
-    <div class="card-title">🔍 Analyse alimentaire</div>
-    <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6">Analyse la corrélation entre les aliments consommés et la qualité des selles <strong>12–48h après</strong> leur consommation.</p>
-    <button class="btn btn-primary btn-full" onclick="runAnalysis()">🔍 Lancer l'analyse</button>
+    <div class="card-title"><span id="lbl_analyse_title">🔍 Analyse alimentaire</span></div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6"><span id="lbl_analyse_desc">Analyse la corrélation entre les aliments consommés et la qualité des selles <strong>12–48h après</strong> leur consommation.</span></p>
+    <button class="btn btn-primary btn-full" onclick="runAnalysis()"><span id="lbl_run_analyse">🔍 Lancer l'analyse</span></button>
   </div>
   <div id="analysisResults"></div>
 </div>
@@ -647,30 +647,30 @@ main{position:relative;z-index:1;}
 <!-- ALIMENTS TYPES -->
 <div id="tab-plats" class="tab-content">
   <div class="card">
-    <div class="card-title">🍲 Créer un plat type</div>
+    <div class="card-title"><span id="lbl_plat_create">🍲 Créer un plat type</span></div>
     <div class="form-group">
-      <label class="form-label">Nom du plat</label>
+      <label class="form-label"><span id="lbl_plat_nom">Nom du plat</span></label>
       <input type="text" id="platNom" class="form-input" placeholder="Ex: Biryani, Salade niçoise...">
     </div>
     <div class="form-group">
-      <label class="form-label">Aliments courants</label>
+      <label class="form-label"><span id="lbl_plat_aliments_courants">Aliments courants</span></label>
       <div class="food-common" id="platFoodCommon"></div>
     </div>
     <div class="form-group">
-      <label class="form-label">Ingrédients sélectionnés</label>
+      <label class="form-label"><span id="lbl_plat_selectionnes">Ingrédients sélectionnés</span></label>
       <div class="food-chips" id="platSelectedChips"><span style="font-size:12px;color:var(--text3)">Aucun ingrédient sélectionné</span></div>
     </div>
     <div class="form-group">
-      <label class="form-label">Texte libre (virgules acceptées)</label>
+      <label class="form-label"><span id="lbl_plat_texte_libre">Texte libre (virgules acceptées)</span></label>
       <div class="input-with-btn">
-        <input type="text" id="platIngredientInput" class="form-input" placeholder="Ex: Garam masala, safran...">
-        <button class="btn btn-secondary btn-sm" onclick="addPlatIngredientFromInput()">+ Ajouter</button>
+        <input type="text" id="platIngredientInput" class="form-input" id="ph_plat_input" placeholder="Ex: Garam masala, safran...">
+        <button class="btn btn-secondary btn-sm" onclick="addPlatIngredientFromInput()"><span id="lbl_ajouter_plat">+ Ajouter</span></button>
       </div>
     </div>
     <button class="btn btn-purple btn-full" onclick="savePlat()">💾 Enregistrer ce plat</button>
   </div>
   <div class="entries-list">
-    <div class="entries-title">📚 Plats enregistrés</div>
+    <div class="entries-title"><span id="lbl_plats_enregistres">📚 Plats enregistrés</span></div>
     <div id="platsList"></div>
   </div>
 </div>
@@ -680,7 +680,7 @@ main{position:relative;z-index:1;}
 
   <!-- INSTALL -->
   <div class="card">
-    <div class="card-title">📱 Installer l'application</div>
+    <div class="card-title"><span id="lbl_installer_title">📱 Installer l'application</span></div>
     <div id="pwaStatusCard">
       <div class="io-icon" style="font-size:42px;text-align:center;margin-bottom:10px">📲</div>
       <div id="pwaDesc" class="io-desc"></div>
@@ -690,7 +690,7 @@ main{position:relative;z-index:1;}
 
   <!-- NOTIFICATIONS -->
   <div class="card">
-    <div class="card-title">🔔 Rappel quotidien 21h</div>
+    <div class="card-title"><span id="lbl_notif_title">🔔 Rappel quotidien 21h</span></div>
     <div id="notifStatusCard">
       <div class="io-icon" style="font-size:42px;text-align:center;margin-bottom:10px">🔔</div>
       <div id="notifDesc" class="io-desc"></div>
@@ -700,32 +700,23 @@ main{position:relative;z-index:1;}
 
   <!-- EXPORT -->
   <div class="card">
-    <div class="card-title" id="labelExportTitle">📤 Exporter les données</div>
+    <div class="card-title"><span id="lbl_export_title">📤 Exporter les données</span></div>
     <div class="io-section">
       <div class="io-icon">📊</div>
-      <div class="io-desc" id="labelExportDesc">Génère un fichier CSV contenant tous vos repas, selles, états généraux et scores.</div>
-      <div class="form-group" style="margin-bottom:12px">
-        <label class="form-label" id="labelSaveDir">Répertoire de sauvegarde</label>
-        <select class="form-select" id="exportDirSelect" onchange="onExportDirChange(this.value)">
-          <option value="auto" id="opt_auto">📱 Répertoire par défaut (Téléchargements)</option>
-          <option value="gdrive" id="opt_gdrive">☁️ Google Drive (ouvrir après export)</option>
-          <option value="custom" id="opt_custom">📂 Autre emplacement (choisir manuellement)</option>
-        </select>
-        <div id="exportDirHint" style="font-size:12px;color:var(--text3);margin-top:6px;line-height:1.5"></div>
-      </div>
-      <button class="btn btn-success btn-full" onclick="exportCSV()" id="btnExportCSV">📥 Télécharger CSV</button>
+      <div class="io-desc"><span id="lbl_export_desc">Génère un fichier CSV contenant tous vos repas, selles, états généraux et scores.</span></div>
+      <button class="btn btn-success btn-full" onclick="exportCSV()"><span id="lbl_export_btn">📥 Télécharger CSV</span></button>
     </div>
   </div>
 
   <!-- IMPORT -->
   <div class="card">
-    <div class="card-title">📥 Importer des données</div>
-    <div class="io-section"><div class="io-icon">📂</div><div class="io-desc">Importez un fichier CSV précédemment exporté. Les données seront fusionnées.</div><input type="file" id="importFile" accept=".csv" style="display:none" onchange="importCSV(this)"><button class="btn btn-secondary btn-full" onclick="document.getElementById('importFile').click()">📂 Choisir un fichier CSV</button></div>
+    <div class="card-title"><span id="lbl_import_title">📥 Importer des données</span></div>
+    <div class="io-section"><div class="io-icon">📂</div><div class="io-desc"><span id="lbl_import_desc">Importez un fichier CSV précédemment exporté. Les données seront fusionnées.</span></div><input type="file" id="importFile" accept=".csv" style="display:none" onchange="importCSV(this)"><button class="btn btn-secondary btn-full" onclick="document.getElementById('importFile').click()"><span id="lbl_import_btn">📂 Choisir un fichier CSV</span></button></div>
   </div>
 
   <!-- RESET -->
   <div class="card">
-    <div class="card-title">📂 Où sont stockées vos données ?</div>
+    <div class="card-title"><span id="lbl_storage_title">📂 Où sont stockées vos données ?</span></div>
     <div class="io-section">
       <div class="io-icon">💾</div>
       <div class="io-desc" id="storageLocationDesc"></div>
@@ -733,8 +724,8 @@ main{position:relative;z-index:1;}
   </div>
 
   <div class="card">
-    <div class="card-title" style="color:var(--red)">⚠️ Réinitialiser</div>
-    <div class="io-section"><div class="io-desc" style="color:var(--red)">Efface toutes les données. Action irréversible.</div><button class="btn btn-danger btn-full" onclick="resetAllData()">🗑️ Effacer toutes les données</button></div>
+    <div class="card-title" style="color:var(--red)"><span id="lbl_reset_title">⚠️ Réinitialiser</span></div>
+    <div class="io-section"><div class="io-desc" style="color:var(--red)"><span id="lbl_reset_desc">Efface toutes les données. Action irréversible.</span></div><button class="btn btn-danger btn-full" onclick="resetAllData()"><span id="lbl_reset_btn">🗑️ Effacer toutes les données</span></button></div>
   </div>
 </div>
 
@@ -744,11 +735,11 @@ main{position:relative;z-index:1;}
 <div class="pwa-banner" id="pwaBanner">
   <span style="font-size:32px">💩</span>
   <div class="pwa-banner-text">
-    <div class="pwa-banner-title">Installer SuperCaca</div>
-    Accédez-y depuis votre écran d'accueil
+    <div class="pwa-banner-title"><span id="lbl_banner_title">Installer SuperCaca</span></div>
+    <span id="lbl_banner_desc">Accédez-y depuis votre écran d'accueil</span>
   </div>
   <div class="pwa-banner-btns">
-    <button class="pwa-install-btn" onclick="triggerInstall()">Installer</button>
+    <button class="pwa-install-btn" onclick="triggerInstall()"><span id="lbl_banner_install">Installer</span></button>
     <button class="pwa-dismiss-btn" onclick="dismissBanner()">✕</button>
   </div>
 </div>
@@ -757,11 +748,11 @@ main{position:relative;z-index:1;}
 <div class="modal-overlay" id="dateModal">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title">📅 Choisir une date</div>
+    <div class="modal-title"><span id="lbl_date_title">📅 Choisir une date</span></div>
     <input type="date" id="datePicker" class="form-input" style="margin-bottom:14px">
     <div style="display:flex;gap:10px">
-      <button class="btn btn-primary" style="flex:1" onclick="confirmDate()">Confirmer</button>
-      <button class="btn btn-secondary" style="flex:1" onclick="closeModal('dateModal')">Annuler</button>
+      <button class="btn btn-primary" style="flex:1" onclick="confirmDate()"><span id="lbl_confirmer">Confirmer</span></button>
+      <button class="btn btn-secondary" style="flex:1" onclick="closeModal('dateModal')"><span id="lbl_annuler">Annuler</span></button>
     </div>
   </div>
 </div>
@@ -811,7 +802,53 @@ var T = {
     scoreLabels:['','Très mauvaise journée','Journée difficile','Journée correcte','Journée correcte','Bonne journée','Bonne journée','Excellente journée !','Excellente journée !','Excellente journée !','Excellente journée !'],
     months:['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'],
     weekdays:['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'],
-    regleLabel:'🌸 Règles', noteLabel:'📝'
+    regleLabel:'🌸 Règles', noteLabel:'📝',
+    // Static labels - REPAS
+    lbl_repas_title:'Enregistrer un repas', lbl_repas_heure:'Heure du repas',
+    lbl_now:'⏱️ Maintenant', lbl_platSearch:'Chercher un plat type (pré-remplissage auto)',
+    lbl_aliments_courants:'Aliments courants', lbl_selectionnes:'Sélectionnés',
+    lbl_texte_libre:'Texte libre (virgules pour séparer)',
+    ph_repas_input:'Ex: Quinoa, fromage, tomates...', ph_plat_search:'Ex: Biryani, Salade niçoise...',
+    lbl_ajouter:'+ Ajouter', lbl_save_repas:'💾 Enregistrer le repas',
+    lbl_repas_jour:'📋 Repas du jour',
+    // SELLES
+    lbl_selle_title:'Enregistrer une selle', lbl_heure:'Heure',
+    lbl_quantite:'Quantité (abondance)',
+    lbl_qty1:'Très peu', lbl_qty2:'Peu', lbl_qty3:'Moyen', lbl_qty4:'Abondant', lbl_qty5:'Très abon.',
+    lbl_bristol:'Type — Échelle de Bristol', lbl_symptomes:'Symptômes associés',
+    lbl_collante:'Selles collantes', lbl_douleur:'Douleur au côlon', lbl_ballons:'Ballonnements / Gaz',
+    lbl_save_selle:'💾 Enregistrer la selle', lbl_selles_jour:'📋 Selles du jour',
+    // ÉTAT
+    lbl_humeur_title:'Humeur', lbl_hydration_title:'Hydratation',
+    lbl_hyd_faible:'Faible', lbl_hyd_moyen:'Moyen', lbl_hyd_bon:'Bon',
+    lbl_sport_title:'Activité physique', lbl_sport_aucune:'Aucune',
+    lbl_sport_endurance:'Endurance', lbl_sport_cardio:'Cardio', lbl_sport_muscu:'Muscu',
+    lbl_duree:'Durée (minutes)', ph_duree:'Ex: 45',
+    // SCORE
+    lbl_score_missing:'Aucune donnée pour cette date.<br>Enregistrez des selles ou un état général.',
+    // ANALYSE
+    lbl_analyse_title:'🔍 Analyse alimentaire',
+    lbl_analyse_desc:'Analyse la corrélation entre les aliments consommés et la qualité des selles <strong>12–48h après</strong> leur consommation.',
+    lbl_run_analyse:'🔍 Lancer l'analyse',
+    // PLATS
+    lbl_plat_create:'🍲 Créer un plat type', lbl_plat_nom:'Nom du plat',
+    ph_plat_nom:'Ex: Biryani, Salade niçoise...', lbl_plat_selectionnes:'Ingrédients sélectionnés',
+    ph_plat_input:'Ex: Garam masala, safran...', lbl_plats_enregistres:'📚 Plats enregistrés',
+    // IO
+    lbl_installer_title:'📱 Installer l'application', lbl_notif_title:'🔔 Rappel quotidien 21h',
+    lbl_export_title:'📤 Exporter les données',
+    lbl_export_desc:'Génère un fichier CSV contenant tous vos repas, selles, états généraux et scores.',
+    lbl_export_btn:'📥 Télécharger CSV',
+    lbl_import_title:'📥 Importer des données',
+    lbl_import_desc:'Importez un fichier CSV précédemment exporté. Les données seront fusionnées.',
+    lbl_import_btn:'📂 Choisir un fichier CSV',
+    lbl_storage_title:'📂 Où sont stockées vos données ?',
+    lbl_reset_title:'⚠️ Réinitialiser', lbl_reset_desc:'Efface toutes les données. Action irréversible.',
+    lbl_reset_btn:'🗑️ Effacer toutes les données',
+    // Banner & modal
+    lbl_banner_title:'Installer SuperCaca', lbl_banner_desc:'Accédez-y depuis votre écran d'accueil',
+    lbl_banner_install:'Installer', lbl_date_title:'📅 Choisir une date',
+    lbl_confirmer:'Confirmer', lbl_annuler:'Annuler'
   },
   en: {
     themeNight:'🌙 Night', themeDay:'☀️ Day', langBtn:'🇫🇷 FR',
@@ -850,7 +887,53 @@ var T = {
     scoreLabels:['','Very bad day','Difficult day','Decent day','Decent day','Good day','Good day','Excellent day!','Excellent day!','Excellent day!','Excellent day!'],
     months:['January','February','March','April','May','June','July','August','September','October','November','December'],
     weekdays:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
-    regleLabel:'🌸 Period', noteLabel:'📝'
+    regleLabel:'🌸 Period', noteLabel:'📝',
+    // Static labels - REPAS
+    lbl_repas_title:'Record a meal', lbl_repas_heure:'Meal time',
+    lbl_now:'⏱️ Now', lbl_platSearch:'Search a meal type (auto-fill)',
+    lbl_aliments_courants:'Common foods', lbl_selectionnes:'Selected',
+    lbl_texte_libre:'Free text (separate with commas)',
+    ph_repas_input:'E.g. Quinoa, cheese, tomatoes...', ph_plat_search:'E.g. Biryani, Caesar salad...',
+    lbl_ajouter:'+ Add', lbl_save_repas:'💾 Save meal',
+    lbl_repas_jour:'📋 Today's meals',
+    // SELLES
+    lbl_selle_title:'Record a stool', lbl_heure:'Time',
+    lbl_quantite:'Quantity (abundance)',
+    lbl_qty1:'Very little', lbl_qty2:'Little', lbl_qty3:'Medium', lbl_qty4:'Abundant', lbl_qty5:'Very abund.',
+    lbl_bristol:'Type — Bristol scale', lbl_symptomes:'Associated symptoms',
+    lbl_collante:'Sticky stools', lbl_douleur:'Colon pain', lbl_ballons:'Bloating / Gas',
+    lbl_save_selle:'💾 Save stool', lbl_selles_jour:'📋 Today's stools',
+    // ÉTAT
+    lbl_humeur_title:'Mood', lbl_hydration_title:'Hydration',
+    lbl_hyd_faible:'Low', lbl_hyd_moyen:'Medium', lbl_hyd_bon:'Good',
+    lbl_sport_title:'Physical activity', lbl_sport_aucune:'None',
+    lbl_sport_endurance:'Endurance', lbl_sport_cardio:'Cardio', lbl_sport_muscu:'Strength',
+    lbl_duree:'Duration (minutes)', ph_duree:'E.g. 45',
+    // SCORE
+    lbl_score_missing:'No data for this date.<br>Record stools or a daily status.',
+    // ANALYSE
+    lbl_analyse_title:'🔍 Food analysis',
+    lbl_analyse_desc:'Analyses the correlation between foods eaten and stool quality <strong>12–48h later</strong>.',
+    lbl_run_analyse:'🔍 Run analysis',
+    // PLATS
+    lbl_plat_create:'🍲 Create a meal type', lbl_plat_nom:'Meal name',
+    ph_plat_nom:'E.g. Biryani, Caesar salad...', lbl_plat_selectionnes:'Selected ingredients',
+    ph_plat_input:'E.g. Garam masala, saffron...', lbl_plats_enregistres:'📚 Saved meal types',
+    // IO
+    lbl_installer_title:'📱 Install the app', lbl_notif_title:'🔔 Daily reminder 9pm',
+    lbl_export_title:'📤 Export data',
+    lbl_export_desc:'Generates a CSV file with all your meals, stools, daily status and scores.',
+    lbl_export_btn:'📥 Download CSV',
+    lbl_import_title:'📥 Import data',
+    lbl_import_desc:'Import a previously exported CSV file. Data will be merged.',
+    lbl_import_btn:'📂 Choose a CSV file',
+    lbl_storage_title:'📂 Where is your data stored?',
+    lbl_reset_title:'⚠️ Reset', lbl_reset_desc:'Deletes all data. This cannot be undone.',
+    lbl_reset_btn:'🗑️ Delete all data',
+    // Banner & modal
+    lbl_banner_title:'Install SuperCaca', lbl_banner_desc:'Access it from your home screen',
+    lbl_banner_install:'Install', lbl_date_title:'📅 Choose a date',
+    lbl_confirmer:'Confirm', lbl_annuler:'Cancel'
   }
 };
 
@@ -863,36 +946,120 @@ function toggleLang(){
 }
 
 function applyLang(){
-  var lb = document.getElementById('langBtn');
-  if(lb) lb.textContent = t('langBtn');
+  // Helper: set textContent of element by id
+  function s(id,key){ var el=document.getElementById(id); if(el) el.textContent=t(key); }
+  // Helper: set innerHTML (for labels with HTML tags)
+  function h(id,key){ var el=document.getElementById(id); if(el) el.innerHTML=t(key); }
+  // Helper: set placeholder
+  function p(id,key){ var el=document.getElementById(id); if(el) el.placeholder=t(key); }
+
+  // Header
+  s('langBtn','langBtn');
+  var isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  s('themeToggleBtn', isDark?'themeDay':'themeNight');
+
   // Tab buttons
-  var tabKeys = ['tabRepas','tabSelles','tabEtat','tabScore','tabCal','tabAnalyse','tabPlats','tabIO'];
-  document.querySelectorAll('.tab-btn').forEach(function(btn, i){ if(tabKeys[i]) btn.textContent = t(tabKeys[i]); });
-  // Labelled elements
-  var ids = ['labelRegles','labelNote','btnSaveEtat','labelExportTitle','labelSaveDir','btnExportCSV'];
-  ids.forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent = t(id); });
-  var labelDesc = document.getElementById('labelExportDesc');
-  if(labelDesc) labelDesc.textContent = t('labelExportDesc');
-  var labelCb = document.getElementById('labelReglesCb');
-  if(labelCb) labelCb.textContent = t('labelReglesCb');
-  // Select options
-  ['opt_auto','opt_gdrive','opt_custom'].forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent = t(id); });
-  // Textarea placeholder
-  var tn = document.getElementById('etatNote'); if(tn) tn.placeholder = t('notePlaceholder');
+  var tabKeys=['tabRepas','tabSelles','tabEtat','tabScore','tabCal','tabAnalyse','tabPlats','tabIO'];
+  document.querySelectorAll('.tab-btn').forEach(function(btn,i){ if(tabKeys[i]) btn.textContent=t(tabKeys[i]); });
+
+  // REPAS tab
+  s('lbl_repas_title','lbl_repas_title');
+  s('lbl_repas_heure','lbl_repas_heure');
+  s('lbl_maintenant_repas','lbl_now');
+  s('lbl_platSearch','lbl_platSearch');
+  s('lbl_aliments_courants','lbl_aliments_courants');
+  s('lbl_selectionnes','lbl_selectionnes');
+  s('lbl_texte_libre_repas','lbl_texte_libre');
+  p('ph_repas_input','ph_repas_input');
+  p('ph_plat_search','ph_plat_search');
+  s('lbl_ajouter_repas','lbl_ajouter');
+  s('lbl_save_repas','lbl_save_repas');
+  s('lbl_repas_jour','lbl_repas_jour');
+
+  // SELLES tab
+  s('lbl_selle_title','lbl_selle_title');
+  s('lbl_selle_heure','lbl_heure');
+  s('lbl_maintenant_selle','lbl_now');
+  s('lbl_quantite','lbl_quantite');
+  s('lbl_qty1','lbl_qty1'); s('lbl_qty2','lbl_qty2'); s('lbl_qty3','lbl_qty3');
+  s('lbl_qty4','lbl_qty4'); s('lbl_qty5','lbl_qty5');
+  s('lbl_bristol','lbl_bristol');
+  s('lbl_symptomes','lbl_symptomes');
+  s('lbl_collante','lbl_collante');
+  s('lbl_douleur','lbl_douleur');
+  s('lbl_ballons','lbl_ballons');
+  s('lbl_save_selle','lbl_save_selle');
+  s('lbl_selles_jour','lbl_selles_jour');
+
+  // ÉTAT tab
+  s('lbl_humeur_title','lbl_humeur_title');
+  s('lbl_hydration_title','lbl_hydration_title');
+  s('lbl_hyd_faible','lbl_hyd_faible');
+  s('lbl_hyd_moyen','lbl_hyd_moyen');
+  s('lbl_hyd_bon','lbl_hyd_bon');
+  s('lbl_sport_title','lbl_sport_title');
+  s('lbl_sport_aucune','lbl_sport_aucune');
+  s('lbl_sport_endurance','lbl_sport_endurance');
+  s('lbl_sport_cardio','lbl_sport_cardio');
+  s('lbl_sport_muscu','lbl_sport_muscu');
+  s('lbl_duree','lbl_duree');
+  p('ph_duree','ph_duree');
+  s('labelRegles','labelRegles');
+  s('labelReglesCb','labelReglesCb');
+  s('labelNote','labelNote');
+  p('etatNote','notePlaceholder');
+  s('btnSaveEtat','btnSaveEtat');
+
+  // SCORE tab
+  h('lbl_score_missing','lbl_score_missing');
+
+  // ANALYSE tab
+  s('lbl_analyse_title','lbl_analyse_title');
+  h('lbl_analyse_desc','lbl_analyse_desc');
+  s('lbl_run_analyse','lbl_run_analyse');
+
+  // PLATS tab
+  s('lbl_plat_create','lbl_plat_create');
+  s('lbl_plat_nom','lbl_plat_nom');
+  p('ph_plat_nom','ph_plat_nom');
+  s('lbl_plat_aliments_courants','lbl_aliments_courants');
+  s('lbl_plat_selectionnes','lbl_plat_selectionnes');
+  s('lbl_plat_texte_libre','lbl_texte_libre');
+  p('ph_plat_input','ph_plat_input');
+  s('lbl_ajouter_plat','lbl_ajouter');
+  s('lbl_plats_enregistres','lbl_plats_enregistres');
+
+  // IO tab
+  s('lbl_installer_title','lbl_installer_title');
+  s('lbl_notif_title','lbl_notif_title');
+  s('lbl_export_title','lbl_export_title');
+  s('lbl_export_desc','lbl_export_desc');
+  s('lbl_export_btn','lbl_export_btn');
+  s('lbl_import_title','lbl_import_title');
+  s('lbl_import_desc','lbl_import_desc');
+  s('lbl_import_btn','lbl_import_btn');
+  s('lbl_storage_title','lbl_storage_title');
+  s('lbl_reset_title','lbl_reset_title');
+  s('lbl_reset_desc','lbl_reset_desc');
+  s('lbl_reset_btn','lbl_reset_btn');
+
+  // PWA Banner
+  s('lbl_banner_title','lbl_banner_title');
+  s('lbl_banner_desc','lbl_banner_desc');
+  s('lbl_banner_install','lbl_banner_install');
+
+  // Date modal
+  s('lbl_date_title','lbl_date_title');
+  s('lbl_confirmer','lbl_confirmer');
+  s('lbl_annuler','lbl_annuler');
+
   // Calendar weekdays
-  document.querySelectorAll('.cal-wd').forEach(function(el,i){ var w=t('weekdays'); if(w[i]) el.textContent = w[i]; });
-  // Theme button
-  var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  var tb = document.getElementById('themeToggleBtn');
-  if(tb) tb.textContent = isDark ? t('themeDay') : t('themeNight');
-  // Date display
+  document.querySelectorAll('.cal-wd').forEach(function(el,i){ var w=t('weekdays'); if(w[i]) el.textContent=w[i]; });
+
   updateDateDisplay();
 }
 
-function onExportDirChange(val){
-  var el = document.getElementById('exportDirHint');
-  if(el) el.textContent = t('hint_'+val) || '';
-}
+
 
 // ========== STATE ==========
 var currentDate = new Date().toISOString().split('T')[0];
