@@ -432,7 +432,6 @@ main{position:relative;z-index:1;}
 .pwa-install-btn{background:white;color:var(--primary);border:none;border-radius:8px;padding:8px 14px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:900;cursor:pointer;}
 .pwa-dismiss-btn{background:rgba(255,255,255,0.2);color:white;border:none;border-radius:8px;padding:8px 10px;font-size:13px;cursor:pointer;}
 </style>
-</style>
 <body>
 
 <!-- PWA MANIFEST (inline via JS blob) -->
@@ -444,6 +443,7 @@ main{position:relative;z-index:1;}
       SuperCaca
     </div>
     <div class="header-right">
+      <button class="pill-btn" onclick="toggleLang()" id="langBtn">🇬🇧 EN</button>
       <button class="pill-btn" onclick="toggleTheme()" id="themeToggleBtn">🌙 Nuit</button>
       <div class="pill-btn" onclick="openDatePicker()">📅 <span id="currentDateDisplay"></span></div>
     </div>
@@ -585,7 +585,22 @@ main{position:relative;z-index:1;}
       <input type="number" id="sportDuree" class="form-input" placeholder="Ex: 45" min="0" max="360">
     </div>
   </div>
-  <button class="btn btn-primary btn-full" onclick="saveEtat()">💾 Enregistrer l'état général</button>
+  <div class="card">
+    <div class="card-title" id="labelRegles">🌸 Période menstruelle</div>
+    <div class="checkbox-group">
+      <label class="checkbox-item" id="cbRegles">
+        <input type="checkbox" id="etatRegles">
+        <div class="checkbox-visual"></div>
+        <span class="checkbox-icon">🌸</span>
+        <span class="checkbox-text" id="labelReglesCb">En période de règles actuellement</span>
+      </label>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title" id="labelNote">📝 Note libre</div>
+    <textarea id="etatNote" class="form-input" style="min-height:80px;resize:vertical" id="labelNotePlaceholder" placeholder="Observations, médicaments, stress, sommeil..."></textarea>
+  </div>
+  <button class="btn btn-primary btn-full" onclick="saveEtat()" id="btnSaveEtat">💾 Enregistrer l'état général</button>
   <div id="etatDisplay" style="margin-top:14px"></div>
 </div>
 
@@ -685,8 +700,21 @@ main{position:relative;z-index:1;}
 
   <!-- EXPORT -->
   <div class="card">
-    <div class="card-title">📤 Exporter les données</div>
-    <div class="io-section"><div class="io-icon">📊</div><div class="io-desc">Génère un fichier CSV contenant tous vos repas, selles, états généraux et scores.</div><button class="btn btn-success btn-full" onclick="exportCSV()">📥 Télécharger CSV</button></div>
+    <div class="card-title" id="labelExportTitle">📤 Exporter les données</div>
+    <div class="io-section">
+      <div class="io-icon">📊</div>
+      <div class="io-desc" id="labelExportDesc">Génère un fichier CSV contenant tous vos repas, selles, états généraux et scores.</div>
+      <div class="form-group" style="margin-bottom:12px">
+        <label class="form-label" id="labelSaveDir">Répertoire de sauvegarde</label>
+        <select class="form-select" id="exportDirSelect" onchange="onExportDirChange(this.value)">
+          <option value="auto" id="opt_auto">📱 Répertoire par défaut (Téléchargements)</option>
+          <option value="gdrive" id="opt_gdrive">☁️ Google Drive (ouvrir après export)</option>
+          <option value="custom" id="opt_custom">📂 Autre emplacement (choisir manuellement)</option>
+        </select>
+        <div id="exportDirHint" style="font-size:12px;color:var(--text3);margin-top:6px;line-height:1.5"></div>
+      </div>
+      <button class="btn btn-success btn-full" onclick="exportCSV()" id="btnExportCSV">📥 Télécharger CSV</button>
+    </div>
   </div>
 
   <!-- IMPORT -->
@@ -740,6 +768,186 @@ main{position:relative;z-index:1;}
 
 
 <script>
+// ========== TRANSLATIONS ==========
+var LANG = localStorage.getItem('supercaca_lang') || 'fr';
+
+var T = {
+  fr: {
+    // Header
+    themeNight: '🌙 Nuit', themeDay: '☀️ Jour', langBtn: '🇬🇧 EN',
+    // Tabs
+    tabRepas: '🍽️ Repas', tabSelles: '🚽 Selles', tabEtat: '🌟 État',
+    tabScore: '📊 Score', tabCal: '🗓️ Calendrier', tabAnalyse: '🔍 Analyse',
+    tabPlats: '🍲 Aliments types', tabIO: '💾 Import/Export',
+    // État
+    labelRegles: '🌸 Période menstruelle',
+    labelReglesCb: 'En période de règles actuellement',
+    labelNote: '📝 Note libre',
+    notePlaceholder: 'Observations, médicaments, stress, sommeil...',
+    btnSaveEtat: '💾 Enregistrer l'état général',
+    // IO Export
+    labelExportTitle: '📤 Exporter les données',
+    labelExportDesc: 'Génère un fichier CSV contenant tous vos repas, selles, états généraux et scores.',
+    labelSaveDir: 'Répertoire de sauvegarde',
+    opt_auto: '📱 Répertoire par défaut (Téléchargements)',
+    opt_gdrive: '☁️ Google Drive (ouvrir après export)',
+    opt_custom: '📂 Autre emplacement (choisir manuellement)',
+    hint_auto: 'Le fichier CSV sera enregistré dans le dossier Téléchargements de votre appareil.',
+    hint_gdrive: 'Exportez le CSV, puis ouvrez Google Drive et uploadez le fichier manuellement.',
+    hint_custom: 'Après téléchargement, votre navigateur vous proposera de choisir l'emplacement (si activé dans les paramètres du navigateur).',
+    btnExportCSV: '📥 Télécharger CSV',
+    // Toasts
+    toastRepas: '✅ Repas enregistré !',
+    toastSelle: '✅ Selle enregistrée !',
+    toastEtat: '✅ État enregistré !',
+    toastDelRepas: '🗑️ Repas supprimé',
+    toastDelSelle: '🗑️ Selle supprimée',
+    toastDelEtat: '🗑️ État supprimé',
+    toastPlat: '✅ Plat enregistré !',
+    toastDelPlat: '🗑️ Plat supprimé',
+    toastExport: '📥 Export CSV téléchargé !',
+    toastImport: '✅ entrées importées !',
+    toastReset: '🗑️ Données effacées',
+    toastPlatApply: 'pré-rempli !',
+    // Misc
+    today: 'Aujourd'hui',
+    confirmDelEtat: 'Supprimer l'état général de cette journée ?',
+    confirmDelPlat: 'Remplacer ce plat ?',
+    confirmReset: 'Effacer toutes les données ? Action irréversible.',
+    noRepas: 'Aucun repas enregistré aujourd'hui',
+    noSelles: 'Aucune selle enregistrée',
+    noPlats: 'Aucun plat type enregistré.',
+    noData: 'Aucune donnée pour ce jour',
+    noAnalysis: 'Pas assez de données.
+Enregistrez repas et selles sur plusieurs jours.',
+    errHeure: '⏱️ Indiquez l'heure',
+    errAliment: '🍽️ Sélectionnez un aliment',
+    errBristol: '🚽 Sélectionnez un type Bristol',
+    errPlatNom: '📝 Donnez un nom au plat',
+    errPlatIng: '🥘 Ajoutez au moins un ingrédient',
+    scoreLabels: ['','Très mauvaise journée','Journée difficile','Journée correcte','Journée correcte','Bonne journée','Bonne journée','Excellente journée !','Excellente journée !','Excellente journée !','Excellente journée !'],
+    months: ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'],
+    weekdays: ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'],
+    regleLabel: '🌸 Règles',
+    noteLabel: '📝'
+  },
+  en: {
+    themeNight: '🌙 Night', themeDay: '☀️ Day', langBtn: '🇫🇷 FR',
+    tabRepas: '🍽️ Meals', tabSelles: '🚽 Stools', tabEtat: '🌟 Status',
+    tabScore: '📊 Score', tabCal: '🗓️ Calendar', tabAnalyse: '🔍 Analysis',
+    tabPlats: '🍲 Meal types', tabIO: '💾 Import/Export',
+    labelRegles: '🌸 Menstrual period',
+    labelReglesCb: 'Currently in menstrual period',
+    labelNote: '📝 Free note',
+    notePlaceholder: 'Observations, medication, stress, sleep...',
+    btnSaveEtat: '💾 Save daily status',
+    labelExportTitle: '📤 Export data',
+    labelExportDesc: 'Generates a CSV file with all your meals, stools, daily status and scores.',
+    labelSaveDir: 'Save location',
+    opt_auto: '📱 Default folder (Downloads)',
+    opt_gdrive: '☁️ Google Drive (open after export)',
+    opt_custom: '📂 Custom location (choose manually)',
+    hint_auto: 'The CSV file will be saved in your device's Downloads folder.',
+    hint_gdrive: 'Export the CSV, then open Google Drive and upload the file manually.',
+    hint_custom: 'After download, your browser will let you choose the location (if enabled in browser settings).',
+    btnExportCSV: '📥 Download CSV',
+    toastRepas: '✅ Meal saved!',
+    toastSelle: '✅ Stool saved!',
+    toastEtat: '✅ Status saved!',
+    toastDelRepas: '🗑️ Meal deleted',
+    toastDelSelle: '🗑️ Stool deleted',
+    toastDelEtat: '🗑️ Status deleted',
+    toastPlat: '✅ Meal type saved!',
+    toastDelPlat: '🗑️ Meal type deleted',
+    toastExport: '📥 CSV downloaded!',
+    toastImport: '✅ entries imported!',
+    toastReset: '🗑️ Data cleared',
+    toastPlatApply: 'pre-filled!',
+    today: 'Today',
+    confirmDelEtat: 'Delete today's status?',
+    confirmDelPlat: 'Replace this meal?',
+    confirmReset: 'Delete all data? This cannot be undone.',
+    noRepas: 'No meals recorded today',
+    noSelles: 'No stools recorded',
+    noPlats: 'No meal types yet.',
+    noData: 'No data for this day',
+    noAnalysis: 'Not enough data.
+Record meals and stools over several days.',
+    errHeure: '⏱️ Please enter a time',
+    errAliment: '🍽️ Select at least one food',
+    errBristol: '🚽 Select a Bristol type',
+    errPlatNom: '📝 Give this meal a name',
+    errPlatIng: '🥘 Add at least one ingredient',
+    scoreLabels: ['','Very bad day','Difficult day','Decent day','Decent day','Good day','Good day','Excellent day!','Excellent day!','Excellent day!','Excellent day!'],
+    months: ['January','February','March','April','May','June','July','August','September','October','November','December'],
+    weekdays: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+    regleLabel: '🌸 Period',
+    noteLabel: '📝'
+  }
+};
+
+function t(key){ return (T[LANG] && T[LANG][key]) ? T[LANG][key] : (T['fr'][key] || key); }
+
+function toggleLang(){
+  LANG = LANG==='fr' ? 'en' : 'fr';
+  localStorage.setItem('supercaca_lang', LANG);
+  applyLang();
+}
+
+function applyLang(){
+  var L = T[LANG];
+  // Header
+  var lb = document.getElementById('langBtn');
+  if(lb) lb.textContent = L.langBtn;
+  var tb = document.getElementById('themeToggleBtn');
+  if(tb){
+    var isDark = document.documentElement.getAttribute('data-theme')==='dark';
+    tb.textContent = isDark ? L.themeDay : L.themeNight;
+  }
+  // Tabs
+  var tabs = document.querySelectorAll('.tab-btn');
+  var tabKeys = ['tabRepas','tabSelles','tabEtat','tabScore','tabCal','tabAnalyse','tabPlats','tabIO'];
+  tabs.forEach(function(btn,i){ if(tabKeys[i]) btn.textContent = L[tabKeys[i]]; });
+  // État labels
+  var ids = {
+    'labelRegles': 'labelRegles',
+    'labelReglesCb': 'labelReglesCb',
+    'labelNote': 'labelNote',
+    'btnSaveEtat': 'btnSaveEtat',
+    'labelExportTitle': 'labelExportTitle',
+    'labelExportDesc': 'labelExportDesc',
+    'labelSaveDir': 'labelSaveDir',
+    'btnExportCSV': 'btnExportCSV'
+  };
+  Object.keys(ids).forEach(function(id){
+    var el = document.getElementById(id);
+    if(el && L[id]) el.textContent = L[id];
+  });
+  // Select options
+  ['opt_auto','opt_gdrive','opt_custom'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el && L[id]) el.textContent = L[id];
+  });
+  // Textarea placeholder
+  var tn = document.getElementById('etatNote');
+  if(tn) tn.placeholder = L.notePlaceholder;
+  // Calendar weekdays
+  var wds = document.querySelectorAll('.cal-wd');
+  wds.forEach(function(el,i){ if(L.weekdays[i]) el.textContent = L.weekdays[i]; });
+  // Refresh current displays
+  updateDateDisplay();
+}
+
+function onExportDirChange(val){
+  var hints = {
+    auto: t('hint_auto'),
+    gdrive: t('hint_gdrive'),
+    custom: t('hint_custom')
+  };
+  var el = document.getElementById('exportDirHint');
+  if(el) el.textContent = hints[val] || '';
+}
+
 // ========== STATE ==========
 var currentDate=new Date().toISOString().split('T')[0];
 var selectedFoods=[];
@@ -778,14 +986,13 @@ function toggleTheme(){
   var isDark=html.getAttribute('data-theme')==='dark';
   var next=isDark?'light':'dark';
   html.setAttribute('data-theme',next);
-  document.getElementById('themeToggleBtn').textContent=isDark?'🌙 Nuit':'☀️ Jour';
+  document.getElementById('themeToggleBtn').textContent=isDark?t('themeNight'):t('themeDay');
   document.getElementById('themeColorMeta').content=isDark?'#1565C0':'#050D18';
   localStorage.setItem('supercaca_theme',next);
 }
 function initTheme(){
   var saved=localStorage.getItem('supercaca_theme')||'light';
   document.documentElement.setAttribute('data-theme',saved);
-  document.getElementById('themeToggleBtn').textContent=saved==='dark'?'☀️ Jour':'🌙 Nuit';
   document.getElementById('themeColorMeta').content=saved==='dark'?'#050D18':'#1565C0';
 }
 
@@ -915,7 +1122,7 @@ function applyPlat(nom){
   }
   document.getElementById('platSearch').value='';
   document.getElementById('platSuggestList').style.display='none';
-  showToast('🍲 '+nom+' pré-rempli !');
+  showToast('🍲 '+nom+' '+t('toastPlatApply'));
 }
 document.addEventListener('click',function(e){
   if(!e.target.closest('.plat-suggest'))document.getElementById('platSuggestList').style.display='none';
@@ -924,18 +1131,18 @@ document.addEventListener('click',function(e){
 // ========== PLATS CRUD ==========
 function savePlat(){
   var nom=document.getElementById('platNom').value.trim();
-  if(!nom)return showToast('📝 Donnez un nom au plat');
-  if(!platSelectedFoods.length)return showToast('🥘 Ajoutez au moins un ingrédient');
+  if(!nom)return showToast(t('errPlatNom'));
+  if(!platSelectedFoods.length)return showToast(t('errPlatIng'));
   var plats=getPlats();
   var idx=plats.findIndex(function(p){return p.nom.toLowerCase()===nom.toLowerCase();});
-  if(idx>=0){if(!confirm('Remplacer "'+nom+'" ?'))return;plats[idx]={nom:nom,aliments:platSelectedFoods.slice(),id:Date.now()};}
+  if(idx>=0){if(!confirm(t('confirmDelPlat')))return;plats[idx]={nom:nom,aliments:platSelectedFoods.slice(),id:Date.now()};}
   else{plats.push({nom:nom,aliments:platSelectedFoods.slice(),id:Date.now()});}
   savePlats(plats);
   document.getElementById('platNom').value='';
   platSelectedFoods=[];renderPlatSelectedFoods();
   var btns=document.querySelectorAll('#platFoodCommon .food-common-btn');
   for(var i=0;i<btns.length;i++) btns[i].classList.remove('sel');
-  renderPlatsList();showToast('✅ Plat enregistré !');
+  renderPlatsList();showToast(t('toastPlat'));
 }
 function renderPlatsList(){
   var plats=getPlats();var c=document.getElementById('platsList');
@@ -963,14 +1170,14 @@ function applyPlatFromList(nom){
 }
 function deletePlat(id){
   savePlats(getPlats().filter(function(p){return p.id!==id;}));
-  renderPlatsList();showToast('🗑️ Plat supprimé');
+  renderPlatsList();showToast(t('toastDelPlat'));
 }
 
 // ========== REPAS ==========
 function saveRepas(){
   var h=document.getElementById('repasHeure').value;
-  if(!h)return showToast('⏱️ Indiquez l\'heure');
-  if(!selectedFoods.length)return showToast('🍽️ Sélectionnez un aliment');
+  if(!h)return showToast(t('errHeure'));
+  if(!selectedFoods.length)return showToast(t('errAliment'));
   var day=getDayData(currentDate);
   day.repas.push({heure:h,aliments:selectedFoods.slice(),id:Date.now()});
   saveDayData(currentDate,day);
@@ -979,7 +1186,7 @@ function saveRepas(){
   document.getElementById('platSearch').value='';
   var btns=document.querySelectorAll('#foodCommon .food-common-btn');
   for(var i=0;i<btns.length;i++) btns[i].classList.remove('sel');
-  renderRepasList();showToast('✅ Repas enregistré !');
+  renderRepasList();showToast(t('toastRepas'));
 }
 function renderRepasList(){
   var day=getDayData(currentDate);var c=document.getElementById('repasList');
@@ -997,14 +1204,14 @@ function renderRepasList(){
     c.appendChild(div);
   });
 }
-function deleteRepas(id){var day=getDayData(currentDate);day.repas=day.repas.filter(function(r){return r.id!==id;});saveDayData(currentDate,day);renderRepasList();showToast('🗑️ Supprimé');}
+function deleteRepas(id){var day=getDayData(currentDate);day.repas=day.repas.filter(function(r){return r.id!==id;});saveDayData(currentDate,day);renderRepasList();showToast(t('toastDelRepas'));}
 
 // ========== SELLES ==========
 function saveSelle(){
   var h=document.getElementById('selleHeure').value;
-  if(!h)return showToast('⏱️ Indiquez l\'heure');
+  if(!h)return showToast(t('errHeure'));
   var bEl=document.querySelector('input[name="bristol"]:checked');
-  if(!bEl)return showToast('🚽 Sélectionnez un type Bristol');
+  if(!bEl)return showToast(t('errBristol'));
   var qEl=document.querySelector('input[name="selleQty"]:checked');
   var day=getDayData(currentDate);
   day.selles.push({heure:h,bristol:parseInt(bEl.value),quantite:qEl?parseInt(qEl.value):null,
@@ -1020,7 +1227,7 @@ function saveSelle(){
     if(el){el.classList.remove('checked');var v=el.querySelector('.checkbox-visual');
       if(v){v.style.background='var(--card)';v.style.borderColor='var(--border2)';v.innerHTML='';}}
   });
-  renderSellesList();showToast('✅ Selle enregistrée !');
+  renderSellesList();showToast(t('toastSelle'));
 }
 function renderSellesList(){
   var day=getDayData(currentDate);var c=document.getElementById('sellesList');
@@ -1041,20 +1248,28 @@ function renderSellesList(){
     c.appendChild(div);
   });
 }
-function deleteSelle(id){var day=getDayData(currentDate);day.selles=day.selles.filter(function(s){return s.id!==id;});saveDayData(currentDate,day);renderSellesList();showToast('🗑️ Supprimé');}
+function deleteSelle(id){var day=getDayData(currentDate);day.selles=day.selles.filter(function(s){return s.id!==id;});saveDayData(currentDate,day);renderSellesList();showToast(t('toastDelRepas'));}
 
 // ========== ÉTAT ==========
 function saveEtat(){
   var hEl=document.querySelector('input[name="humeur"]:checked');
   var hydEl=document.querySelector('input[name="hydration"]:checked');
   var spEl=document.querySelector('input[name="sport"]:checked');
+  var regles=document.getElementById('etatRegles');
+  var noteEl=document.getElementById('etatNote');
   var day=getDayData(currentDate);
-  day.etat={humeur:hEl?parseInt(hEl.value):null,hydration:hydEl?hydEl.value:null,
-    sport:spEl?spEl.value:'aucun',sportDuree:parseInt(document.getElementById('sportDuree').value)||0};
-  saveDayData(currentDate,day);renderEtatDisplay();showToast('✅ État enregistré !');
+  day.etat={
+    humeur:hEl?parseInt(hEl.value):null,
+    hydration:hydEl?hydEl.value:null,
+    sport:spEl?spEl.value:'aucun',
+    sportDuree:parseInt(document.getElementById('sportDuree').value)||0,
+    regles:regles?regles.checked:false,
+    note:noteEl?noteEl.value.trim():''
+  };
+  saveDayData(currentDate,day);renderEtatDisplay();showToast(t('toastEtat'));
 }
 function deleteEtat(){
-  if(!confirm('Supprimer l\'état général de cette journée ?'))return;
+  if(!confirm(t('confirmDelEtat')))return;
   var day=getDayData(currentDate);day.etat=null;saveDayData(currentDate,day);
   renderEtatDisplay();showToast('🗑️ État supprimé');
 }
@@ -1068,10 +1283,12 @@ function renderEtatDisplay(){
   if(e.humeur)tags+='<span class="tag tag-yellow">'+HUM_EMOJIS[e.humeur]+' Humeur '+e.humeur+'/5</span> ';
   if(e.hydration)tags+='<span class="tag tag-blue">'+(hydI[e.hydration]||'')+' '+e.hydration+'</span> ';
   if(e.sport)tags+='<span class="tag tag-green">'+(spI[e.sport]||'🏃')+' '+e.sport+(e.sport!=='aucun'&&e.sportDuree?' '+e.sportDuree+'min':'')+'</span>';
+  if(e.regles)tags+='<span class="tag tag-red">'+t('regleLabel')+'</span>';
+  var noteHtml = e.note ? '<div style="margin-top:8px;font-size:12px;color:var(--text2);border-top:1px solid var(--border);padding-top:8px">'+t('noteLabel')+' '+e.note+'</div>' : '';
   c.innerHTML='<div class="card"><div class="card-title" style="justify-content:space-between">'
     +'<span>✅ État enregistré</span>'
     +'<button class="entry-delete" id="deleteEtatBtn" title="Supprimer">🗑</button>'
-    +'</div><div style="display:flex;gap:7px;flex-wrap:wrap">'+tags+'</div></div>';
+    +'</div><div style="display:flex;gap:7px;flex-wrap:wrap">'+tags+'</div>'+noteHtml+'</div>';
   document.getElementById('deleteEtatBtn').addEventListener('click',deleteEtat);
 }
 
@@ -1102,7 +1319,7 @@ function calculateScore(day){
   return{score:Math.round(score*10)/10,details:details};
 }
 function getScoreEmoji(s){return s>=8?'🎉':s>=6?'😊':s>=4?'😐':s>=2?'😕':'😫';}
-function getScoreLabel(s){return s>=8?'Excellente journée !':s>=6?'Bonne journée':s>=4?'Journée correcte':s>=2?'Journée difficile':'Très mauvaise journée';}
+function getScoreLabel(s){var labels=t('scoreLabels');return labels[Math.round(Math.min(10,Math.max(0,s)))]||'';}
 function fmtVal(v){var r=Math.round(v*10)/10;return(r>0?'+':'')+r;}
 function valCls(v){return v>0?'sval-pos':v<0?'sval-neg':'sval-neu';}
 function cdprCls(v){return v>0?'cdpr-pos':v<0?'cdpr-neg':'cdpr-neu';}
@@ -1166,7 +1383,7 @@ function renderScore(){
 function getBristolEm(day){if(!day||!day.selles||!day.selles.length)return'';return BRISTOL_EMOJIS[day.selles[day.selles.length-1].bristol]||'';}
 function getMoodEm(day){if(!day||!day.etat||!day.etat.humeur)return'';return HUM_EMOJIS[day.etat.humeur]||'';}
 function renderCalendar(){
-  var mN=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  var mN=t('months');
   document.getElementById('calMonthLabel').textContent=mN[calMonth]+' '+calYear;
   var first=new Date(calYear,calMonth,1),last=new Date(calYear,calMonth+1,0);
   var dow=first.getDay();dow=dow===0?6:dow-1;
@@ -1236,6 +1453,8 @@ function renderCalDayDetail(ds){
       +(e.humeur?'<span class="tag tag-yellow">'+HUM_EMOJIS[e.humeur]+' '+e.humeur+'/5</span>':'')
       +(e.hydration?'<span class="tag tag-blue">'+(hI[e.hydration]||'')+' '+e.hydration+'</span>':'')
       +(e.sport?'<span class="tag tag-green">'+(sI[e.sport]||'🏃')+' '+e.sport+(e.sport!=='aucun'&&e.sportDuree?' '+e.sportDuree+'min':'')+'</span>':'')
+      +(e.regles?'<span class="tag tag-red">'+t('regleLabel')+'</span>':'')
+      +(e.note?'<div style="font-size:11px;color:var(--text3);margin-top:4px">'+t('noteLabel')+' '+e.note+'</div>':'')
       +'</div></div>';
   }
   if(res){
@@ -1305,14 +1524,14 @@ function exportCSV(){
       var det=[s.collante?'collante':'',s.douleur?'douleur':'',s.ballons?'ballonnements':''].filter(Boolean).join(';');
       rows.push([date,'Selle',s.heure,'Bristol '+s.bristol+' '+BRISTOL_NAMES[s.bristol]+' Qte:'+(s.quantite||''),det]);
     });
-    if(day.etat){var e=day.etat;rows.push([date,'Etat','','Humeur:'+(e.humeur||'')+' Hydratation:'+(e.hydration||'')+' Sport:'+(e.sport||''),'Duree:'+(e.sportDuree||0)+'min']);}
+    if(day.etat){var e=day.etat;rows.push([date,'Etat','','Humeur:'+(e.humeur||'')+' Hydratation:'+(e.hydration||'')+' Sport:'+(e.sport||''),'Duree:'+(e.sportDuree||0)+'min Regles:'+(e.regles?'oui':'non')+' Note:'+(e.note||'')]);}
     var res=calculateScore(day);if(res)rows.push([date,'Score','',res.score,'']);
   });
   var csv=rows.map(function(r){return r.map(function(c){return'"'+String(c).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
   var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
   var url=URL.createObjectURL(blob);var a=document.createElement('a');
   a.href=url;a.download='supercaca_'+new Date().toISOString().split('T')[0]+'.csv';a.click();
-  showToast('📥 Export CSV téléchargé !');
+  showToast(t('toastExport'));
 }
 function importCSV(input){
   var file=input.files[0];if(!file)return;
@@ -1335,7 +1554,7 @@ function importCSV(input){
   reader.readAsText(file);
 }
 function parseCSVLine(line){var res=[],cur='',inQ=false;for(var i=0;i<line.length;i++){var c=line[i];if(c==='"'){inQ=!inQ;continue;}if(c===','&&!inQ){res.push(cur);cur='';continue;}cur+=c;}res.push(cur);return res;}
-function resetAllData(){if(!confirm('Effacer toutes les données ? Action irréversible.'))return;localStorage.removeItem('supercaca_data');selectedCalDate=null;document.getElementById('calDayDetail').innerHTML='';refreshAll();showToast('🗑️ Données effacées');}
+function resetAllData(){if(!confirm(t('confirmReset')))return;localStorage.removeItem('supercaca_data');selectedCalDate=null;document.getElementById('calDayDetail').innerHTML='';refreshAll();showToast(t('toastReset'));}
 
 // ========== PWA & NOTIFICATIONS ==========
 var IS_HTTPS=location.protocol==='https:';
@@ -1444,7 +1663,7 @@ function confirmDate(){var v=document.getElementById('datePicker').value;if(v){c
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 function updateDateDisplay(){
   var today=new Date().toISOString().split('T')[0];var d=new Date(currentDate+'T12:00:00');
-  document.getElementById('currentDateDisplay').textContent=currentDate===today?"Aujourd'hui":d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+  var locale=LANG==='en'?'en-GB':'fr-FR';document.getElementById('currentDateDisplay').textContent=currentDate===today?t('today'):d.toLocaleDateString(locale,{day:'numeric',month:'short'});
 }
 function switchTab(name,btn){
   document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('active');});
@@ -1471,6 +1690,7 @@ document.getElementById('platIngredientInput').addEventListener('keydown',functi
 
 // ========== INIT ==========
 initTheme();
+applyLang();
 setNow('repasHeure');setNow('selleHeure');
 initFoodCommon();initPlatFoodCommon();
 updateDateDisplay();
