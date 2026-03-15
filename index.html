@@ -432,7 +432,7 @@ main{position:relative;z-index:1;}
 .pwa-install-btn{background:white;color:var(--primary);border:none;border-radius:8px;padding:8px 14px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:900;cursor:pointer;}
 .pwa-dismiss-btn{background:rgba(255,255,255,0.2);color:white;border:none;border-radius:8px;padding:8px 10px;font-size:13px;cursor:pointer;}
 </style>
-</head>
+</style>
 <body>
 
 <!-- PWA MANIFEST (inline via JS blob) -->
@@ -738,201 +738,33 @@ main{position:relative;z-index:1;}
   </div>
 </div>
 
+
 <script>
-// ========== PWA & NOTIFICATIONS ==========
-// Detect context
-var IS_HTTPS = location.protocol === 'https:';
-var IS_LOCAL_FILE = location.protocol === 'file:';
-var IS_STANDALONE = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-
-// PWA manifest handled by hosting environment
-var deferredInstallPrompt = null;
-
-// Listen for native install prompt (only works on HTTPS)
-window.addEventListener('beforeinstallprompt', function(e){
-  e.preventDefault();
-  deferredInstallPrompt = e;
-  // Show banner
-  document.getElementById('pwaBanner').classList.add('show');
-  refreshIOTab();
-});
-window.addEventListener('appinstalled', function(){
-  document.getElementById('pwaBanner').classList.remove('show');
-  deferredInstallPrompt = null;
-  showToast('🎉 SuperCaca installé sur l\'écran d\'accueil !');
-  refreshIOTab();
-});
-
-function dismissBanner(){document.getElementById('pwaBanner').classList.remove('show');}
-
-function refreshIOTab(){
-  renderPwaCard();
-  renderNotifCard();
-  renderStorageInfo();
-}
-
-/* ---- PWA CARD ---- */
-function renderPwaCard(){
-  var desc = document.getElementById('pwaDesc');
-  var actions = document.getElementById('pwaActions');
-  if(!desc||!actions) return;
-
-  if(IS_STANDALONE){
-    desc.innerHTML = '✅ <strong>SuperCaca est déjà installé</strong> et tourne en mode application.';
-    actions.innerHTML = '';
-    return;
-  }
-
-  if(IS_LOCAL_FILE){
-    desc.innerHTML = '<strong>⚠️ Installation impossible depuis un fichier local.</strong><br><br>'
-      +'Pour installer SuperCaca comme application, vous devez ouvrir ce fichier via un serveur local HTTPS ou hébergé. Deux solutions simples :<br><br>'
-      +'<strong>Solution 1 — Serveur local (PC/Mac) :</strong> double-cliquez sur <code>supercaca-serveur.bat</code> (Windows) ou <code>supercaca-serveur.sh</code> (Mac/Linux) fournis avec ce fichier, puis ouvrez <code>https://localhost:8443</code> dans Chrome ou Samsung Internet.<br><br>'
-      +'<strong>Solution 2 — Hébergement gratuit :</strong> déposez ce fichier HTML sur <a href="https://netlify.com/drop" target="_blank" style="color:var(--accent)">netlify.com/drop</a> et ouvrez l\'URL fournie sur votre téléphone.';
-    actions.innerHTML = '';
-    return;
-  }
-
-  if(deferredInstallPrompt){
-    desc.innerHTML = 'Installez SuperCaca sur votre écran d\'accueil pour y accéder comme une vraie application native.';
-    actions.innerHTML = '<button class="btn btn-primary btn-full" onclick="doInstall()">📲 Installer SuperCaca</button>';
-    return;
-  }
-
-  // HTTPS but no prompt (already installed, or browser doesn't support)
-  var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-  var isSamsung = /SamsungBrowser/.test(navigator.userAgent);
-  if(isIOS){
-    desc.innerHTML = 'Pour installer sur iPhone/iPad :<br>1. Appuyez sur <strong>↑ Partager</strong><br>2. Puis sur <strong>« Sur l\'écran d\'accueil »</strong>';
-  } else if(isSamsung){
-    desc.innerHTML = 'Pour installer sur Samsung Internet :<br>1. Appuyez sur le menu <strong>☰</strong><br>2. Puis <strong>« Ajouter page à »</strong> → <strong>« Écran d\'accueil »</strong>';
-  } else {
-    desc.innerHTML = 'Pour installer :<br>· Chrome Android : menu <strong>⋮</strong> → <strong>« Ajouter à l\'écran d\'accueil »</strong><br>· Samsung Internet : menu <strong>☰</strong> → <strong>« Ajouter à l\'écran d\'accueil »</strong>';
-  }
-  actions.innerHTML = '';
-}
-
-function doInstall(){
-  if(!deferredInstallPrompt) return;
-  deferredInstallPrompt.prompt();
-  deferredInstallPrompt.userChoice.then(function(r){
-    deferredInstallPrompt = null;
-    dismissBanner();
-    refreshIOTab();
-    if(r.outcome==='accepted') showToast('✅ Installation en cours…');
-  });
-}
-
-/* ---- NOTIFICATION CARD ---- */
-function renderNotifCard(){
-  var desc = document.getElementById('notifDesc');
-  var actions = document.getElementById('notifActions');
-  if(!desc||!actions) return;
-
-  if(!('Notification' in window)){
-    desc.innerHTML = '❌ Votre navigateur ne supporte pas les notifications.';
-    actions.innerHTML = '';
-    return;
-  }
-
-  if(IS_LOCAL_FILE){
-    desc.innerHTML = '<strong>⚠️ Les notifications sont bloquées</strong> quand le fichier est ouvert depuis le disque (<code>file://</code>).<br><br>'
-      +'Pour activer les rappels à 21h, ouvrez SuperCaca via le serveur local ou un hébergement HTTPS (voir section Installation ci-dessus).';
-    actions.innerHTML = '';
-    return;
-  }
-
-  var perm = Notification.permission;
-  if(perm === 'granted'){
-    desc.innerHTML = '✅ <strong>Rappel activé.</strong> Vous recevrez une notification à 21h si vous n\'avez pas saisi de données dans la journée.';
-    actions.innerHTML = '<button class="btn btn-secondary btn-sm" onclick="testNotif()">🔔 Tester maintenant</button>';
-    return;
-  }
-
-  if(perm === 'denied'){
-    desc.innerHTML = '🚫 <strong>Notifications bloquées</strong> pour ce site.<br><br>'
-      +'Pour les réactiver : Paramètres Android → Applications → Votre navigateur → Autorisations → Notifications → Autoriser.';
-    actions.innerHTML = '';
-    return;
-  }
-
-  // default — not yet asked
-  desc.innerHTML = 'Recevez un rappel à <strong>21h chaque jour</strong> si vous n\'avez pas encore saisi vos données (repas, selles ou état général).';
-  actions.innerHTML = '<button class="btn btn-primary btn-full" onclick="askNotifPermission()">🔔 Activer le rappel 21h</button>';
-}
-
-function askNotifPermission(){
-  if(!('Notification' in window)) return;
-  Notification.requestPermission().then(function(perm){
-    if(perm === 'granted'){
-      showToast('✅ Rappel quotidien activé à 21h !');
-      scheduleNightlyReminder();
-      localStorage.setItem('sc_notif','granted');
-    } else {
-      showToast('⚠️ Permission refusée. Activez les notifications dans les paramètres Android.');
-    }
-    renderNotifCard();
-  });
-}
-
-function testNotif(){
-  if(Notification.permission!=='granted') return;
-  try{
-    new Notification('💩 SuperCaca — Test', {
-      body: 'Les rappels à 21h fonctionnent correctement !',
-      tag: 'sc-test'
-    });
-    showToast('🔔 Notification envoyée !');
-  } catch(e){ showToast('❌ Erreur: '+e.message); }
-}
-
-/* ---- SCHEDULER 21H ---- */
-function hasDataToday(){
-  var today = new Date().toISOString().split('T')[0];
-  var day = getDayData(today);
-  return (day.repas&&day.repas.length>0)||(day.selles&&day.selles.length>0)||day.etat!==null;
-}
-
-function scheduleNightlyReminder(){
-  if(!('Notification' in window)||Notification.permission!=='granted') return;
-  if(window._scTimer) clearTimeout(window._scTimer);
-  var now = new Date();
-  var next21 = new Date(now.getFullYear(),now.getMonth(),now.getDate(),21,0,0,0);
-  if(now >= next21) next21 = new Date(next21.getTime()+86400000);
-  var delay = next21.getTime()-now.getTime();
-  window._scTimer = setTimeout(function(){
-    if(!hasDataToday()){
-      try{
-        new Notification('💩 SuperCaca — Rappel du soir',{
-          body:'Vous n\'avez rien saisi aujourd\'hui. Pensez à enregistrer vos repas et selles !',
-          tag:'sc-nightly',
-          requireInteraction:false
-        });
-      }catch(e){}
-    }
-    scheduleNightlyReminder();
-  }, delay);
-}
-
 // ========== STATE ==========
 var currentDate=new Date().toISOString().split('T')[0];
-var selectedFoods=[],platSelectedFoods=[];
-var calYear=new Date().getFullYear(),calMonth=new Date().getMonth();
+var selectedFoods=[];
+var platSelectedFoods=[];
+var calYear=new Date().getFullYear();
+var calMonth=new Date().getMonth();
 var selectedCalDate=null;
+
 var BRISTOL_NAMES=['','Très dur','Dur','Normal','Mou','Très mou','Liquide'];
 var BRISTOL_EMOJIS=['','🪨','🌰','🍫','🍌','💩','💦'];
 var HUM_EMOJIS=['','😫','😕','😐','😊','😄'];
 var QTY_LABELS=['','Très peu','Peu','Moyen','Abondant','Très abondant'];
 var QTY_DOTS=['','●','●●','●●●','●●●●','●●●●●'];
+
 var COMMON_FOODS=[
-  {em:'🍞',name:'Pain'},{em:'🥛',name:'Lait'},{em:'🧀',name:'Fromage'},{em:'🥚',name:'Œuf'},
+  {em:'🍞',name:'Pain'},{em:'🥛',name:'Lait'},{em:'🧀',name:'Fromage'},{em:'🥚',name:'Oeuf'},
   {em:'🥩',name:'Viande'},{em:'🐟',name:'Poisson'},{em:'🍗',name:'Poulet'},{em:'🥦',name:'Brocoli'},
   {em:'🥕',name:'Carotte'},{em:'🧅',name:'Oignon'},{em:'🧄',name:'Ail'},{em:'🍅',name:'Tomate'},
-  {em:'🥬',name:'Salade'},{em:'🍚',name:'Riz'},{em:'🍝',name:'Pâtes'},{em:'🫘',name:'Légumineuses'},
-  {em:'🍎',name:'Fruit'},{em:'☕',name:'Café'},{em:'🍺',name:'Alcool'},{em:'🥤',name:'Soda'},
-  {em:'🍫',name:'Chocolat'},{em:'🌾',name:'Gluten'},{em:'🥜',name:'Noix'},{em:'🧁',name:'Sucré'},
-  {em:'🫒',name:'Huile'},{em:'🧂',name:'Sel'},{em:'🌶️',name:'Épices'},{em:'🥔',name:'Pomme de terre'}
+  {em:'🥬',name:'Salade'},{em:'🍚',name:'Riz'},{em:'🍝',name:'Pates'},{em:'🫘',name:'Legumineuses'},
+  {em:'🍎',name:'Fruit'},{em:'☕',name:'Cafe'},{em:'🍺',name:'Alcool'},{em:'🥤',name:'Soda'},
+  {em:'🍫',name:'Chocolat'},{em:'🌾',name:'Gluten'},{em:'🥜',name:'Noix'},{em:'🧁',name:'Sucre'},
+  {em:'🫒',name:'Huile'},{em:'🧂',name:'Sel'},{em:'🌶',name:'Epices'},{em:'🥔',name:'Pomme de terre'}
 ];
 
+// ========== STORAGE ==========
 function getData(){try{return JSON.parse(localStorage.getItem('supercaca_data')||'{}');}catch(e){return{};}}
 function saveData(d){localStorage.setItem('supercaca_data',JSON.stringify(d));}
 function getDayData(date){var all=getData();if(!all[date])all[date]={repas:[],selles:[],etat:null};return all[date];}
@@ -940,13 +772,15 @@ function saveDayData(date,day){var all=getData();all[date]=day;saveData(all);}
 function getPlats(){try{return JSON.parse(localStorage.getItem('supercaca_plats')||'[]');}catch(e){return[];}}
 function savePlats(p){localStorage.setItem('supercaca_plats',JSON.stringify(p));}
 
-// THEME
+// ========== THEME ==========
 function toggleTheme(){
-  var html=document.documentElement,isDark=html.getAttribute('data-theme')==='dark';
-  html.setAttribute('data-theme',isDark?'light':'dark');
+  var html=document.documentElement;
+  var isDark=html.getAttribute('data-theme')==='dark';
+  var next=isDark?'light':'dark';
+  html.setAttribute('data-theme',next);
   document.getElementById('themeToggleBtn').textContent=isDark?'🌙 Nuit':'☀️ Jour';
   document.getElementById('themeColorMeta').content=isDark?'#1565C0':'#050D18';
-  localStorage.setItem('supercaca_theme',isDark?'light':'dark');
+  localStorage.setItem('supercaca_theme',next);
 }
 function initTheme(){
   var saved=localStorage.getItem('supercaca_theme')||'light';
@@ -955,178 +789,685 @@ function initTheme(){
   document.getElementById('themeColorMeta').content=saved==='dark'?'#050D18':'#1565C0';
 }
 
-// FOODS
-function makeFoodGrid(cid,arr,fn){var c=document.getElementById(cid);c.innerHTML=arr.map(function(f){return'<button class="food-common-btn" onclick="'+fn+'(\''+ f.name +'\',this)"><span class="food-em">'+f.em+'</span>'+f.name+'</button>';}).join('');}
+// ========== FOOD GRIDS (data-attribute approach, no quote escaping) ==========
+function makeFoodGrid(containerId, foods, onSelectFn) {
+  var c = document.getElementById(containerId);
+  var html = '';
+  for (var i=0; i<foods.length; i++) {
+    var f = foods[i];
+    html += '<button class="food-common-btn" data-name="'+f.name+'" data-fn="'+onSelectFn+'">'
+          + '<span class="food-em">'+f.em+'</span>'+f.name+'</button>';
+  }
+  c.innerHTML = html;
+  // Attach click handlers after render
+  var btns = c.querySelectorAll('.food-common-btn');
+  for (var j=0; j<btns.length; j++) {
+    btns[j].addEventListener('click', function(){
+      var name = this.getAttribute('data-name');
+      var fn = this.getAttribute('data-fn');
+      if(fn==='toggleFood') toggleFood(name, this);
+      else if(fn==='togglePlatFood') togglePlatFood(name, this);
+    });
+  }
+}
+
 function initFoodCommon(){makeFoodGrid('foodCommon',COMMON_FOODS,'toggleFood');}
-function toggleFood(name,btn){var idx=selectedFoods.indexOf(name);if(idx>=0){selectedFoods.splice(idx,1);btn.classList.remove('sel');}else{selectedFoods.push(name);btn.classList.add('sel');}renderSelectedFoods();}
-function addFoodFromInput(){var inp=document.getElementById('repasAlimentInput');inp.value.split(',').map(function(s){return s.trim();}).filter(function(s){return s.length>0;}).forEach(function(v){if(selectedFoods.indexOf(v)<0)selectedFoods.push(v);});renderSelectedFoods();inp.value='';}
-function removeFood(name){selectedFoods=selectedFoods.filter(function(f){return f!==name;});document.querySelectorAll('#foodCommon .food-common-btn').forEach(function(b){if(b.textContent.trim()===name)b.classList.remove('sel');});renderSelectedFoods();}
-function renderSelectedFoods(){var c=document.getElementById('selectedFoodsChips');if(!selectedFoods.length){c.innerHTML='<span style="font-size:12px;color:var(--text3)">Aucun aliment sélectionné</span>';return;}c.innerHTML=selectedFoods.map(function(f){return'<span class="food-chip" onclick="removeFood(\''+escQ(f)+'\')">'+f+' ✕</span>';}).join('');}
 function initPlatFoodCommon(){makeFoodGrid('platFoodCommon',COMMON_FOODS,'togglePlatFood');}
-function togglePlatFood(name,btn){var idx=platSelectedFoods.indexOf(name);if(idx>=0){platSelectedFoods.splice(idx,1);btn.classList.remove('sel');}else{platSelectedFoods.push(name);btn.classList.add('sel');}renderPlatSelectedFoods();}
-function addPlatIngredientFromInput(){var inp=document.getElementById('platIngredientInput');inp.value.split(',').map(function(s){return s.trim();}).filter(function(s){return s.length>0;}).forEach(function(v){if(platSelectedFoods.indexOf(v)<0)platSelectedFoods.push(v);});renderPlatSelectedFoods();inp.value='';}
-function removePlatFood(name){platSelectedFoods=platSelectedFoods.filter(function(f){return f!==name;});document.querySelectorAll('#platFoodCommon .food-common-btn').forEach(function(b){if(b.textContent.trim()===name)b.classList.remove('sel');});renderPlatSelectedFoods();}
-function renderPlatSelectedFoods(){var c=document.getElementById('platSelectedChips');if(!platSelectedFoods.length){c.innerHTML='<span style="font-size:12px;color:var(--text3)">Aucun ingrédient sélectionné</span>';return;}c.innerHTML=platSelectedFoods.map(function(f){return'<span class="food-chip" style="background:var(--accent2)" onclick="removePlatFood(\''+escQ(f)+'\')">'+f+' ✕</span>';}).join('');}
 
-// PLAT SEARCH
-function onPlatSearch(val){var list=document.getElementById('platSuggestList');if(!val.trim()){list.style.display='none';return;}var matches=getPlats().filter(function(p){return p.nom.toLowerCase().indexOf(val.toLowerCase())>=0;});if(!matches.length){list.style.display='none';return;}list.style.display='block';list.innerHTML=matches.map(function(p){return'<div class="plat-suggest-item" onclick="applyPlat(\''+escQ(p.nom)+'\')">🍲 <strong>'+p.nom+'</strong> <span class="plat-suggest-badge">'+p.aliments.length+' ingrédients</span></div>';}).join('');}
-function applyPlat(nom){var plat=getPlats().find(function(p){return p.nom===nom;});if(!plat)return;plat.aliments.forEach(function(a){if(selectedFoods.indexOf(a)<0)selectedFoods.push(a);});renderSelectedFoods();document.querySelectorAll('#foodCommon .food-common-btn').forEach(function(b){if(selectedFoods.indexOf(b.textContent.trim())>=0)b.classList.add('sel');});document.getElementById('platSearch').value='';document.getElementById('platSuggestList').style.display='none';showToast('🍲 '+nom+' pré-rempli !');}
-document.addEventListener('click',function(e){if(!e.target.closest('.plat-suggest'))document.getElementById('platSuggestList').style.display='none';});
+// REPAS foods
+function toggleFood(name,btn){
+  var idx=selectedFoods.indexOf(name);
+  if(idx>=0){selectedFoods.splice(idx,1);btn.classList.remove('sel');}
+  else{selectedFoods.push(name);btn.classList.add('sel');}
+  renderSelectedFoods();
+}
+function addFoodFromInput(){
+  var inp=document.getElementById('repasAlimentInput');
+  var parts=inp.value.split(',').map(function(s){return s.trim();}).filter(function(s){return s.length>0;});
+  parts.forEach(function(v){if(selectedFoods.indexOf(v)<0)selectedFoods.push(v);});
+  if(parts.length)renderSelectedFoods();
+  inp.value='';
+}
+function removeFood(idx){
+  selectedFoods.splice(idx,1);
+  // Deselect matching button
+  var btns=document.querySelectorAll('#foodCommon .food-common-btn');
+  for(var i=0;i<btns.length;i++){
+    if(selectedFoods.indexOf(btns[i].getAttribute('data-name'))<0) btns[i].classList.remove('sel');
+  }
+  renderSelectedFoods();
+}
+function renderSelectedFoods(){
+  var c=document.getElementById('selectedFoodsChips');
+  if(!selectedFoods.length){c.innerHTML='<span style="font-size:12px;color:var(--text3)">Aucun aliment sélectionné</span>';return;}
+  var h='';
+  for(var i=0;i<selectedFoods.length;i++){
+    h+='<span class="food-chip" data-idx="'+i+'">'+selectedFoods[i]+' ✕</span>';
+  }
+  c.innerHTML=h;
+  var chips=c.querySelectorAll('.food-chip');
+  for(var j=0;j<chips.length;j++){
+    chips[j].addEventListener('click',function(){removeFood(parseInt(this.getAttribute('data-idx')));});
+  }
+}
 
-// PLATS CRUD
-function savePlat(){var nom=document.getElementById('platNom').value.trim();if(!nom)return showToast('📝 Donnez un nom au plat');if(!platSelectedFoods.length)return showToast('🥘 Ajoutez au moins un ingrédient');var plats=getPlats();var idx=plats.findIndex(function(p){return p.nom.toLowerCase()===nom.toLowerCase();});if(idx>=0){if(!confirm('Remplacer "'+nom+'" ?'))return;plats[idx]={nom:nom,aliments:platSelectedFoods.slice(),id:Date.now()};}else{plats.push({nom:nom,aliments:platSelectedFoods.slice(),id:Date.now()});}savePlats(plats);document.getElementById('platNom').value='';platSelectedFoods=[];renderPlatSelectedFoods();document.querySelectorAll('#platFoodCommon .food-common-btn').forEach(function(b){b.classList.remove('sel');});renderPlatsList();showToast('✅ Plat "'+nom+'" enregistré !');}
-function renderPlatsList(){var plats=getPlats();var c=document.getElementById('platsList');if(!plats.length){c.innerHTML='<div class="empty-state"><div class="empty-icon">🍲</div><div class="empty-text">Aucun plat type enregistré.<br>Créez-en un ci-dessus !</div></div>';return;}c.innerHTML=plats.map(function(p){return'<div class="plat-item"><div class="plat-item-header"><div class="plat-name">🍲 '+p.nom+'</div><div class="plat-actions"><button class="plat-select-btn" onclick="applyPlatFromList(\''+escQ(p.nom)+'\')">🍽️ Utiliser</button><button class="entry-delete" onclick="deletePlat('+p.id+')">🗑</button></div></div><div class="plat-aliments">'+p.aliments.map(function(a){return'<span class="plat-aliment-chip">'+a+'</span>';}).join('')+'</div></div>';}).join('');}
-function applyPlatFromList(nom){applyPlat(nom);document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('active');});document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});document.getElementById('tab-repas').classList.add('active');document.querySelectorAll('.tab-btn')[0].classList.add('active');}
-function deletePlat(id){savePlats(getPlats().filter(function(p){return p.id!==id;}));renderPlatsList();showToast('🗑️ Plat supprimé');}
+// PLAT foods
+function togglePlatFood(name,btn){
+  var idx=platSelectedFoods.indexOf(name);
+  if(idx>=0){platSelectedFoods.splice(idx,1);btn.classList.remove('sel');}
+  else{platSelectedFoods.push(name);btn.classList.add('sel');}
+  renderPlatSelectedFoods();
+}
+function addPlatIngredientFromInput(){
+  var inp=document.getElementById('platIngredientInput');
+  var parts=inp.value.split(',').map(function(s){return s.trim();}).filter(function(s){return s.length>0;});
+  parts.forEach(function(v){if(platSelectedFoods.indexOf(v)<0)platSelectedFoods.push(v);});
+  if(parts.length)renderPlatSelectedFoods();
+  inp.value='';
+}
+function removePlatFood(idx){
+  platSelectedFoods.splice(idx,1);
+  var btns=document.querySelectorAll('#platFoodCommon .food-common-btn');
+  for(var i=0;i<btns.length;i++){
+    if(platSelectedFoods.indexOf(btns[i].getAttribute('data-name'))<0) btns[i].classList.remove('sel');
+  }
+  renderPlatSelectedFoods();
+}
+function renderPlatSelectedFoods(){
+  var c=document.getElementById('platSelectedChips');
+  if(!platSelectedFoods.length){c.innerHTML='<span style="font-size:12px;color:var(--text3)">Aucun ingrédient sélectionné</span>';return;}
+  var h='';
+  for(var i=0;i<platSelectedFoods.length;i++){
+    h+='<span class="food-chip" style="background:var(--accent2)" data-idx="'+i+'">'+platSelectedFoods[i]+' ✕</span>';
+  }
+  c.innerHTML=h;
+  var chips=c.querySelectorAll('.food-chip');
+  for(var j=0;j<chips.length;j++){
+    chips[j].addEventListener('click',function(){removePlatFood(parseInt(this.getAttribute('data-idx')));});
+  }
+}
 
-// REPAS
-function saveRepas(){var h=document.getElementById('repasHeure').value;if(!h)return showToast('⏱️ Indiquez l\'heure');if(!selectedFoods.length)return showToast('🍽️ Sélectionnez un aliment');var day=getDayData(currentDate);day.repas.push({heure:h,aliments:selectedFoods.slice(),id:Date.now()});saveDayData(currentDate,day);selectedFoods=[];renderSelectedFoods();document.getElementById('repasHeure').value='';document.getElementById('platSearch').value='';document.querySelectorAll('#foodCommon .food-common-btn').forEach(function(b){b.classList.remove('sel');});renderRepasList();showToast('✅ Repas enregistré !');}
-function renderRepasList(){var day=getDayData(currentDate);var c=document.getElementById('repasList');var sorted=day.repas.slice().sort(function(a,b){return a.heure.localeCompare(b.heure);});var cnt=document.getElementById('repasCount');if(cnt)cnt.textContent=sorted.length?'('+sorted.length+')':'';if(!sorted.length){c.innerHTML='<div class="empty-state"><div class="empty-icon">🍽️</div><div class="empty-text">Aucun repas enregistré aujourd\'hui</div></div>';return;}c.innerHTML=sorted.map(function(r){return'<div class="entry-item"><span class="entry-time">'+r.heure+'</span><div class="entry-body"><div class="entry-main">'+r.aliments.join(', ')+'</div></div><button class="entry-delete" onclick="deleteRepas('+r.id+')">🗑</button></div>';}).join('');}
+// ========== PLAT SEARCH ==========
+function onPlatSearch(val){
+  var list=document.getElementById('platSuggestList');
+  if(!val.trim()){list.style.display='none';return;}
+  var matches=getPlats().filter(function(p){return p.nom.toLowerCase().indexOf(val.toLowerCase())>=0;});
+  if(!matches.length){list.style.display='none';return;}
+  list.style.display='block';
+  list.innerHTML='';
+  for(var i=0;i<matches.length;i++){
+    var item=document.createElement('div');
+    item.className='plat-suggest-item';
+    item.innerHTML='🍲 <strong>'+matches[i].nom+'</strong> <span class="plat-suggest-badge">'+matches[i].aliments.length+' ingr.</span>';
+    (function(nom){item.addEventListener('click',function(){applyPlat(nom);});})(matches[i].nom);
+    list.appendChild(item);
+  }
+}
+function applyPlat(nom){
+  var plat=getPlats().find(function(p){return p.nom===nom;});
+  if(!plat)return;
+  plat.aliments.forEach(function(a){if(selectedFoods.indexOf(a)<0)selectedFoods.push(a);});
+  renderSelectedFoods();
+  // Mark matching buttons
+  var btns=document.querySelectorAll('#foodCommon .food-common-btn');
+  for(var i=0;i<btns.length;i++){
+    if(selectedFoods.indexOf(btns[i].getAttribute('data-name'))>=0) btns[i].classList.add('sel');
+  }
+  document.getElementById('platSearch').value='';
+  document.getElementById('platSuggestList').style.display='none';
+  showToast('🍲 '+nom+' pré-rempli !');
+}
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.plat-suggest'))document.getElementById('platSuggestList').style.display='none';
+});
+
+// ========== PLATS CRUD ==========
+function savePlat(){
+  var nom=document.getElementById('platNom').value.trim();
+  if(!nom)return showToast('📝 Donnez un nom au plat');
+  if(!platSelectedFoods.length)return showToast('🥘 Ajoutez au moins un ingrédient');
+  var plats=getPlats();
+  var idx=plats.findIndex(function(p){return p.nom.toLowerCase()===nom.toLowerCase();});
+  if(idx>=0){if(!confirm('Remplacer "'+nom+'" ?'))return;plats[idx]={nom:nom,aliments:platSelectedFoods.slice(),id:Date.now()};}
+  else{plats.push({nom:nom,aliments:platSelectedFoods.slice(),id:Date.now()});}
+  savePlats(plats);
+  document.getElementById('platNom').value='';
+  platSelectedFoods=[];renderPlatSelectedFoods();
+  var btns=document.querySelectorAll('#platFoodCommon .food-common-btn');
+  for(var i=0;i<btns.length;i++) btns[i].classList.remove('sel');
+  renderPlatsList();showToast('✅ Plat enregistré !');
+}
+function renderPlatsList(){
+  var plats=getPlats();var c=document.getElementById('platsList');
+  if(!plats.length){c.innerHTML='<div class="empty-state"><div class="empty-icon">🍲</div><div class="empty-text">Aucun plat type enregistré.</div></div>';return;}
+  c.innerHTML='';
+  plats.forEach(function(p){
+    var div=document.createElement('div');div.className='plat-item';
+    var chips=p.aliments.map(function(a){return'<span class="plat-aliment-chip">'+a+'</span>';}).join('');
+    div.innerHTML='<div class="plat-item-header"><div class="plat-name">🍲 '+p.nom+'</div>'
+      +'<div class="plat-actions">'
+      +'<button class="plat-select-btn" data-nom="'+p.nom+'">🍽️ Utiliser</button>'
+      +'<button class="entry-delete" data-id="'+p.id+'">🗑</button>'
+      +'</div></div><div class="plat-aliments">'+chips+'</div>';
+    div.querySelector('.plat-select-btn').addEventListener('click',function(){applyPlatFromList(this.getAttribute('data-nom'));});
+    div.querySelector('.entry-delete').addEventListener('click',function(){deletePlat(parseInt(this.getAttribute('data-id')));});
+    c.appendChild(div);
+  });
+}
+function applyPlatFromList(nom){
+  applyPlat(nom);
+  document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('tab-repas').classList.add('active');
+  document.querySelectorAll('.tab-btn')[0].classList.add('active');
+}
+function deletePlat(id){
+  savePlats(getPlats().filter(function(p){return p.id!==id;}));
+  renderPlatsList();showToast('🗑️ Plat supprimé');
+}
+
+// ========== REPAS ==========
+function saveRepas(){
+  var h=document.getElementById('repasHeure').value;
+  if(!h)return showToast('⏱️ Indiquez l\'heure');
+  if(!selectedFoods.length)return showToast('🍽️ Sélectionnez un aliment');
+  var day=getDayData(currentDate);
+  day.repas.push({heure:h,aliments:selectedFoods.slice(),id:Date.now()});
+  saveDayData(currentDate,day);
+  selectedFoods=[];renderSelectedFoods();
+  document.getElementById('repasHeure').value='';
+  document.getElementById('platSearch').value='';
+  var btns=document.querySelectorAll('#foodCommon .food-common-btn');
+  for(var i=0;i<btns.length;i++) btns[i].classList.remove('sel');
+  renderRepasList();showToast('✅ Repas enregistré !');
+}
+function renderRepasList(){
+  var day=getDayData(currentDate);var c=document.getElementById('repasList');
+  var sorted=day.repas.slice().sort(function(a,b){return a.heure.localeCompare(b.heure);});
+  var cnt=document.getElementById('repasCount');
+  if(cnt)cnt.textContent=sorted.length?'('+sorted.length+')':'';
+  if(!sorted.length){c.innerHTML='<div class="empty-state"><div class="empty-icon">🍽️</div><div class="empty-text">Aucun repas enregistré aujourd\'hui</div></div>';return;}
+  c.innerHTML='';
+  sorted.forEach(function(r){
+    var div=document.createElement('div');div.className='entry-item';
+    div.innerHTML='<span class="entry-time">'+r.heure+'</span>'
+      +'<div class="entry-body"><div class="entry-main">'+r.aliments.join(', ')+'</div></div>'
+      +'<button class="entry-delete" data-id="'+r.id+'">🗑</button>';
+    div.querySelector('.entry-delete').addEventListener('click',function(){deleteRepas(parseInt(this.getAttribute('data-id')));});
+    c.appendChild(div);
+  });
+}
 function deleteRepas(id){var day=getDayData(currentDate);day.repas=day.repas.filter(function(r){return r.id!==id;});saveDayData(currentDate,day);renderRepasList();showToast('🗑️ Supprimé');}
 
-// SELLES
-function saveSelle(){var h=document.getElementById('selleHeure').value;if(!h)return showToast('⏱️ Indiquez l\'heure');var bEl=document.querySelector('input[name="bristol"]:checked');if(!bEl)return showToast('🚽 Sélectionnez un type Bristol');var qEl=document.querySelector('input[name="selleQty"]:checked');var day=getDayData(currentDate);day.selles.push({heure:h,bristol:parseInt(bEl.value),quantite:qEl?parseInt(qEl.value):null,collante:document.getElementById('sColles').checked,douleur:document.getElementById('sDouleur').checked,ballons:document.getElementById('sBallons').checked,id:Date.now()});saveDayData(currentDate,day);document.getElementById('selleHeure').value='';bEl.checked=false;if(qEl)qEl.checked=false;['sColles','sDouleur','sBallons'].forEach(function(id){document.getElementById(id).checked=false;});['cbColles','cbDouleur','cbBallons'].forEach(function(id){var el=document.getElementById(id);if(el){el.classList.remove('checked');var v=el.querySelector('.checkbox-visual');if(v){v.style.background='var(--card)';v.style.borderColor='var(--border2)';v.innerHTML='';}}});renderSellesList();showToast('✅ Selle enregistrée !');}
-function renderSellesList(){var day=getDayData(currentDate);var c=document.getElementById('sellesList');if(!day.selles.length){c.innerHTML='<div class="empty-state"><div class="empty-icon">🚽</div><div class="empty-text">Aucune selle enregistrée</div></div>';return;}c.innerHTML=day.selles.map(function(s){var tags=[];if(s.quantite)tags.push('<span class="tag tag-blue">'+QTY_DOTS[s.quantite]+' '+QTY_LABELS[s.quantite]+'</span>');if(s.collante)tags.push('<span class="tag tag-red">🩹 Collante</span>');if(s.douleur)tags.push('<span class="tag tag-red">😣 Douleur</span>');if(s.ballons)tags.push('<span class="tag tag-red">🎈 Ballons</span>');return'<div class="entry-item"><span class="entry-time">'+s.heure+'</span><div class="entry-body"><div class="entry-main">'+BRISTOL_EMOJIS[s.bristol]+' '+BRISTOL_NAMES[s.bristol]+'</div>'+(tags.length?'<div class="entry-tags">'+tags.join('')+'</div>':'')+'</div><button class="entry-delete" onclick="deleteSelle('+s.id+')">🗑</button></div>';}).join('');}
+// ========== SELLES ==========
+function saveSelle(){
+  var h=document.getElementById('selleHeure').value;
+  if(!h)return showToast('⏱️ Indiquez l\'heure');
+  var bEl=document.querySelector('input[name="bristol"]:checked');
+  if(!bEl)return showToast('🚽 Sélectionnez un type Bristol');
+  var qEl=document.querySelector('input[name="selleQty"]:checked');
+  var day=getDayData(currentDate);
+  day.selles.push({heure:h,bristol:parseInt(bEl.value),quantite:qEl?parseInt(qEl.value):null,
+    collante:document.getElementById('sColles').checked,
+    douleur:document.getElementById('sDouleur').checked,
+    ballons:document.getElementById('sBallons').checked,id:Date.now()});
+  saveDayData(currentDate,day);
+  document.getElementById('selleHeure').value='';
+  bEl.checked=false;if(qEl)qEl.checked=false;
+  ['sColles','sDouleur','sBallons'].forEach(function(id){document.getElementById(id).checked=false;});
+  ['cbColles','cbDouleur','cbBallons'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){el.classList.remove('checked');var v=el.querySelector('.checkbox-visual');
+      if(v){v.style.background='var(--card)';v.style.borderColor='var(--border2)';v.innerHTML='';}}
+  });
+  renderSellesList();showToast('✅ Selle enregistrée !');
+}
+function renderSellesList(){
+  var day=getDayData(currentDate);var c=document.getElementById('sellesList');
+  if(!day.selles.length){c.innerHTML='<div class="empty-state"><div class="empty-icon">🚽</div><div class="empty-text">Aucune selle enregistrée</div></div>';return;}
+  c.innerHTML='';
+  day.selles.forEach(function(s){
+    var tags='';
+    if(s.quantite)tags+='<span class="tag tag-blue">'+QTY_DOTS[s.quantite]+' '+QTY_LABELS[s.quantite]+'</span> ';
+    if(s.collante)tags+='<span class="tag tag-red">🩹 Collante</span> ';
+    if(s.douleur)tags+='<span class="tag tag-red">😣 Douleur</span> ';
+    if(s.ballons)tags+='<span class="tag tag-red">🎈 Ballons</span>';
+    var div=document.createElement('div');div.className='entry-item';
+    div.innerHTML='<span class="entry-time">'+s.heure+'</span>'
+      +'<div class="entry-body"><div class="entry-main">'+BRISTOL_EMOJIS[s.bristol]+' '+BRISTOL_NAMES[s.bristol]+'</div>'
+      +(tags?'<div class="entry-tags">'+tags+'</div>':'')+'</div>'
+      +'<button class="entry-delete" data-id="'+s.id+'">🗑</button>';
+    div.querySelector('.entry-delete').addEventListener('click',function(){deleteSelle(parseInt(this.getAttribute('data-id')));});
+    c.appendChild(div);
+  });
+}
 function deleteSelle(id){var day=getDayData(currentDate);day.selles=day.selles.filter(function(s){return s.id!==id;});saveDayData(currentDate,day);renderSellesList();showToast('🗑️ Supprimé');}
 
-// ÉTAT
-function saveEtat(){var hEl=document.querySelector('input[name="humeur"]:checked');var hydEl=document.querySelector('input[name="hydration"]:checked');var spEl=document.querySelector('input[name="sport"]:checked');var day=getDayData(currentDate);day.etat={humeur:hEl?parseInt(hEl.value):null,hydration:hydEl?hydEl.value:null,sport:spEl?spEl.value:'aucun',sportDuree:parseInt(document.getElementById('sportDuree').value)||0};saveDayData(currentDate,day);renderEtatDisplay();showToast('✅ État enregistré !');}
-function renderEtatDisplay(){var day=getDayData(currentDate);var c=document.getElementById('etatDisplay');if(!day.etat){c.innerHTML='';return;}var e=day.etat;var hydI={faible:'🥤',moyen:'💧',bon:'💦'};var spI={aucun:'💤',endurance:'🏃',cardio:'🚴',musculation:'🏋️'};c.innerHTML='<div class="card"><div class="card-title" style="justify-content:space-between"><span>✅ État enregistré</span><button class="entry-delete" onclick="deleteEtat()" title="Supprimer l\'état général">🗑</button></div><div style="display:flex;gap:7px;flex-wrap:wrap">'+(e.humeur?'<span class="tag tag-yellow">'+HUM_EMOJIS[e.humeur]+' Humeur '+e.humeur+'/5</span>':'')+(e.hydration?'<span class="tag tag-blue">'+(hydI[e.hydration]||'')+' '+e.hydration+'</span>':'')+'<span class="tag tag-green">'+(spI[e.sport]||'🏃')+' '+e.sport+(e.sport!=='aucun'&&e.sportDuree?' '+e.sportDuree+'min':'')+'</span></div></div>';}
+// ========== ÉTAT ==========
+function saveEtat(){
+  var hEl=document.querySelector('input[name="humeur"]:checked');
+  var hydEl=document.querySelector('input[name="hydration"]:checked');
+  var spEl=document.querySelector('input[name="sport"]:checked');
+  var day=getDayData(currentDate);
+  day.etat={humeur:hEl?parseInt(hEl.value):null,hydration:hydEl?hydEl.value:null,
+    sport:spEl?spEl.value:'aucun',sportDuree:parseInt(document.getElementById('sportDuree').value)||0};
+  saveDayData(currentDate,day);renderEtatDisplay();showToast('✅ État enregistré !');
+}
+function deleteEtat(){
+  if(!confirm('Supprimer l\'état général de cette journée ?'))return;
+  var day=getDayData(currentDate);day.etat=null;saveDayData(currentDate,day);
+  renderEtatDisplay();showToast('🗑️ État supprimé');
+}
+function renderEtatDisplay(){
+  var day=getDayData(currentDate);var c=document.getElementById('etatDisplay');
+  if(!day.etat){c.innerHTML='';return;}
+  var e=day.etat;
+  var hydI={faible:'🥤',moyen:'💧',bon:'💦'};
+  var spI={aucun:'💤',endurance:'🏃',cardio:'🚴',musculation:'🏋️'};
+  var tags='';
+  if(e.humeur)tags+='<span class="tag tag-yellow">'+HUM_EMOJIS[e.humeur]+' Humeur '+e.humeur+'/5</span> ';
+  if(e.hydration)tags+='<span class="tag tag-blue">'+(hydI[e.hydration]||'')+' '+e.hydration+'</span> ';
+  if(e.sport)tags+='<span class="tag tag-green">'+(spI[e.sport]||'🏃')+' '+e.sport+(e.sport!=='aucun'&&e.sportDuree?' '+e.sportDuree+'min':'')+'</span>';
+  c.innerHTML='<div class="card"><div class="card-title" style="justify-content:space-between">'
+    +'<span>✅ État enregistré</span>'
+    +'<button class="entry-delete" id="deleteEtatBtn" title="Supprimer">🗑</button>'
+    +'</div><div style="display:flex;gap:7px;flex-wrap:wrap">'+tags+'</div></div>';
+  document.getElementById('deleteEtatBtn').addEventListener('click',deleteEtat);
+}
 
-function deleteEtat(){if(!confirm('Supprimer l\'état général de cette journée ?'))return;var day=getDayData(currentDate);day.etat=null;saveDayData(currentDate,day);renderEtatDisplay();showToast('🗑️ État général supprimé');}
-// SCORE
-function calculateScore(day){if(!day)return null;var hasSelles=(day.selles&&day.selles.length>0);var hasEtat=(day.etat!==null&&day.etat!==undefined);if(!hasSelles&&!hasEtat)return null;var score=5;var details={};if(hasSelles){var s=day.selles[day.selles.length-1];var bMap={1:-2,2:-0.5,3:2,4:2,5:-0.5,6:-2};var bs=bMap[s.bristol]||0;score+=bs;details.bristol={score:bs,name:'Consistance (Bristol)',icon:BRISTOL_EMOJIS[s.bristol],desc:BRISTOL_NAMES[s.bristol]};var sp=0;if(s.collante)sp-=0.5;if(s.douleur)sp-=1;if(s.ballons)sp-=0.5;score+=sp;details.symptomes={score:sp,name:'Symptômes',icon:'😣',desc:sp<0?'Pénalité':' '};}if(hasEtat){var e=day.etat;if(e.humeur){var hs=(e.humeur-3)*0.4;score+=hs;details.humeur={score:hs,name:'Humeur',icon:HUM_EMOJIS[e.humeur],desc:e.humeur+'/5'};}var hydMap={faible:-0.5,moyen:0.25,bon:0.75};var hv=hydMap[e.hydration]||0;if(e.hydration){score+=hv;details.hydration={score:hv,name:'Hydratation',icon:'💧',desc:e.hydration};}var spMap={aucun:0,endurance:0.3,cardio:0.3,musculation:0.2};var sv=spMap[e.sport]||0;if(e.sport&&e.sport!=='aucun'){score+=sv;details.sport={score:sv,name:'Activité',icon:'🏃',desc:e.sport+(e.sportDuree?' '+e.sportDuree+'min':'')};}}score=Math.max(0,Math.min(10,score));return{score:Math.round(score*10)/10,details:details};}
+// ========== SCORE ==========
+function calculateScore(day){
+  if(!day)return null;
+  var hasSelles=(day.selles&&day.selles.length>0);
+  var hasEtat=(day.etat!==null&&day.etat!==undefined);
+  if(!hasSelles&&!hasEtat)return null;
+  var score=5;var details={};
+  if(hasSelles){
+    var s=day.selles[day.selles.length-1];
+    var bMap={1:-2,2:-0.5,3:2,4:2,5:-0.5,6:-2};
+    var bs=bMap[s.bristol]||0;score+=bs;
+    details.bristol={score:bs,name:'Consistance (Bristol)',icon:BRISTOL_EMOJIS[s.bristol],desc:BRISTOL_NAMES[s.bristol]};
+    var sp=0;if(s.collante)sp-=0.5;if(s.douleur)sp-=1;if(s.ballons)sp-=0.5;
+    score+=sp;details.symptomes={score:sp,name:'Symptômes',icon:'😣'};
+  }
+  if(hasEtat){
+    var e=day.etat;
+    if(e.humeur){var hs=(e.humeur-3)*0.4;score+=hs;details.humeur={score:hs,name:'Humeur',icon:HUM_EMOJIS[e.humeur],desc:e.humeur+'/5'};}
+    var hydMap={faible:-0.5,moyen:0.25,bon:0.75};var hv=hydMap[e.hydration]||0;
+    if(e.hydration){score+=hv;details.hydration={score:hv,name:'Hydratation',icon:'💧',desc:e.hydration};}
+    var spMap={aucun:0,endurance:0.3,cardio:0.3,musculation:0.2};var sv=spMap[e.sport]||0;
+    if(e.sport&&e.sport!=='aucun'){score+=sv;details.sport={score:sv,name:'Activité',icon:'🏃',desc:e.sport+(e.sportDuree?' '+e.sportDuree+'min':'')};}
+  }
+  score=Math.max(0,Math.min(10,score));
+  return{score:Math.round(score*10)/10,details:details};
+}
 function getScoreEmoji(s){return s>=8?'🎉':s>=6?'😊':s>=4?'😐':s>=2?'😕':'😫';}
 function getScoreLabel(s){return s>=8?'Excellente journée !':s>=6?'Bonne journée':s>=4?'Journée correcte':s>=2?'Journée difficile':'Très mauvaise journée';}
 function fmtVal(v){var r=Math.round(v*10)/10;return(r>0?'+':'')+r;}
 function valCls(v){return v>0?'sval-pos':v<0?'sval-neg':'sval-neu';}
 function cdprCls(v){return v>0?'cdpr-pos':v<0?'cdpr-neg':'cdpr-neu';}
 
-function populateScoreDateSelect(){var all=getData();var sel=document.getElementById('scoreDateSelect');var today=new Date().toISOString().split('T')[0];var dates=Object.keys(all).filter(function(d){var dd=all[d];return(dd.selles&&dd.selles.length)||(dd.etat);}).sort().reverse();if(dates.indexOf(today)<0)dates.unshift(today);if(!dates.length)dates=[today];var cur=sel.value||currentDate;sel.innerHTML=dates.map(function(d){return'<option value="'+d+'"'+(d===cur?' selected':'')+'>'+( d===today?'Aujourd\'hui — ':'')+fmtDateFR(d)+'</option>';}).join('');if(dates.indexOf(cur)<0)sel.innerHTML='<option value="'+cur+'" selected>'+fmtDateFR(cur)+'</option>'+sel.innerHTML;}
+function populateScoreDateSelect(){
+  var all=getData();var sel=document.getElementById('scoreDateSelect');
+  var today=new Date().toISOString().split('T')[0];
+  var dates=Object.keys(all).filter(function(d){var dd=all[d];return(dd.selles&&dd.selles.length)||(dd.etat);}).sort().reverse();
+  if(dates.indexOf(today)<0)dates.unshift(today);
+  if(!dates.length)dates=[today];
+  var cur=sel.value||currentDate;
+  sel.innerHTML=dates.map(function(d){return'<option value="'+d+'"'+(d===cur?' selected':'')+'>'+(d===today?'Aujourd\'hui — ':'')+fmtDateFR(d)+'</option>';}).join('');
+  if(dates.indexOf(cur)<0)sel.innerHTML='<option value="'+cur+'" selected>'+fmtDateFR(cur)+'</option>'+sel.innerHTML;
+}
 function onScoreDateChange(date){currentDate=date;updateDateDisplay();renderScore();}
-function renderScore(){populateScoreDateSelect();var scoreDate=document.getElementById('scoreDateSelect').value||currentDate;var day=getDayData(scoreDate);var result=calculateScore(day);var sd=document.getElementById('scoreDisplay');var sb=document.getElementById('scoreBreakdown');var miss=document.getElementById('scoreMissing');var sf=document.getElementById('scoreFormula');if(!result){miss.style.display='block';sd.innerHTML='';sb.innerHTML='';sf.innerHTML='<div class="card"><div class="score-formula"><div class="score-formula-title">📐 Formule de calcul</div><div style="font-size:12px;color:var(--text2);line-height:1.8">Base 5 pts · Bristol (si selle) : Très dur/Liquide −2 · Dur/Très mou −0,5 · Normal/Mou +2 · Symptômes : Collante −0,5 · Douleur −1 · Ballons −0,5 · Humeur : (val−3)×0,4 · Hydratation : Faible −0,5 · Moyen +0,25 · Bon +0,75 · Sport +0,2–0,3 · Score borné 0–10.</div></div></div>';return;}miss.style.display='none';var s=result.score;sd.innerHTML='<div class="score-display"><div class="score-poop-bg"><svg width="90" height="90" viewBox="0 0 80 80" fill="none"><ellipse cx="40" cy="22" rx="22" ry="5" fill="white"/><ellipse cx="40" cy="17" rx="14" ry="9" fill="white"/><circle cx="40" cy="9" r="3.5" fill="rgba(255,255,255,0.6)"/><ellipse cx="40" cy="66" rx="22" ry="10" fill="white"/><ellipse cx="40" cy="57" rx="18" ry="9" fill="white"/><ellipse cx="40" cy="49" rx="14" ry="8" fill="white"/><ellipse cx="40" cy="42" rx="11" ry="7" fill="white"/><circle cx="35" cy="47" r="3.5" fill="rgba(0,0,0,0.3)"/><circle cx="45" cy="47" r="3.5" fill="rgba(0,0,0,0.3)"/><path d="M35 54 Q40 59 45 54" stroke="rgba(0,0,0,0.3)" stroke-width="2.2" stroke-linecap="round" fill="none"/><path d="M51 52 Q62 42 66 34" stroke="white" stroke-width="5" stroke-linecap="round" fill="none"/><circle cx="67" cy="32" r="4" fill="white"/></svg></div><div class="score-emoji">'+getScoreEmoji(s)+'</div><div class="score-num">'+s+'<span class="score-max">/10</span></div><div class="score-label">'+getScoreLabel(s)+'</div></div>';var items=Object.values(result.details);sb.innerHTML=items.map(function(item){var pct=item.score>=0?Math.min(100,Math.abs(item.score)*20+50):Math.max(0,50-Math.abs(item.score)*20);return'<div class="score-item"><span class="score-item-icon">'+item.icon+'</span><div class="score-item-body"><div class="score-item-name">'+item.name+'</div><div class="score-item-val '+valCls(item.score)+'">'+fmtVal(item.score)+'</div><div class="score-bar"><div class="score-bar-fill" style="width:'+pct+'%"></div></div></div></div>';}).join('');var det=result.details;var fhtml='<div class="card"><div class="score-formula"><div class="score-formula-title">📐 Détail du calcul</div>';fhtml+='<div class="score-formula-row"><span class="score-formula-left">🎯 Base</span><span class="score-formula-right sval-neu">5,0</span></div>';if(det.bristol)fhtml+='<div class="score-formula-row"><span class="score-formula-left">'+det.bristol.icon+' Bristol : '+det.bristol.desc+'</span><span class="score-formula-right '+valCls(det.bristol.score)+'">'+fmtVal(det.bristol.score)+'</span></div>';else fhtml+='<div class="score-formula-row"><span class="score-formula-left">🚽 Aucune selle</span><span class="score-formula-right sval-neu">0 pt</span></div>';if(det.symptomes&&det.symptomes.score!==0){var ss=day.selles[day.selles.length-1];var sd3=[];if(ss.collante)sd3.push('collante');if(ss.douleur)sd3.push('douleur');if(ss.ballons)sd3.push('ballons');fhtml+='<div class="score-formula-row"><span class="score-formula-left">😣 Symptômes ('+sd3.join(', ')+')</span><span class="score-formula-right '+valCls(det.symptomes.score)+'">'+fmtVal(det.symptomes.score)+'</span></div>';}if(det.humeur)fhtml+='<div class="score-formula-row"><span class="score-formula-left">'+det.humeur.icon+' Humeur '+det.humeur.desc+'</span><span class="score-formula-right '+valCls(det.humeur.score)+'">'+fmtVal(det.humeur.score)+'</span></div>';if(det.hydration)fhtml+='<div class="score-formula-row"><span class="score-formula-left">💧 Hydratation : '+det.hydration.desc+'</span><span class="score-formula-right '+valCls(det.hydration.score)+'">'+fmtVal(det.hydration.score)+'</span></div>';if(det.sport)fhtml+='<div class="score-formula-row"><span class="score-formula-left">🏃 '+det.sport.desc+'</span><span class="score-formula-right '+valCls(det.sport.score)+'">'+fmtVal(det.sport.score)+'</span></div>';fhtml+='<div class="score-formula-row" style="font-weight:800;border-top:2px solid var(--border);margin-top:4px;padding-top:8px"><span class="score-formula-left" style="color:var(--text)">🏆 Score final (borné 0–10)</span><span class="score-formula-right" style="color:var(--accent);font-size:17px">'+s+'/10</span></div>';fhtml+='<div class="score-base-note">ℹ️ Sans selle enregistrée : points Bristol = 0. Le score est alors basé uniquement sur humeur, hydratation et activité.</div>';fhtml+='</div></div>';sf.innerHTML=fhtml;}
+function renderScore(){
+  populateScoreDateSelect();
+  var scoreDate=document.getElementById('scoreDateSelect').value||currentDate;
+  var day=getDayData(scoreDate);var result=calculateScore(day);
+  var sd=document.getElementById('scoreDisplay');var sb=document.getElementById('scoreBreakdown');
+  var miss=document.getElementById('scoreMissing');var sf=document.getElementById('scoreFormula');
+  if(!result){miss.style.display='block';sd.innerHTML='';sb.innerHTML='';
+    sf.innerHTML='<div class="card"><div class="score-formula"><div class="score-formula-title">📐 Formule</div>'
+      +'<div style="font-size:12px;color:var(--text2);line-height:1.8">Base 5 pts · Bristol (si selle) : Très dur/Liquide −2 · Dur/Très mou −0,5 · Normal/Mou +2 · Symptômes : Collante −0,5 · Douleur −1 · Ballons −0,5 · Humeur : (val−3)×0,4 · Hydratation : Faible −0,5 · Moyen +0,25 · Bon +0,75 · Sport +0,2–0,3</div></div></div>';
+    return;
+  }
+  miss.style.display='none';var s=result.score;
+  sd.innerHTML='<div class="score-display"><div class="score-emoji">'+getScoreEmoji(s)+'</div>'
+    +'<div class="score-num">'+s+'<span class="score-max">/10</span></div>'
+    +'<div class="score-label">'+getScoreLabel(s)+'</div></div>';
+  var items=Object.values(result.details);
+  sb.innerHTML=items.map(function(item){
+    var pct=item.score>=0?Math.min(100,Math.abs(item.score)*20+50):Math.max(0,50-Math.abs(item.score)*20);
+    return'<div class="score-item"><span class="score-item-icon">'+item.icon+'</span>'
+      +'<div class="score-item-body"><div class="score-item-name">'+item.name+'</div>'
+      +'<div class="score-item-val '+valCls(item.score)+'">'+fmtVal(item.score)+'</div>'
+      +'<div class="score-bar"><div class="score-bar-fill" style="width:'+pct+'%"></div></div></div></div>';
+  }).join('');
+  var det=result.details;
+  var fhtml='<div class="card"><div class="score-formula"><div class="score-formula-title">📐 Détail du calcul</div>'
+    +'<div class="score-formula-row"><span class="score-formula-left">🎯 Base</span><span class="score-formula-right sval-neu">5,0</span></div>';
+  if(det.bristol)fhtml+='<div class="score-formula-row"><span class="score-formula-left">'+det.bristol.icon+' Bristol : '+det.bristol.desc+'</span><span class="score-formula-right '+valCls(det.bristol.score)+'">'+fmtVal(det.bristol.score)+'</span></div>';
+  else fhtml+='<div class="score-formula-row"><span class="score-formula-left">🚽 Aucune selle</span><span class="score-formula-right sval-neu">0 pt</span></div>';
+  if(det.symptomes&&det.symptomes.score!==0){
+    var ss=day.selles[day.selles.length-1];var sd3=[];
+    if(ss.collante)sd3.push('collante');if(ss.douleur)sd3.push('douleur');if(ss.ballons)sd3.push('ballons');
+    fhtml+='<div class="score-formula-row"><span class="score-formula-left">😣 Symptômes ('+sd3.join(', ')+')</span><span class="score-formula-right '+valCls(det.symptomes.score)+'">'+fmtVal(det.symptomes.score)+'</span></div>';
+  }
+  if(det.humeur)fhtml+='<div class="score-formula-row"><span class="score-formula-left">'+det.humeur.icon+' Humeur '+det.humeur.desc+'</span><span class="score-formula-right '+valCls(det.humeur.score)+'">'+fmtVal(det.humeur.score)+'</span></div>';
+  if(det.hydration)fhtml+='<div class="score-formula-row"><span class="score-formula-left">💧 Hydratation : '+det.hydration.desc+'</span><span class="score-formula-right '+valCls(det.hydration.score)+'">'+fmtVal(det.hydration.score)+'</span></div>';
+  if(det.sport)fhtml+='<div class="score-formula-row"><span class="score-formula-left">🏃 '+det.sport.desc+'</span><span class="score-formula-right '+valCls(det.sport.score)+'">'+fmtVal(det.sport.score)+'</span></div>';
+  fhtml+='<div class="score-formula-row" style="font-weight:800;border-top:2px solid var(--border);margin-top:4px;padding-top:8px">'
+    +'<span class="score-formula-left" style="color:var(--text)">🏆 Score final</span>'
+    +'<span class="score-formula-right" style="color:var(--accent);font-size:17px">'+s+'/10</span></div>'
+    +'<div class="score-base-note">ℹ️ Sans selle enregistrée : points Bristol = 0.</div>'
+    +'</div></div>';
+  sf.innerHTML=fhtml;
+}
 
-// CALENDAR
+// ========== CALENDAR ==========
 function getBristolEm(day){if(!day||!day.selles||!day.selles.length)return'';return BRISTOL_EMOJIS[day.selles[day.selles.length-1].bristol]||'';}
 function getMoodEm(day){if(!day||!day.etat||!day.etat.humeur)return'';return HUM_EMOJIS[day.etat.humeur]||'';}
-function renderCalendar(){var mN=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];document.getElementById('calMonthLabel').textContent=mN[calMonth]+' '+calYear;var first=new Date(calYear,calMonth,1),last=new Date(calYear,calMonth+1,0);var dow=first.getDay();dow=dow===0?6:dow-1;var all=getData(),today=new Date().toISOString().split('T')[0],html='';for(var i=0;i<dow;i++){var pd=new Date(calYear,calMonth,1-dow+i);html+='<div class="cal-day other-month"><div class="cal-day-num">'+pd.getDate()+'</div></div>';}for(var d=1;d<=last.getDate();d++){var ds=calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');var isT=ds===today,isSel=ds===selectedCalDate,dd=all[ds];var cls='cal-day'+(isT?' today':'')+(dd&&(dd.selles&&dd.selles.length||dd.etat)?' has-data':'')+(isSel?' selected':'');var inner='<div class="cal-day-num">'+d+'</div>';var isPast=ds<today;if(dd){var res=calculateScore(dd);if(res){var sc=res.score,sCls=sc>=7?'score-great':sc>=4?'score-good':'score-bad';inner+='<div class="cal-day-score '+sCls+'">'+sc+'</div>';}var be=getBristolEm(dd),me=getMoodEm(dd);if(!be&&isPast&&(dd.etat||dd.repas&&dd.repas.length))be='🚫';if(be||me)inner+='<div class="cal-day-icons">'+be+me+'</div>';}else if(isPast&&!isT){inner+='<div class="cal-day-icons" style="opacity:0.3">🚫</div>';}html+='<div class="'+cls+'" onclick="selectCalDay(\''+ds+'\')">'+inner+'</div>';}var tot=dow+last.getDate(),rem=tot%7;if(rem!==0)for(var k=1;k<=7-rem;k++)html+='<div class="cal-day other-month"><div class="cal-day-num">'+k+'</div></div>';document.getElementById('calGrid').innerHTML=html;}
+function renderCalendar(){
+  var mN=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  document.getElementById('calMonthLabel').textContent=mN[calMonth]+' '+calYear;
+  var first=new Date(calYear,calMonth,1),last=new Date(calYear,calMonth+1,0);
+  var dow=first.getDay();dow=dow===0?6:dow-1;
+  var all=getData(),today=new Date().toISOString().split('T')[0];
+  var grid=document.getElementById('calGrid');
+  grid.innerHTML='';
+  // Padding
+  for(var i=0;i<dow;i++){
+    var pd=new Date(calYear,calMonth,1-dow+i);
+    var cell=document.createElement('div');cell.className='cal-day other-month';
+    cell.innerHTML='<div class="cal-day-num">'+pd.getDate()+'</div>';
+    grid.appendChild(cell);
+  }
+  for(var d=1;d<=last.getDate();d++){
+    var ds=calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    var isT=ds===today,isSel=ds===selectedCalDate,isPast=ds<today;
+    var dd=all[ds];
+    var cls='cal-day'+(isT?' today':'')+(dd&&(dd.selles&&dd.selles.length||dd.etat)?' has-data':'')+(isSel?' selected':'');
+    var inner='<div class="cal-day-num">'+d+'</div>';
+    if(dd){
+      var res=calculateScore(dd);
+      if(res){var sc=res.score,sCls=sc>=7?'score-great':sc>=4?'score-good':'score-bad';inner+='<div class="cal-day-score '+sCls+'">'+sc+'</div>';}
+      var be=getBristolEm(dd),me=getMoodEm(dd);
+      if(!be&&isPast&&(dd.etat||dd.repas&&dd.repas.length))be='🚫';
+      if(be||me)inner+='<div class="cal-day-icons">'+be+me+'</div>';
+    }else if(isPast&&!isT){
+      inner+='<div class="cal-day-icons" style="opacity:0.3">🚫</div>';
+    }
+    var cell=document.createElement('div');cell.className=cls;cell.innerHTML=inner;
+    (function(dateStr){cell.addEventListener('click',function(){selectCalDay(dateStr);});})(ds);
+    grid.appendChild(cell);
+  }
+  // Fill last row
+  var tot=dow+last.getDate(),rem=tot%7;
+  if(rem!==0)for(var k=1;k<=7-rem;k++){
+    var cell=document.createElement('div');cell.className='cal-day other-month';
+    cell.innerHTML='<div class="cal-day-num">'+k+'</div>';
+    grid.appendChild(cell);
+  }
+}
 function changeMonth(dir){calMonth+=dir;if(calMonth>11){calMonth=0;calYear++;}if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
 function selectCalDay(ds){selectedCalDate=ds;currentDate=ds;updateDateDisplay();renderCalendar();renderCalDayDetail(ds);}
-function renderCalDayDetail(ds){var day=getDayData(ds);var c=document.getElementById('calDayDetail');var res=calculateScore(day);var label=fmtDateFR(ds);var html='<div class="cal-detail-card"><div class="cal-detail-header"><div class="cal-detail-date">📅 '+label+'</div>'+(res?'<div class="cal-detail-score-badge"><span>'+getScoreEmoji(res.score)+'</span><span class="cal-detail-score-num"> '+res.score+'</span><span style="opacity:0.7;font-size:12px">/10</span></div>':'')+'</div>';if(day.repas&&day.repas.length){var sorted=day.repas.slice().sort(function(a,b){return a.heure.localeCompare(b.heure);});html+='<div class="cal-detail-section"><div class="cal-detail-section-title">🍽️ Repas ('+sorted.length+')</div>';sorted.forEach(function(r){html+='<div class="entry-item" style="margin-bottom:5px"><span class="entry-time">'+r.heure+'</span><div class="entry-body"><div class="entry-main" style="font-size:12px">'+r.aliments.join(', ')+'</div></div></div>';});html+='</div>';}if(day.selles&&day.selles.length){html+='<div class="cal-detail-section"><div class="cal-detail-section-title">🚽 Selles ('+day.selles.length+')</div>';day.selles.forEach(function(s){var sy=[];if(s.quantite)sy.push(QTY_DOTS[s.quantite]);if(s.collante)sy.push('🩹');if(s.douleur)sy.push('😣');if(s.ballons)sy.push('🎈');html+='<div class="entry-item" style="margin-bottom:5px"><span class="entry-time">'+s.heure+'</span><div class="entry-body"><div class="entry-main" style="font-size:12px">'+BRISTOL_EMOJIS[s.bristol]+' '+BRISTOL_NAMES[s.bristol]+(sy.length?' — '+sy.join(' '):'')+'</div></div></div>';});html+='</div>';}if(day.etat){var e=day.etat;var hI={faible:'🥤',moyen:'💧',bon:'💦'};var sI={aucun:'💤',endurance:'🏃',cardio:'🚴',musculation:'🏋️'};html+='<div class="cal-detail-section"><div class="cal-detail-section-title">🌟 État général</div><div style="display:flex;gap:5px;flex-wrap:wrap">'+(e.humeur?'<span class="tag tag-yellow">'+HUM_EMOJIS[e.humeur]+' '+e.humeur+'/5</span>':'')+(e.hydration?'<span class="tag tag-blue">'+(hI[e.hydration]||'')+' '+e.hydration+'</span>':'')+(e.sport?'<span class="tag tag-green">'+(sI[e.sport]||'🏃')+' '+e.sport+(e.sport!=='aucun'&&e.sportDuree?' '+e.sportDuree+'min':'')+'</span>':'')+'</div></div>';}if(res){var det=res.details;html+='<div class="cal-detail-section"><div class="cal-detail-section-title">📐 Calcul du score</div><div class="cal-detail-points"><div class="cal-detail-points-row"><span class="cdpr-label">🎯 Base</span><span class="cdpr-val cdpr-neu">5,0</span></div>';if(det.bristol)html+='<div class="cal-detail-points-row"><span class="cdpr-label">'+det.bristol.icon+' '+det.bristol.desc+'</span><span class="cdpr-val '+cdprCls(det.bristol.score)+'">'+fmtVal(det.bristol.score)+'</span></div>';if(det.symptomes&&det.symptomes.score!==0)html+='<div class="cal-detail-points-row"><span class="cdpr-label">😣 Symptômes</span><span class="cdpr-val '+cdprCls(det.symptomes.score)+'">'+fmtVal(det.symptomes.score)+'</span></div>';if(det.humeur)html+='<div class="cal-detail-points-row"><span class="cdpr-label">'+det.humeur.icon+' Humeur '+det.humeur.desc+'</span><span class="cdpr-val '+cdprCls(det.humeur.score)+'">'+fmtVal(det.humeur.score)+'</span></div>';if(det.hydration)html+='<div class="cal-detail-points-row"><span class="cdpr-label">💧 '+det.hydration.desc+'</span><span class="cdpr-val '+cdprCls(det.hydration.score)+'">'+fmtVal(det.hydration.score)+'</span></div>';if(det.sport)html+='<div class="cal-detail-points-row"><span class="cdpr-label">🏃 '+det.sport.desc+'</span><span class="cdpr-val '+cdprCls(det.sport.score)+'">'+fmtVal(det.sport.score)+'</span></div>';html+='<div class="cal-detail-total"><span>🏆 Score final</span><span class="cal-detail-total-val">'+res.score+'/10</span></div></div></div>';}if(!day.repas.length&&!day.selles.length&&!day.etat)html+='<div class="empty-state" style="padding:16px 0"><div class="empty-icon">📭</div><div class="empty-text">Aucune donnée pour ce jour</div></div>';html+='</div>';c.innerHTML=html;c.scrollIntoView({behavior:'smooth',block:'start'});}
+function renderCalDayDetail(ds){
+  var day=getDayData(ds);var c=document.getElementById('calDayDetail');
+  var res=calculateScore(day);var label=fmtDateFR(ds);
+  var html='<div class="cal-detail-card"><div class="cal-detail-header">'
+    +'<div class="cal-detail-date">📅 '+label+'</div>'
+    +(res?'<div class="cal-detail-score-badge"><span>'+getScoreEmoji(res.score)+'</span><span class="cal-detail-score-num"> '+res.score+'</span><span style="opacity:0.7;font-size:12px">/10</span></div>':'')
+    +'</div>';
+  if(day.repas&&day.repas.length){
+    var sorted=day.repas.slice().sort(function(a,b){return a.heure.localeCompare(b.heure);});
+    html+='<div class="cal-detail-section"><div class="cal-detail-section-title">🍽️ Repas ('+sorted.length+')</div>';
+    sorted.forEach(function(r){html+='<div class="entry-item" style="margin-bottom:5px"><span class="entry-time">'+r.heure+'</span><div class="entry-body"><div class="entry-main" style="font-size:12px">'+r.aliments.join(', ')+'</div></div></div>';});
+    html+='</div>';
+  }
+  if(day.selles&&day.selles.length){
+    html+='<div class="cal-detail-section"><div class="cal-detail-section-title">🚽 Selles ('+day.selles.length+')</div>';
+    day.selles.forEach(function(s){
+      var sy=[];if(s.quantite)sy.push(QTY_DOTS[s.quantite]);if(s.collante)sy.push('🩹');if(s.douleur)sy.push('😣');if(s.ballons)sy.push('🎈');
+      html+='<div class="entry-item" style="margin-bottom:5px"><span class="entry-time">'+s.heure+'</span><div class="entry-body"><div class="entry-main" style="font-size:12px">'+BRISTOL_EMOJIS[s.bristol]+' '+BRISTOL_NAMES[s.bristol]+(sy.length?' — '+sy.join(' '):'')+'</div></div></div>';
+    });
+    html+='</div>';
+  }
+  if(day.etat){
+    var e=day.etat;var hI={faible:'🥤',moyen:'💧',bon:'💦'};var sI={aucun:'💤',endurance:'🏃',cardio:'🚴',musculation:'🏋️'};
+    html+='<div class="cal-detail-section"><div class="cal-detail-section-title">🌟 État général</div><div style="display:flex;gap:5px;flex-wrap:wrap">'
+      +(e.humeur?'<span class="tag tag-yellow">'+HUM_EMOJIS[e.humeur]+' '+e.humeur+'/5</span>':'')
+      +(e.hydration?'<span class="tag tag-blue">'+(hI[e.hydration]||'')+' '+e.hydration+'</span>':'')
+      +(e.sport?'<span class="tag tag-green">'+(sI[e.sport]||'🏃')+' '+e.sport+(e.sport!=='aucun'&&e.sportDuree?' '+e.sportDuree+'min':'')+'</span>':'')
+      +'</div></div>';
+  }
+  if(res){
+    var det=res.details;
+    html+='<div class="cal-detail-section"><div class="cal-detail-section-title">📐 Calcul du score</div><div class="cal-detail-points">'
+      +'<div class="cal-detail-points-row"><span class="cdpr-label">🎯 Base</span><span class="cdpr-val cdpr-neu">5,0</span></div>';
+    if(det.bristol)html+='<div class="cal-detail-points-row"><span class="cdpr-label">'+det.bristol.icon+' '+det.bristol.desc+'</span><span class="cdpr-val '+cdprCls(det.bristol.score)+'">'+fmtVal(det.bristol.score)+'</span></div>';
+    if(det.symptomes&&det.symptomes.score!==0)html+='<div class="cal-detail-points-row"><span class="cdpr-label">😣 Symptômes</span><span class="cdpr-val '+cdprCls(det.symptomes.score)+'">'+fmtVal(det.symptomes.score)+'</span></div>';
+    if(det.humeur)html+='<div class="cal-detail-points-row"><span class="cdpr-label">'+det.humeur.icon+' Humeur '+det.humeur.desc+'</span><span class="cdpr-val '+cdprCls(det.humeur.score)+'">'+fmtVal(det.humeur.score)+'</span></div>';
+    if(det.hydration)html+='<div class="cal-detail-points-row"><span class="cdpr-label">💧 '+det.hydration.desc+'</span><span class="cdpr-val '+cdprCls(det.hydration.score)+'">'+fmtVal(det.hydration.score)+'</span></div>';
+    if(det.sport)html+='<div class="cal-detail-points-row"><span class="cdpr-label">🏃 '+det.sport.desc+'</span><span class="cdpr-val '+cdprCls(det.sport.score)+'">'+fmtVal(det.sport.score)+'</span></div>';
+    html+='<div class="cal-detail-total"><span>🏆 Score final</span><span class="cal-detail-total-val">'+res.score+'/10</span></div></div></div>';
+  }
+  if(!day.repas.length&&!day.selles.length&&!day.etat)
+    html+='<div class="empty-state" style="padding:16px 0"><div class="empty-icon">📭</div><div class="empty-text">Aucune donnée pour ce jour</div></div>';
+  html+='</div>';
+  c.innerHTML=html;c.scrollIntoView({behavior:'smooth',block:'start'});
+}
 
-// ANALYSIS
-function runAnalysis(){var all=getData();var foodStats={};Object.keys(all).sort().forEach(function(date){var day=all[date];if(!day.repas||!day.repas.length)return;day.repas.forEach(function(repas){var rt=new Date(date+'T'+repas.heure+':00').getTime();repas.aliments.forEach(function(food){if(!foodStats[food])foodStats[food]={events:0,badEvents:0};var t1=new Date(new Date(date+'T12:00:00').getTime()+86400000).toISOString().split('T')[0];var t2=new Date(new Date(date+'T12:00:00').getTime()+2*86400000).toISOString().split('T')[0];[date,t1,t2].forEach(function(cd){var cday=all[cd];if(!cday||!cday.selles)return;cday.selles.forEach(function(s){var st=new Date(cd+'T'+s.heure+':00').getTime(),diff=st-rt;if(diff>=12*3600000&&diff<=48*3600000){foodStats[food].events++;if(s.bristol>=5||s.douleur||s.ballons||s.collante)foodStats[food].badEvents++;}});});});});});var foods=Object.entries(foodStats).filter(function(e){return e[1].events>=1;}).map(function(e){return{name:e[0],events:e[1].events,badRate:e[1].events>0?e[1].badEvents/e[1].events:0};}).sort(function(a,b){return b.badRate-a.badRate;});var c=document.getElementById('analysisResults');if(!foods.length){c.innerHTML='<div class="card"><div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">Pas assez de données.<br>Enregistrez repas et selles sur plusieurs jours.</div></div></div>';return;}var prob=foods.filter(function(f){return f.badRate>=0.5;});var html='';if(prob.length)html+='<div class="food-warning">⚠️ <strong>'+prob.length+' aliment(s) potentiellement problématique(s)</strong></div>';html+='<div class="card"><div class="card-title">📊 Corrélation aliments / troubles</div>';html+=foods.map(function(f){var pct=Math.round(f.badRate*100),rc=pct>=50?'rank-bad':pct>=25?'rank-ok':'rank-good',bc=pct>=50?'bar-red':pct>=25?'bar-yellow':'bar-green';return'<div class="food-analysis-item"><div class="food-rank '+rc+'">'+pct+'%</div><div class="food-score-bar"><div class="food-name">'+f.name+'</div><div class="food-occurrences">'+f.events+' selle(s) analysée(s)</div><div class="food-bar-wrap"><div class="food-bar-fill '+bc+'" style="width:'+pct+'%"></div></div></div></div>';}).join('');html+='</div>';c.innerHTML=html;}
+// ========== ANALYSIS ==========
+function runAnalysis(){
+  var all=getData();var foodStats={};
+  Object.keys(all).sort().forEach(function(date){
+    var day=all[date];if(!day.repas||!day.repas.length)return;
+    day.repas.forEach(function(repas){
+      var rt=new Date(date+'T'+repas.heure+':00').getTime();
+      repas.aliments.forEach(function(food){
+        if(!foodStats[food])foodStats[food]={events:0,badEvents:0};
+        var t1=new Date(new Date(date+'T12:00:00').getTime()+86400000).toISOString().split('T')[0];
+        var t2=new Date(new Date(date+'T12:00:00').getTime()+2*86400000).toISOString().split('T')[0];
+        [date,t1,t2].forEach(function(cd){
+          var cday=all[cd];if(!cday||!cday.selles)return;
+          cday.selles.forEach(function(s){
+            var diff=new Date(cd+'T'+s.heure+':00').getTime()-rt;
+            if(diff>=12*3600000&&diff<=48*3600000){foodStats[food].events++;if(s.bristol>=5||s.douleur||s.ballons||s.collante)foodStats[food].badEvents++;}
+          });
+        });
+      });
+    });
+  });
+  var foods=Object.entries(foodStats).filter(function(e){return e[1].events>=1;})
+    .map(function(e){return{name:e[0],events:e[1].events,badRate:e[1].badEvents/e[1].events};})
+    .sort(function(a,b){return b.badRate-a.badRate;});
+  var c=document.getElementById('analysisResults');
+  if(!foods.length){c.innerHTML='<div class="card"><div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">Pas assez de données.<br>Enregistrez repas et selles sur plusieurs jours.</div></div></div>';return;}
+  var prob=foods.filter(function(f){return f.badRate>=0.5;});
+  var html='';
+  if(prob.length)html+='<div class="food-warning">⚠️ <strong>'+prob.length+' aliment(s) potentiellement problématique(s)</strong></div>';
+  html+='<div class="card"><div class="card-title">📊 Corrélation aliments / troubles</div>';
+  foods.forEach(function(f){
+    var pct=Math.round(f.badRate*100),rc=pct>=50?'rank-bad':pct>=25?'rank-ok':'rank-good',bc=pct>=50?'bar-red':pct>=25?'bar-yellow':'bar-green';
+    html+='<div class="food-analysis-item"><div class="food-rank '+rc+'">'+pct+'%</div>'
+      +'<div class="food-score-bar"><div class="food-name">'+f.name+'</div>'
+      +'<div class="food-occurrences">'+f.events+' selle(s) analysée(s)</div>'
+      +'<div class="food-bar-wrap"><div class="food-bar-fill '+bc+'" style="width:'+pct+'%"></div></div></div></div>';
+  });
+  html+='</div>';c.innerHTML=html;
+}
 
-// IMPORT / EXPORT
-function exportCSV(){var all=getData();var rows=[['Date','Type','Heure','Données','Détails']];Object.keys(all).sort().forEach(function(date){var day=all[date];(day.repas||[]).forEach(function(r){rows.push([date,'Repas',r.heure,r.aliments.join(';'),'']);});(day.selles||[]).forEach(function(s){var det=[s.collante?'collante':'',s.douleur?'douleur':'',s.ballons?'ballonnements':''].filter(Boolean).join(';');rows.push([date,'Selle',s.heure,'Bristol '+s.bristol+' - '+BRISTOL_NAMES[s.bristol]+' Qté:'+(s.quantite||''),det]);});if(day.etat){var e=day.etat;rows.push([date,'Etat','','Humeur:'+(e.humeur||'')+' Hydratation:'+(e.hydration||'')+' Sport:'+(e.sport||''),'Durée:'+(e.sportDuree||0)+'min']);}var res=calculateScore(day);if(res)rows.push([date,'Score','',res.score,'']);});var csv=rows.map(function(r){return r.map(function(c){return'"'+String(c).replace(/"/g,'""')+'"';}).join(',');}).join('\n');var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='supercaca_'+new Date().toISOString().split('T')[0]+'.csv';a.click();showToast('📥 Export CSV téléchargé !');}
-function importCSV(input){var file=input.files[0];if(!file)return;var reader=new FileReader();reader.onload=function(e){var text=e.target.result.replace(/^\uFEFF/,'');var lines=text.split('\n').slice(1).filter(function(l){return l.trim();});var all=getData();var count=0;lines.forEach(function(line){var parts=parseCSVLine(line);if(parts.length<4)return;var date=parts[0],type=parts[1],heure=parts[2],data=parts[3],details=parts[4]||'';if(!date||!type)return;if(!all[date])all[date]={repas:[],selles:[],etat:null};if(type==='Repas'&&heure&&data){all[date].repas.push({heure:heure,aliments:data.split(';'),id:Date.now()+Math.random()});count++;}else if(type==='Selle'&&heure){var bm=data.match(/Bristol (\d)/);if(bm){all[date].selles.push({heure:heure,bristol:parseInt(bm[1]),collante:details.indexOf('collante')>=0,douleur:details.indexOf('douleur')>=0,ballons:details.indexOf('ballonnements')>=0,id:Date.now()+Math.random()});count++;}}else if(type==='Etat'){var hm=data.match(/Humeur:(\d)/),hy=data.match(/Hydratation:(\w+)/),sp=data.match(/Sport:(\w+)/),du=details.match(/Durée:(\d+)/);all[date].etat={humeur:hm?parseInt(hm[1]):null,hydration:hy?hy[1]:null,sport:sp?sp[1]:'aucun',sportDuree:du?parseInt(du[1]):0};count++;}});saveData(all);input.value='';refreshAll();showToast('✅ '+count+' entrées importées !');};reader.readAsText(file);}
+// ========== IMPORT/EXPORT ==========
+function exportCSV(){
+  var all=getData();var rows=[['Date','Type','Heure','Données','Détails']];
+  Object.keys(all).sort().forEach(function(date){
+    var day=all[date];
+    (day.repas||[]).forEach(function(r){rows.push([date,'Repas',r.heure,r.aliments.join(';'),'']);});
+    (day.selles||[]).forEach(function(s){
+      var det=[s.collante?'collante':'',s.douleur?'douleur':'',s.ballons?'ballonnements':''].filter(Boolean).join(';');
+      rows.push([date,'Selle',s.heure,'Bristol '+s.bristol+' '+BRISTOL_NAMES[s.bristol]+' Qte:'+(s.quantite||''),det]);
+    });
+    if(day.etat){var e=day.etat;rows.push([date,'Etat','','Humeur:'+(e.humeur||'')+' Hydratation:'+(e.hydration||'')+' Sport:'+(e.sport||''),'Duree:'+(e.sportDuree||0)+'min']);}
+    var res=calculateScore(day);if(res)rows.push([date,'Score','',res.score,'']);
+  });
+  var csv=rows.map(function(r){return r.map(function(c){return'"'+String(c).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+  var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  var url=URL.createObjectURL(blob);var a=document.createElement('a');
+  a.href=url;a.download='supercaca_'+new Date().toISOString().split('T')[0]+'.csv';a.click();
+  showToast('📥 Export CSV téléchargé !');
+}
+function importCSV(input){
+  var file=input.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var text=e.target.result.replace(/^\uFEFF/,'');
+    var lines=text.split('\n').slice(1).filter(function(l){return l.trim();});
+    var all=getData();var count=0;
+    lines.forEach(function(line){
+      var parts=parseCSVLine(line);if(parts.length<4)return;
+      var date=parts[0],type=parts[1],heure=parts[2],data=parts[3],details=parts[4]||'';
+      if(!date||!type)return;
+      if(!all[date])all[date]={repas:[],selles:[],etat:null};
+      if(type==='Repas'&&heure&&data){all[date].repas.push({heure:heure,aliments:data.split(';'),id:Date.now()+Math.random()});count++;}
+      else if(type==='Selle'&&heure){var bm=data.match(/Bristol (\d)/);if(bm){all[date].selles.push({heure:heure,bristol:parseInt(bm[1]),collante:details.indexOf('collante')>=0,douleur:details.indexOf('douleur')>=0,ballons:details.indexOf('ballonnements')>=0,id:Date.now()+Math.random()});count++;}}
+      else if(type==='Etat'){var hm=data.match(/Humeur:(\d)/),hy=data.match(/Hydratation:(\w+)/),sp=data.match(/Sport:(\w+)/),du=details.match(/Duree:(\d+)/);all[date].etat={humeur:hm?parseInt(hm[1]):null,hydration:hy?hy[1]:null,sport:sp?sp[1]:'aucun',sportDuree:du?parseInt(du[1]):0};count++;}
+    });
+    saveData(all);input.value='';refreshAll();showToast('✅ '+count+' entrées importées !');
+  };
+  reader.readAsText(file);
+}
 function parseCSVLine(line){var res=[],cur='',inQ=false;for(var i=0;i<line.length;i++){var c=line[i];if(c==='"'){inQ=!inQ;continue;}if(c===','&&!inQ){res.push(cur);cur='';continue;}cur+=c;}res.push(cur);return res;}
 function resetAllData(){if(!confirm('Effacer toutes les données ? Action irréversible.'))return;localStorage.removeItem('supercaca_data');selectedCalDate=null;document.getElementById('calDayDetail').innerHTML='';refreshAll();showToast('🗑️ Données effacées');}
 
-// STORAGE INFO
-function renderStorageInfo(){
-  var el=document.getElementById('storageLocationDesc');
-  if(!el)return;
-  var all=getData();
-  var plats=getPlats();
-  var nbDays=Object.keys(all).length;
-  var nbRepas=0,nbSelles=0,nbEtat=0;
-  Object.values(all).forEach(function(d){
-    nbRepas+=(d.repas||[]).length;
-    nbSelles+=(d.selles||[]).length;
-    if(d.etat)nbEtat++;
-  });
-  // Estimate size
-  var raw=JSON.stringify(all)+JSON.stringify(plats);
-  var kb=Math.round(raw.length/1024*10)/10;
-  var isSamsung=/SamsungBrowser/.test(navigator.userAgent);
-  var isChrome=/Chrome/.test(navigator.userAgent)&&!/Edg|OPR/.test(navigator.userAgent);
-  var browser=isSamsung?'Samsung Internet':isChrome?'Chrome':'votre navigateur';
-  var path='';
-  if(/Android/.test(navigator.userAgent)){
-    if(isSamsung){
-      path='Android → Paramètres → Applications → <strong>Samsung Internet</strong> → Stockage<br>Données de l'application : localStorage de SuperCaca';
-    } else {
-      path='Android → Paramètres → Applications → <strong>Chrome</strong> → Stockage<br>Données de l'application : localStorage de SuperCaca';
-    }
-  } else if(/iPhone|iPad/.test(navigator.userAgent)){
-    path='iOS → Réglages → Safari → Avancé → Données du site web → SuperCaca';
-  } else {
-    path='PC : Outils développeur (F12) → Application → LocalStorage → '+location.hostname;
+// ========== PWA & NOTIFICATIONS ==========
+var IS_HTTPS=location.protocol==='https:';
+var IS_LOCAL_FILE=location.protocol==='file:';
+var IS_STANDALONE=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
+var deferredInstallPrompt=null;
+
+window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferredInstallPrompt=e;document.getElementById('pwaBanner').classList.add('show');refreshIOTab();});
+window.addEventListener('appinstalled',function(){document.getElementById('pwaBanner').classList.remove('show');deferredInstallPrompt=null;showToast('🎉 SuperCaca installé !');refreshIOTab();});
+function dismissBanner(){document.getElementById('pwaBanner').classList.remove('show');}
+
+function refreshIOTab(){renderPwaCard();renderNotifCard();renderStorageInfo();}
+
+function renderPwaCard(){
+  var desc=document.getElementById('pwaDesc');var actions=document.getElementById('pwaActions');
+  if(!desc||!actions)return;
+  if(IS_STANDALONE){desc.innerHTML='✅ <strong>SuperCaca est installé</strong> en mode application.';actions.innerHTML='';return;}
+  if(IS_LOCAL_FILE){
+    desc.innerHTML='<strong>⚠️ Installation impossible depuis un fichier local.</strong><br><br>Hébergez le fichier sur GitHub Pages ou Netlify, puis ouvrez l\'URL HTTPS sur votre téléphone.';
+    actions.innerHTML='';return;
   }
-  el.innerHTML='Vos données sont stockées <strong>localement</strong> dans le navigateur <strong>'+browser+'</strong> de votre appareil, via le mécanisme <em>localStorage</em>. Elles ne sont <strong>jamais envoyées sur internet</strong>.<br><br>'
-    +'📍 <strong>Emplacement :</strong><br>'+path+'<br><br>'
-    +'📊 <strong>Contenu actuel :</strong> '+nbDays+' jour(s) · '+nbRepas+' repas · '+nbSelles+' selle(s) · '+nbEtat+' état(s) · '+plats.length+' plat(s) type<br>'
-    +'💾 <strong>Taille estimée :</strong> '+kb+' Ko<br><br>'
-    +'⚠️ <strong>Important :</strong> si vous effacez les données du navigateur ou désinstallez l'application, toutes les données sont perdues. Pensez à exporter régulièrement votre CSV.';
+  if(deferredInstallPrompt){
+    desc.innerHTML='Installez SuperCaca sur votre écran d\'accueil.';
+    actions.innerHTML='<button class="btn btn-primary btn-full" id="doInstallBtn">📲 Installer SuperCaca</button>';
+    document.getElementById('doInstallBtn').addEventListener('click',doInstall);return;
+  }
+  var isSamsung=/SamsungBrowser/.test(navigator.userAgent);
+  var isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
+  if(isIOS)desc.innerHTML='Sur iPhone/iPad : <strong>↑ Partager</strong> → <strong>Sur l\'écran d\'accueil</strong>';
+  else if(isSamsung)desc.innerHTML='Samsung Internet : menu <strong>☰</strong> → <strong>Ajouter page à</strong> → <strong>Écran d\'accueil</strong>';
+  else desc.innerHTML='Chrome : menu <strong>⋮</strong> → <strong>Ajouter à l\'écran d\'accueil</strong>';
+  actions.innerHTML='';
+}
+function doInstall(){if(!deferredInstallPrompt)return;deferredInstallPrompt.prompt();deferredInstallPrompt.userChoice.then(function(r){deferredInstallPrompt=null;dismissBanner();refreshIOTab();if(r.outcome==='accepted')showToast('✅ Installation en cours…');});}
+
+function renderNotifCard(){
+  var desc=document.getElementById('notifDesc');var actions=document.getElementById('notifActions');
+  if(!desc||!actions)return;
+  if(!('Notification' in window)){desc.innerHTML='❌ Notifications non supportées sur ce navigateur.';actions.innerHTML='';return;}
+  if(IS_LOCAL_FILE){desc.innerHTML='<strong>⚠️ Notifications bloquées</strong> en fichier local. Hébergez en HTTPS pour activer.';actions.innerHTML='';return;}
+  var perm=Notification.permission;
+  if(perm==='granted'){
+    desc.innerHTML='✅ <strong>Rappel activé.</strong> Notification à 21h si aucune saisie.';
+    actions.innerHTML='<button class="btn btn-secondary btn-sm" id="testNotifBtn">🔔 Tester</button>';
+    document.getElementById('testNotifBtn').addEventListener('click',testNotif);return;
+  }
+  if(perm==='denied'){desc.innerHTML='🚫 Notifications bloquées. Réactivez dans Paramètres → Applications → Navigateur → Autorisations.';actions.innerHTML='';return;}
+  desc.innerHTML='Rappel à <strong>21h chaque jour</strong> si aucune donnée saisie.';
+  actions.innerHTML='<button class="btn btn-primary btn-full" id="askNotifBtn">🔔 Activer le rappel 21h</button>';
+  document.getElementById('askNotifBtn').addEventListener('click',askNotifPermission);
+}
+function askNotifPermission(){
+  Notification.requestPermission().then(function(perm){
+    if(perm==='granted'){showToast('✅ Rappel activé à 21h !');scheduleNightlyReminder();localStorage.setItem('sc_notif','granted');}
+    else showToast('⚠️ Permission refusée. Activez dans les paramètres.');
+    renderNotifCard();
+  });
+}
+function testNotif(){try{new Notification('💩 SuperCaca — Test',{body:'Rappels 21h fonctionnels !',tag:'sc-test'});showToast('🔔 Notification envoyée !');}catch(e){showToast('❌ '+e.message);}}
+
+function hasDataToday(){var today=new Date().toISOString().split('T')[0];var day=getDayData(today);return(day.repas&&day.repas.length>0)||(day.selles&&day.selles.length>0)||day.etat!==null;}
+function scheduleNightlyReminder(){
+  if(!('Notification' in window)||Notification.permission!=='granted')return;
+  if(window._scTimer)clearTimeout(window._scTimer);
+  var now=new Date();var next21=new Date(now.getFullYear(),now.getMonth(),now.getDate(),21,0,0,0);
+  if(now>=next21)next21=new Date(next21.getTime()+86400000);
+  window._scTimer=setTimeout(function(){
+    if(!hasDataToday()){try{new Notification('💩 SuperCaca — Rappel',{body:'Rien saisi aujourd\'hui. Pensez à enregistrer !',tag:'sc-nightly'});}catch(e){}}
+    scheduleNightlyReminder();
+  },next21.getTime()-now.getTime());
 }
 
-// UTILS
-function escQ(s){return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'");}
+function renderStorageInfo(){
+  var el=document.getElementById('storageLocationDesc');if(!el)return;
+  var all=getData();var plats=getPlats();
+  var nbDays=Object.keys(all).length,nbRepas=0,nbSelles=0,nbEtat=0;
+  Object.values(all).forEach(function(d){nbRepas+=(d.repas||[]).length;nbSelles+=(d.selles||[]).length;if(d.etat)nbEtat++;});
+  var kb=Math.round((JSON.stringify(all)+JSON.stringify(plats)).length/1024*10)/10;
+  var isSamsung=/SamsungBrowser/.test(navigator.userAgent);
+  var browser=isSamsung?'Samsung Internet':'Chrome';
+  var path=/Android/.test(navigator.userAgent)
+    ?'Paramètres Android → Applications → <strong>'+browser+'</strong> → Stockage'
+    :/iPhone|iPad/.test(navigator.userAgent)
+    ?'Réglages → Safari → Avancé → Données du site web'
+    :'F12 → Application → LocalStorage';
+  el.innerHTML='Données stockées <strong>localement</strong> sur votre appareil (localStorage). Jamais envoyées sur internet.<br><br>'
+    +'📍 <strong>Emplacement :</strong> '+path+'<br><br>'
+    +'📊 <strong>Contenu :</strong> '+nbDays+' jour(s) · '+nbRepas+' repas · '+nbSelles+' selle(s) · '+nbEtat+' état(s) · '+plats.length+' plat(s)<br>'
+    +'💾 <strong>Taille :</strong> '+kb+' Ko<br><br>'
+    +'⚠️ Effacer les données du navigateur supprime tout. Exportez régulièrement en CSV.';
+}
+
+// ========== UTILS ==========
 function fmtDateFR(ds){var d=new Date(ds+'T12:00:00');return d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
 function setNow(id){var n=new Date();document.getElementById(id).value=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');}
-function toggleCheckbox(labelEl){var cb=labelEl.querySelector('input[type="checkbox"]');if(!cb)return;cb.checked=!cb.checked;var v=labelEl.querySelector('.checkbox-visual');if(cb.checked){labelEl.classList.add('checked');if(v){v.style.background='var(--accent)';v.style.borderColor='var(--accent)';v.innerHTML='<span style="font-size:13px;font-weight:900;color:white">✓</span>';}}else{labelEl.classList.remove('checked');if(v){v.style.background='var(--card)';v.style.borderColor='var(--border2)';v.innerHTML='';}}}
+function toggleCheckbox(labelEl){
+  var cb=labelEl.querySelector('input[type="checkbox"]');if(!cb)return;
+  cb.checked=!cb.checked;
+  var v=labelEl.querySelector('.checkbox-visual');
+  if(cb.checked){labelEl.classList.add('checked');if(v){v.style.background='var(--accent)';v.style.borderColor='var(--accent)';v.innerHTML='<span style="font-size:13px;font-weight:900;color:white">✓</span>';}}
+  else{labelEl.classList.remove('checked');if(v){v.style.background='var(--card)';v.style.borderColor='var(--border2)';v.innerHTML='';}}
+}
 function showToast(msg){var c=document.getElementById('toastContainer');var t=document.createElement('div');t.className='toast';t.textContent=msg;c.appendChild(t);setTimeout(function(){t.remove();},2500);}
 function openDatePicker(){document.getElementById('datePicker').value=currentDate;document.getElementById('dateModal').classList.add('open');}
 function confirmDate(){var v=document.getElementById('datePicker').value;if(v){currentDate=v;updateDateDisplay();refreshAll();}closeModal('dateModal');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
-function updateDateDisplay(){var today=new Date().toISOString().split('T')[0];var d=new Date(currentDate+'T12:00:00');document.getElementById('currentDateDisplay').textContent=currentDate===today?"Aujourd'hui":d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});}
-function switchTab(name,btn){document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('active');});document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});document.getElementById('tab-'+name).classList.add('active');btn.classList.add('active');if(name==='repas')renderRepasList();if(name==='selles')renderSellesList();if(name==='etat')renderEtatDisplay();if(name==='score'){populateScoreDateSelect();renderScore();}if(name==='calendrier')renderCalendar();if(name==='plats')renderPlatsList();if(name==='io'){refreshIOTab();}}
+function updateDateDisplay(){
+  var today=new Date().toISOString().split('T')[0];var d=new Date(currentDate+'T12:00:00');
+  document.getElementById('currentDateDisplay').textContent=currentDate===today?"Aujourd'hui":d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+}
+function switchTab(name,btn){
+  document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('tab-'+name).classList.add('active');btn.classList.add('active');
+  if(name==='repas')renderRepasList();
+  if(name==='selles')renderSellesList();
+  if(name==='etat')renderEtatDisplay();
+  if(name==='score'){populateScoreDateSelect();renderScore();}
+  if(name==='calendrier')renderCalendar();
+  if(name==='plats')renderPlatsList();
+  if(name==='io')refreshIOTab();
+}
 function refreshAll(){renderRepasList();renderSellesList();renderEtatDisplay();renderScore();renderCalendar();}
 
-// EVENTS
-document.querySelectorAll('input[name="sport"]').forEach(function(el){el.addEventListener('change',function(){document.getElementById('sportDureeGroup').style.display=el.value!=='aucun'?'block':'none';});});
+// ========== EVENT LISTENERS ==========
+document.querySelectorAll('input[name="sport"]').forEach(function(el){
+  el.addEventListener('change',function(){document.getElementById('sportDureeGroup').style.display=el.value!=='aucun'?'block':'none';});
+});
 document.querySelectorAll('.checkbox-item').forEach(function(el){el.addEventListener('click',function(){toggleCheckbox(this);});});
 document.getElementById('dateModal').addEventListener('click',function(e){if(e.target===this)closeModal('dateModal');});
 document.getElementById('repasAlimentInput').addEventListener('keydown',function(e){if(e.key==='Enter')addFoodFromInput();});
 document.getElementById('platIngredientInput').addEventListener('keydown',function(e){if(e.key==='Enter')addPlatIngredientFromInput();});
-
-// ========== NOTIFICATIONS 21H ==========
-function hasDataToday(){
-  var today=new Date().toISOString().split('T')[0];
-  var day=getDayData(today);
-  return (day.repas&&day.repas.length>0)||(day.selles&&day.selles.length>0)||day.etat!==null;
-}
-
-function scheduleNightlyReminder(){
-  if(!('Notification' in window))return;
-  // Cancel any existing timer
-  if(window._scReminderTimer)clearTimeout(window._scReminderTimer);
-  var now=new Date();
-  var next21=new Date(now.getFullYear(),now.getMonth(),now.getDate(),21,0,0,0);
-  if(now>=next21)next21=new Date(next21.getTime()+86400000);// tomorrow 21h
-  var delay=next21.getTime()-now.getTime();
-  window._scReminderTimer=setTimeout(function(){
-    if(!hasDataToday()&&Notification.permission==='granted'){
-      try{
-        new Notification('💩 SuperCaca — Rappel',{
-          body:'Vous n\'avez rien saisi aujourd\'hui. Pensez à enregistrer vos repas et selles !',
-          icon:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">💩</text></svg>',
-          badge:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">💩</text></svg>',
-          tag:'supercaca-reminder',
-          requireInteraction:false
-        });
-      }catch(e){}
-    }
-    scheduleNightlyReminder();// reschedule for next day
-  },delay);
-}
-
-function requestNotificationPermission(){
-  if(!('Notification' in window)){showToast('❌ Notifications non supportées sur ce navigateur');return;}
-  if(Notification.permission==='granted'){showToast('✅ Notifications déjà activées (rappel 21h)');scheduleNightlyReminder();return;}
-  Notification.requestPermission().then(function(perm){
-    if(perm==='granted'){
-      showToast('✅ Rappel quotidien activé à 21h !');
-      scheduleNightlyReminder();
-      localStorage.setItem('sc_notif','granted');
-      document.getElementById('notifBtn').textContent='🔔 Rappel 21h activé';
-      document.getElementById('notifBtn').disabled=true;
-    }else{
-      showToast('❌ Permission refusée');
-    }
-  });
-}
 
 // ========== INIT ==========
 initTheme();
@@ -1135,13 +1476,11 @@ initFoodCommon();initPlatFoodCommon();
 updateDateDisplay();
 renderRepasList();renderSellesList();renderEtatDisplay();renderPlatsList();
 populateScoreDateSelect();
-// Auto-start notification scheduler if already granted
-if(!IS_LOCAL_FILE&&'Notification' in window&&Notification.permission==='granted'){
+if(!IS_LOCAL_FILE&&typeof Notification!=='undefined'&&Notification.permission==='granted'){
   scheduleNightlyReminder();
 }
-// Init IO tab UI
-renderPwaCard();
-renderNotifCard();
+renderPwaCard();renderNotifCard();renderStorageInfo();
+
 </script>
 </body>
 </html>
