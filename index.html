@@ -557,6 +557,16 @@ main{position:relative;z-index:1;}
     </div>
   </div>
   <div class="card">
+    <div class="card-title" id="L_sommeil_title">😴 Qualité du sommeil (nuit passée)</div>
+    <div class="mood-scale">
+      <div class="mood-option"><input type="radio" name="sommeil" id="so1" value="1"><label class="mood-label" for="so1"><span class="mood-emoji">😩</span><span class="mood-num" id="L_so1">Très mauvais</span></label></div>
+      <div class="mood-option"><input type="radio" name="sommeil" id="so2" value="2"><label class="mood-label" for="so2"><span class="mood-emoji">😪</span><span class="mood-num" id="L_so2">Mauvais</span></label></div>
+      <div class="mood-option"><input type="radio" name="sommeil" id="so3" value="3"><label class="mood-label" for="so3"><span class="mood-emoji">😐</span><span class="mood-num" id="L_so3">Moyen</span></label></div>
+      <div class="mood-option"><input type="radio" name="sommeil" id="so4" value="4"><label class="mood-label" for="so4"><span class="mood-emoji">🙂</span><span class="mood-num" id="L_so4">Bon</span></label></div>
+      <div class="mood-option"><input type="radio" name="sommeil" id="so5" value="5"><label class="mood-label" for="so5"><span class="mood-emoji">😴</span><span class="mood-num" id="L_so5">Excellent</span></label></div>
+    </div>
+  </div>
+  <div class="card">
     <div class="card-title" id="L_hydration_title">💧 Hydratation</div>
     <div class="hydration-row">
       <div class="hydration-option"><input type="radio" name="hydration" id="hyd1" value="faible"><label class="hydration-label" for="hyd1"><span class="hydration-icon">🥤</span><span id="L_hyd_faible">Faible</span></label></div>
@@ -745,6 +755,7 @@ var BRISTOL_FR=['','Très dur','Dur','Normal','Mou','Très mou','Liquide'];
 var BRISTOL_EN=['','Very hard','Hard','Normal','Soft','Very soft','Liquid'];
 var BRISTOL_EM=['','🪨','🌰','🍫','🍌','💩','💦'];
 var HUM_EM=['','😫','😕','😐','😊','😄'];
+var SOM_EM=['','😩','😪','😐','🙂','😴'];
 var QTY_DOTS=['','●','●●','●●●','●●●●','●●●●●'];
 
 var FR={
@@ -771,7 +782,10 @@ var FR={
   L_collante:'Selles collantes',L_sang:'Sang dans les selles',
   L_save_selle:'💾 Enregistrer la selle',L_selles_jour:'📋 Selles du jour',
   noSelles:'Aucune selle enregistrée',
-  L_humeur_title:'😊 Humeur',L_hydration_title:'💧 Hydratation',
+  L_humeur_title:'😊 Humeur',
+  L_sommeil_title:'😴 Qualité du sommeil (nuit passée)',
+  L_so1:'Très mauvais',L_so2:'Mauvais',L_so3:'Moyen',L_so4:'Bon',L_so5:'Excellent',
+  L_hydration_title:'💧 Hydratation',
   L_hyd_faible:'Faible',L_hyd_moyen:'Moyen',L_hyd_bon:'Bon',
   L_sport_title:'🏃 Activité physique',
   L_sport_aucune:'Aucune',L_sport_endurance:'Endurance',L_sport_cardio:'Cardio',L_sport_muscu:'Muscu',
@@ -785,14 +799,14 @@ var FR={
   L_score_missing:'Aucune donnée pour cette date.',
   s_base:'🎯 Base',s_detail:'📐 Détail du calcul',s_final:'🏆 Score final',
   s_no_selle:'🚽 Aucune selle',s_note:'ℹ️ Sans selle : points Bristol = 0.',
-  s_humeur:'Humeur',s_hydra:'Hydratation',s_sport:'Activité',
+  s_humeur:'Humeur',s_sommeil:'Sommeil',s_hydra:'Hydratation',s_sport:'Activité',
   s_bristol:'Consistance (Bristol)',s_symp_selle:'Symptômes (selle)',s_symp_etat:'Symptômes digestifs',
   scoreLabels:['','Très mauvaise journée','Journée difficile','Journée correcte','Journée correcte','Bonne journée','Bonne journée','Excellente journée !','Excellente journée !','Excellente journée !','Excellente journée !'],
   months:['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'],
   weekdays:['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'],
   cal_repas:'🍽️ Repas',cal_selles:'🚽 Selles',cal_etat:'🌟 État général',
   cal_calcul:'📐 Calcul du score',cal_nodata:'Aucune donnée pour ce jour',
-  regleLabel:'🌸 Règles',noteLabel:'📝',
+  regleLabel:'🌸 Règles',noteLabel:'📝',sommeilLabel:'😴',
   tag_collante:'🩹 Collante',tag_sang:'🩸 Sang',tag_douleur:'😣 Douleur',tag_ballons:'🎈 Ballons',
   L_analyse_title:'🔍 Analyse alimentaire',
   L_analyse_desc:'Analyse la corrélation entre les aliments et la qualité des selles <strong>12–48h après</strong>.',
@@ -803,18 +817,15 @@ var FR={
   ph_plat_nom:'Ex: Biryani, Salade niçoise...',
   L_plat_aliments:'Aliments courants',L_plat_selectionnes:'Ingrédients sélectionnés',
   aucun_ingredient:'Aucun ingrédient sélectionné',
-  L_plat_texte_libre:'Texte libre (virgules acceptées)',
-  ph_plat_input:'Ex: Garam masala, safran...',
+  L_plat_texte_libre:'Texte libre (virgules acceptées)',ph_plat_input:'Ex: Garam masala, safran...',
   L_plat_ajouter:'+ Ajouter',L_save_plat:'💾 Enregistrer ce plat',
   L_plats_enregistres:'📚 Plats enregistrés',noPlats:'Aucun plat type enregistré.',plat_use:'🍽️ Utiliser',
   L_install_title:"📱 Installer l'application",L_notif_title:'🔔 Rappel quotidien 21h',
   L_export_title:'📤 Exporter les données',
   L_export_desc:'Génère un fichier CSV contenant tous vos repas, selles, états et scores.',
-  L_export_btn:'📥 Télécharger CSV',
-  L_import_title:'📥 Importer des données',
+  L_export_btn:'📥 Télécharger CSV',L_import_title:'📥 Importer des données',
   L_import_desc:'Importez un fichier CSV précédemment exporté. Les données seront fusionnées.',
-  L_import_btn:'📂 Choisir un fichier CSV',
-  L_storage_title:'📂 Où sont stockées vos données ?',
+  L_import_btn:'📂 Choisir un fichier CSV',L_storage_title:'📂 Où sont stockées vos données ?',
   L_reset_title:'⚠️ Réinitialiser',L_reset_desc:'Efface toutes les données. Action irréversible.',
   L_reset_btn:'🗑️ Effacer toutes les données',
   storage_local:'Données stockées <strong>localement</strong> sur votre appareil. Jamais envoyées sur internet.',
@@ -834,8 +845,7 @@ var FR={
   notif_none:'❌ Notifications non supportées.',notif_ask:'Rappel à <strong>21h chaque jour</strong>.',
   notif_btn:'🔔 Activer le rappel 21h',
   L_banner_title:'Installer SuperCaca',L_banner_desc:"Accédez-y depuis votre écran d'accueil",
-  L_banner_install:'Installer',L_date_title:'📅 Choisir une date',
-  L_confirmer:'Confirmer',L_annuler:'Annuler',
+  L_banner_install:'Installer',L_date_title:'📅 Choisir une date',L_confirmer:'Confirmer',L_annuler:'Annuler',
   tRepas:'✅ Repas enregistré !',tSelle:'✅ Selle enregistrée !',tEtat:'✅ État enregistré !',
   tDelRepas:'🗑️ Repas supprimé',tDelSelle:'🗑️ Selle supprimée',tDelEtat:'🗑️ État supprimé',
   tPlat:'✅ Plat enregistré !',tDelPlat:'🗑️ Plat supprimé',
@@ -856,12 +866,10 @@ var EN={
   today:'Today',
   L_repas_title:'🍽️ Record a meal',L_repas_heure:'Meal time',
   L_now_repas:'⏱️ Now',L_now_selle:'⏱️ Now',
-  L_plat_search:'Search a meal type (auto-fill)',
-  ph_plat_search:'E.g. Biryani, Caesar salad...',
+  L_plat_search:'Search a meal type (auto-fill)',ph_plat_search:'E.g. Biryani, Caesar salad...',
   L_aliments_courants:'Common foods',L_selectionnes:'Selected',
   aucun_aliment:'No food selected',
-  L_texte_libre:'Free text (separate with commas)',
-  ph_texte_libre:'E.g. Quinoa, cheese, tomatoes...',
+  L_texte_libre:'Free text (separate with commas)',ph_texte_libre:'E.g. Quinoa, cheese, tomatoes...',
   L_ajouter:'+ Add',L_save_repas:'💾 Save meal',
   L_repas_jour:'📋 Today meals',noRepas:'No meals recorded today',
   L_selle_title:'🚽 Record a stool',L_heure_selle:'Time',
@@ -873,7 +881,10 @@ var EN={
   L_collante:'Sticky stools',L_sang:'Blood in stools',
   L_save_selle:'💾 Save stool',L_selles_jour:'📋 Today stools',
   noSelles:'No stools recorded',
-  L_humeur_title:'😊 Mood',L_hydration_title:'💧 Hydration',
+  L_humeur_title:'😊 Mood',
+  L_sommeil_title:'😴 Sleep quality (last night)',
+  L_so1:'Very poor',L_so2:'Poor',L_so3:'Fair',L_so4:'Good',L_so5:'Excellent',
+  L_hydration_title:'💧 Hydration',
   L_hyd_faible:'Low',L_hyd_moyen:'Medium',L_hyd_bon:'Good',
   L_sport_title:'🏃 Physical activity',
   L_sport_aucune:'None',L_sport_endurance:'Endurance',L_sport_cardio:'Cardio',L_sport_muscu:'Strength',
@@ -887,14 +898,14 @@ var EN={
   L_score_missing:'No data for this date.',
   s_base:'🎯 Base',s_detail:'📐 Score breakdown',s_final:'🏆 Final score',
   s_no_selle:'🚽 No stool recorded',s_note:'ℹ️ Without stools: Bristol points = 0.',
-  s_humeur:'Mood',s_hydra:'Hydration',s_sport:'Activity',
+  s_humeur:'Mood',s_sommeil:'Sleep',s_hydra:'Hydration',s_sport:'Activity',
   s_bristol:'Consistency (Bristol)',s_symp_selle:'Symptoms (stool)',s_symp_etat:'Digestive symptoms',
   scoreLabels:['','Very bad day','Difficult day','Decent day','Decent day','Good day','Good day','Excellent day!','Excellent day!','Excellent day!','Excellent day!'],
   months:['January','February','March','April','May','June','July','August','September','October','November','December'],
   weekdays:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
   cal_repas:'🍽️ Meals',cal_selles:'🚽 Stools',cal_etat:'🌟 Daily status',
   cal_calcul:'📐 Score breakdown',cal_nodata:'No data for this day',
-  regleLabel:'🌸 Period',noteLabel:'📝',
+  regleLabel:'🌸 Period',noteLabel:'📝',sommeilLabel:'😴',
   tag_collante:'🩹 Sticky',tag_sang:'🩸 Blood',tag_douleur:'😣 Pain',tag_ballons:'🎈 Bloating',
   L_analyse_title:'🔍 Food analysis',
   L_analyse_desc:'Analyses the correlation between foods and stool quality <strong>12–48h later</strong>.',
@@ -905,18 +916,15 @@ var EN={
   ph_plat_nom:'E.g. Biryani, Caesar salad...',
   L_plat_aliments:'Common foods',L_plat_selectionnes:'Selected ingredients',
   aucun_ingredient:'No ingredient selected',
-  L_plat_texte_libre:'Free text (commas accepted)',
-  ph_plat_input:'E.g. Garam masala, saffron...',
+  L_plat_texte_libre:'Free text (commas accepted)',ph_plat_input:'E.g. Garam masala, saffron...',
   L_plat_ajouter:'+ Add',L_save_plat:'💾 Save this meal type',
   L_plats_enregistres:'📚 Saved meal types',noPlats:'No meal types yet.',plat_use:'🍽️ Use',
   L_install_title:'📱 Install the app',L_notif_title:'🔔 Daily reminder 9pm',
   L_export_title:'📤 Export data',
   L_export_desc:'Generates a CSV file with all your meals, stools, daily status and scores.',
-  L_export_btn:'📥 Download CSV',
-  L_import_title:'📥 Import data',
+  L_export_btn:'📥 Download CSV',L_import_title:'📥 Import data',
   L_import_desc:'Import a previously exported CSV file. Data will be merged.',
-  L_import_btn:'📂 Choose a CSV file',
-  L_storage_title:'📂 Where is your data stored?',
+  L_import_btn:'📂 Choose a CSV file',L_storage_title:'📂 Where is your data stored?',
   L_reset_title:'⚠️ Reset',L_reset_desc:'Deletes all data. This cannot be undone.',
   L_reset_btn:'🗑️ Delete all data',
   storage_local:'Data stored <strong>locally</strong> on your device. Never sent to the internet.',
@@ -936,8 +944,7 @@ var EN={
   notif_none:'❌ Notifications not supported.',notif_ask:'Reminder at <strong>9pm every day</strong>.',
   notif_btn:'🔔 Enable daily reminder',
   L_banner_title:'Install SuperCaca',L_banner_desc:'Access it from your home screen',
-  L_banner_install:'Install',L_date_title:'📅 Choose a date',
-  L_confirmer:'Confirm',L_annuler:'Cancel',
+  L_banner_install:'Install',L_date_title:'📅 Choose a date',L_confirmer:'Confirm',L_annuler:'Cancel',
   tRepas:'✅ Meal saved!',tSelle:'✅ Stool saved!',tEtat:'✅ Status saved!',
   tDelRepas:'🗑️ Meal deleted',tDelSelle:'🗑️ Stool deleted',tDelEtat:'🗑️ Status deleted',
   tPlat:'✅ Meal type saved!',tDelPlat:'🗑️ Meal type deleted',
@@ -972,19 +979,21 @@ function applyLang(){
   s('tb_repas','tb_repas');s('tb_selles','tb_selles');s('tb_etat','tb_etat');s('tb_score','tb_score');
   s('tb_cal','tb_cal');s('tb_analyse','tb_analyse');s('tb_plats','tb_plats');s('tb_io','tb_io');
   s('L_repas_title','L_repas_title');s('L_repas_heure','L_repas_heure');
-  s('L_now_repas','L_now_repas');s('L_plat_search','L_plat_search');
-  p('platSearch','ph_plat_search');
+  s('L_now_repas','L_now_repas');s('L_plat_search','L_plat_search');p('platSearch','ph_plat_search');
   s('L_aliments_courants','L_aliments_courants');s('L_selectionnes','L_selectionnes');
   s('L_texte_libre','L_texte_libre');p('repasAlimentInput','ph_texte_libre');
   s('L_ajouter','L_ajouter');s('L_save_repas','L_save_repas');s('L_repas_jour','L_repas_jour');
-  s('L_selle_title','L_selle_title');s('L_heure_selle','L_heure_selle');
-  s('L_now_selle','L_now_selle');s('L_quantite','L_quantite');
+  s('L_selle_title','L_selle_title');s('L_heure_selle','L_heure_selle');s('L_now_selle','L_now_selle');
+  s('L_quantite','L_quantite');
   s('L_qty1','L_qty1');s('L_qty2','L_qty2');s('L_qty3','L_qty3');s('L_qty4','L_qty4');s('L_qty5','L_qty5');
   s('L_bristol_title','L_bristol_title');
   s('L_b1','L_b1');s('L_b2','L_b2');s('L_b3','L_b3');s('L_b4','L_b4');s('L_b5','L_b5');s('L_b6','L_b6');
   s('L_symp_selle','L_symp_selle');s('L_collante','L_collante');s('L_sang','L_sang');
   s('L_save_selle','L_save_selle');s('L_selles_jour','L_selles_jour');
-  s('L_humeur_title','L_humeur_title');s('L_hydration_title','L_hydration_title');
+  s('L_humeur_title','L_humeur_title');
+  s('L_sommeil_title','L_sommeil_title');
+  s('L_so1','L_so1');s('L_so2','L_so2');s('L_so3','L_so3');s('L_so4','L_so4');s('L_so5','L_so5');
+  s('L_hydration_title','L_hydration_title');
   s('L_hyd_faible','L_hyd_faible');s('L_hyd_moyen','L_hyd_moyen');s('L_hyd_bon','L_hyd_bon');
   s('L_sport_title','L_sport_title');s('L_sport_aucune','L_sport_aucune');
   s('L_sport_endurance','L_sport_endurance');s('L_sport_cardio','L_sport_cardio');s('L_sport_muscu','L_sport_muscu');
@@ -1231,11 +1240,13 @@ function deleteSelle(id){var day=getDayData(currentDate);day.selles=day.selles.f
 // ÉTAT
 function saveEtat(){
   var hEl=document.querySelector('input[name="humeur"]:checked');
+  var soEl=document.querySelector('input[name="sommeil"]:checked');
   var hydEl=document.querySelector('input[name="hydration"]:checked');
   var spEl=document.querySelector('input[name="sport"]:checked');
   var day=getDayData(currentDate);
   day.etat={
     humeur:hEl?parseInt(hEl.value):null,
+    sommeil:soEl?parseInt(soEl.value):null,
     hydration:hydEl?hydEl.value:null,
     sport:spEl?spEl.value:'aucun',
     sportDuree:parseInt(document.getElementById('sportDuree').value)||0,
@@ -1259,6 +1270,7 @@ function renderEtatDisplay(){
   var spI={aucun:'💤',endurance:'🏃',cardio:'🚴',musculation:'🏋️'};
   var tags='';
   if(e.humeur)tags+='<span class="tag tag-yellow">'+HUM_EM[e.humeur]+' '+t('s_humeur')+' '+e.humeur+'/5</span> ';
+  if(e.sommeil)tags+='<span class="tag tag-blue">'+SOM_EM[e.sommeil]+' '+t('s_sommeil')+' '+e.sommeil+'/5</span> ';
   if(e.hydration)tags+='<span class="tag tag-blue">'+(hydI[e.hydration]||'')+' '+t('L_hyd_'+e.hydration)+'</span> ';
   if(e.sport&&e.sport!=='aucun')tags+='<span class="tag tag-green">'+(spI[e.sport]||'🏃')+' '+e.sport+(e.sportDuree?' '+e.sportDuree+' min':'')+'</span> ';
   if(e.douleur)tags+='<span class="tag tag-red">'+t('tag_douleur')+'</span> ';
@@ -1270,6 +1282,7 @@ function renderEtatDisplay(){
 }
 
 // SCORE
+// Sommeil : valeur 1-5 -> contribution (val-3)*0.3 : mauvais sommeil pénalise, excellent bonifie
 function calculateScore(day){
   if(!day)return null;
   var hasSelles=(day.selles&&day.selles.length>0);
@@ -1289,13 +1302,19 @@ function calculateScore(day){
   }
   if(hasEtat){
     var e=day.etat;
+    // Digestive symptoms
     var sp2=0;
     if(e.douleur)sp2-=1;
     if(e.ballons)sp2-=0.5;
     if(sp2!==0){score+=sp2;details.symp_etat={score:sp2,name:t('s_symp_etat'),icon:'🩺',douleur:e.douleur,ballons:e.ballons};}
+    // Humeur
     if(e.humeur){var hs=(e.humeur-3)*0.4;score+=hs;details.humeur={score:hs,name:t('s_humeur'),icon:HUM_EM[e.humeur],desc:e.humeur+'/5'};}
+    // Sommeil : (val-3)*0.3 => range -0.6 (val=1) à +0.6 (val=5)
+    if(e.sommeil){var ss=(e.sommeil-3)*0.3;score+=ss;details.sommeil={score:ss,name:t('s_sommeil'),icon:SOM_EM[e.sommeil],desc:e.sommeil+'/5'};}
+    // Hydratation
     var hydMap={faible:-0.5,moyen:0.25,bon:0.75};var hv=hydMap[e.hydration]||0;
     if(e.hydration){score+=hv;details.hydration={score:hv,name:t('s_hydra'),icon:'💧',desc:t('L_hyd_'+e.hydration)};}
+    // Sport
     var spMap={aucun:0,endurance:0.3,cardio:0.3,musculation:0.2};var sv=spMap[e.sport]||0;
     if(e.sport&&e.sport!=='aucun'){score+=sv;details.sport={score:sv,name:t('s_sport'),icon:'🏃',desc:e.sport+(e.sportDuree?' '+e.sportDuree+'min':'')};}
   }
@@ -1332,6 +1351,7 @@ function buildScoreRows(det){
     rows+='<div class="score-formula-row"><span class="score-formula-left">🩺 '+t('s_symp_etat')+' ('+el.join(', ')+')</span><span class="score-formula-right '+vCls(det.symp_etat.score)+'">'+fmtV(det.symp_etat.score)+'</span></div>';
   }
   if(det.humeur)rows+='<div class="score-formula-row"><span class="score-formula-left">'+det.humeur.icon+' '+t('s_humeur')+' '+det.humeur.desc+'</span><span class="score-formula-right '+vCls(det.humeur.score)+'">'+fmtV(det.humeur.score)+'</span></div>';
+  if(det.sommeil)rows+='<div class="score-formula-row"><span class="score-formula-left">'+det.sommeil.icon+' '+t('s_sommeil')+' '+det.sommeil.desc+'</span><span class="score-formula-right '+vCls(det.sommeil.score)+'">'+fmtV(det.sommeil.score)+'</span></div>';
   if(det.hydration)rows+='<div class="score-formula-row"><span class="score-formula-left">💧 '+t('s_hydra')+' : '+det.hydration.desc+'</span><span class="score-formula-right '+vCls(det.hydration.score)+'">'+fmtV(det.hydration.score)+'</span></div>';
   if(det.sport)rows+='<div class="score-formula-row"><span class="score-formula-left">🏃 '+det.sport.desc+'</span><span class="score-formula-right '+vCls(det.sport.score)+'">'+fmtV(det.sport.score)+'</span></div>';
   return rows;
@@ -1395,6 +1415,7 @@ function renderCalDayDetail(ds){
     var e=day.etat;var hI={faible:'🥤',moyen:'💧',bon:'💦'};var sI={aucun:'💤',endurance:'🏃',cardio:'🚴',musculation:'🏋️'};
     var etags='';
     if(e.humeur)etags+='<span class="tag tag-yellow">'+HUM_EM[e.humeur]+' '+e.humeur+'/5</span> ';
+    if(e.sommeil)etags+='<span class="tag tag-blue">'+SOM_EM[e.sommeil]+' '+t('s_sommeil')+' '+e.sommeil+'/5</span> ';
     if(e.hydration)etags+='<span class="tag tag-blue">'+(hI[e.hydration]||'')+' '+t('L_hyd_'+e.hydration)+'</span> ';
     if(e.sport&&e.sport!=='aucun')etags+='<span class="tag tag-green">'+(sI[e.sport]||'🏃')+' '+e.sport+(e.sportDuree?' '+e.sportDuree+'min':'')+'</span> ';
     if(e.douleur)etags+='<span class="tag tag-red">'+t('tag_douleur')+'</span> ';
@@ -1402,7 +1423,7 @@ function renderCalDayDetail(ds){
     if(e.regles)etags+='<span class="tag tag-red">'+t('regleLabel')+'</span>';
     html+='<div class="cal-detail-section"><div class="cal-detail-section-title">'+t('cal_etat')+'</div><div style="display:flex;gap:5px;flex-wrap:wrap">'+etags+'</div>'+(e.note?'<div style="font-size:11px;color:var(--text3);margin-top:4px">'+t('noteLabel')+' '+e.note+'</div>':'')+'</div>';
   }
-  if(res){var det=res.details;html+='<div class="cal-detail-section"><div class="cal-detail-section-title">'+t('cal_calcul')+'</div><div class="cal-detail-points"><div class="cal-detail-points-row"><span class="cdpr-label">'+t('s_base')+'</span><span class="cdpr-val cdpr-neu">5,0</span></div>';if(det.bristol)html+='<div class="cal-detail-points-row"><span class="cdpr-label">'+det.bristol.icon+' '+det.bristol.desc+'</span><span class="cdpr-val '+dCls(det.bristol.score)+'">'+fmtV(det.bristol.score)+'</span></div>';if(det.symp_selle&&det.symp_selle.score!==0)html+='<div class="cal-detail-points-row"><span class="cdpr-label">🩹 '+t('s_symp_selle')+'</span><span class="cdpr-val '+dCls(det.symp_selle.score)+'">'+fmtV(det.symp_selle.score)+'</span></div>';if(det.symp_etat&&det.symp_etat.score!==0)html+='<div class="cal-detail-points-row"><span class="cdpr-label">🩺 '+t('s_symp_etat')+'</span><span class="cdpr-val '+dCls(det.symp_etat.score)+'">'+fmtV(det.symp_etat.score)+'</span></div>';if(det.humeur)html+='<div class="cal-detail-points-row"><span class="cdpr-label">'+det.humeur.icon+' '+t('s_humeur')+' '+det.humeur.desc+'</span><span class="cdpr-val '+dCls(det.humeur.score)+'">'+fmtV(det.humeur.score)+'</span></div>';if(det.hydration)html+='<div class="cal-detail-points-row"><span class="cdpr-label">💧 '+t('s_hydra')+' : '+det.hydration.desc+'</span><span class="cdpr-val '+dCls(det.hydration.score)+'">'+fmtV(det.hydration.score)+'</span></div>';if(det.sport)html+='<div class="cal-detail-points-row"><span class="cdpr-label">🏃 '+det.sport.desc+'</span><span class="cdpr-val '+dCls(det.sport.score)+'">'+fmtV(det.sport.score)+'</span></div>';html+='<div class="cal-detail-total"><span>'+t('s_final')+'</span><span class="cal-detail-total-val">'+res.score+'/10</span></div></div></div>';}
+  if(res){var det=res.details;html+='<div class="cal-detail-section"><div class="cal-detail-section-title">'+t('cal_calcul')+'</div><div class="cal-detail-points"><div class="cal-detail-points-row"><span class="cdpr-label">'+t('s_base')+'</span><span class="cdpr-val cdpr-neu">5,0</span></div>';if(det.bristol)html+='<div class="cal-detail-points-row"><span class="cdpr-label">'+det.bristol.icon+' '+det.bristol.desc+'</span><span class="cdpr-val '+dCls(det.bristol.score)+'">'+fmtV(det.bristol.score)+'</span></div>';if(det.symp_selle&&det.symp_selle.score!==0)html+='<div class="cal-detail-points-row"><span class="cdpr-label">🩹 '+t('s_symp_selle')+'</span><span class="cdpr-val '+dCls(det.symp_selle.score)+'">'+fmtV(det.symp_selle.score)+'</span></div>';if(det.symp_etat&&det.symp_etat.score!==0)html+='<div class="cal-detail-points-row"><span class="cdpr-label">🩺 '+t('s_symp_etat')+'</span><span class="cdpr-val '+dCls(det.symp_etat.score)+'">'+fmtV(det.symp_etat.score)+'</span></div>';if(det.humeur)html+='<div class="cal-detail-points-row"><span class="cdpr-label">'+det.humeur.icon+' '+t('s_humeur')+' '+det.humeur.desc+'</span><span class="cdpr-val '+dCls(det.humeur.score)+'">'+fmtV(det.humeur.score)+'</span></div>';if(det.sommeil)html+='<div class="cal-detail-points-row"><span class="cdpr-label">'+det.sommeil.icon+' '+t('s_sommeil')+' '+det.sommeil.desc+'</span><span class="cdpr-val '+dCls(det.sommeil.score)+'">'+fmtV(det.sommeil.score)+'</span></div>';if(det.hydration)html+='<div class="cal-detail-points-row"><span class="cdpr-label">💧 '+t('s_hydra')+' : '+det.hydration.desc+'</span><span class="cdpr-val '+dCls(det.hydration.score)+'">'+fmtV(det.hydration.score)+'</span></div>';if(det.sport)html+='<div class="cal-detail-points-row"><span class="cdpr-label">🏃 '+det.sport.desc+'</span><span class="cdpr-val '+dCls(det.sport.score)+'">'+fmtV(det.sport.score)+'</span></div>';html+='<div class="cal-detail-total"><span>'+t('s_final')+'</span><span class="cal-detail-total-val">'+res.score+'/10</span></div></div></div>';}
   if(!day.repas.length&&!day.selles.length&&!day.etat)html+='<div class="empty-state" style="padding:16px 0"><div class="empty-icon">📭</div><div class="empty-text">'+t('cal_nodata')+'</div></div>';
   html+='</div>';c.innerHTML=html;c.scrollIntoView({behavior:'smooth',block:'start'});
 }
@@ -1424,13 +1445,13 @@ function runAnalysis(){
 // IMPORT/EXPORT
 function exportCSV(){
   var all=getData();var rows=[['Date','Type','Heure','Données','Détails']];
-  Object.keys(all).sort().forEach(function(date){var day=all[date];(day.repas||[]).forEach(function(r){rows.push([date,'Repas',r.heure,r.aliments.join(';'),'']);});(day.selles||[]).forEach(function(s){var det=[s.collante?'collante':'',s.sang?'sang':''].filter(Boolean).join(';');rows.push([date,'Selle',s.heure,'Bristol '+s.bristol+' Qte:'+(s.quantite||''),det]);});if(day.etat){var e=day.etat;rows.push([date,'Etat','','Humeur:'+(e.humeur||'')+' Hydratation:'+(e.hydration||'')+' Sport:'+(e.sport||''),'Duree:'+(e.sportDuree||0)+'min Douleur:'+(e.douleur?'oui':'non')+' Ballons:'+(e.ballons?'oui':'non')+' Regles:'+(e.regles?'oui':'non')+' Note:'+(e.note||'')]);}var res=calculateScore(day);if(res)rows.push([date,'Score','',res.score,'']);});
+  Object.keys(all).sort().forEach(function(date){var day=all[date];(day.repas||[]).forEach(function(r){rows.push([date,'Repas',r.heure,r.aliments.join(';'),'']);});(day.selles||[]).forEach(function(s){var det=[s.collante?'collante':'',s.sang?'sang':''].filter(Boolean).join(';');rows.push([date,'Selle',s.heure,'Bristol '+s.bristol+' Qte:'+(s.quantite||''),det]);});if(day.etat){var e=day.etat;rows.push([date,'Etat','','Humeur:'+(e.humeur||'')+' Sommeil:'+(e.sommeil||'')+' Hydratation:'+(e.hydration||'')+' Sport:'+(e.sport||''),'Duree:'+(e.sportDuree||0)+'min Douleur:'+(e.douleur?'oui':'non')+' Ballons:'+(e.ballons?'oui':'non')+' Regles:'+(e.regles?'oui':'non')+' Note:'+(e.note||'')]);}var res=calculateScore(day);if(res)rows.push([date,'Score','',res.score,'']);});
   var csv=rows.map(function(r){return r.map(function(c){return'"'+String(c).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
   var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='supercaca_'+new Date().toISOString().split('T')[0]+'.csv';a.click();showToast(t('tExport'));
 }
 function importCSV(input){
   var file=input.files[0];if(!file)return;var reader=new FileReader();
-  reader.onload=function(e){var text=e.target.result.replace(/^\uFEFF/,'');var lines=text.split('\n').slice(1).filter(function(l){return l.trim();});var all=getData();var count=0;lines.forEach(function(line){var parts=parseCSVLine(line);if(parts.length<4)return;var date=parts[0],type=parts[1],heure=parts[2],data=parts[3],details=parts[4]||'';if(!date||!type)return;if(!all[date])all[date]={repas:[],selles:[],etat:null};if(type==='Repas'&&heure&&data){all[date].repas.push({heure:heure,aliments:data.split(';'),id:Date.now()+Math.random()});count++;}else if(type==='Selle'&&heure){var bm=data.match(/Bristol (\d)/);if(bm){all[date].selles.push({heure:heure,bristol:parseInt(bm[1]),collante:details.indexOf('collante')>=0,sang:details.indexOf('sang')>=0,id:Date.now()+Math.random()});count++;}}else if(type==='Etat'){var hm=data.match(/Humeur:(\d)/),hy=data.match(/Hydratation:(\w+)/),sp=data.match(/Sport:(\w+)/),du=details.match(/Duree:(\d+)/);all[date].etat={humeur:hm?parseInt(hm[1]):null,hydration:hy?hy[1]:null,sport:sp?sp[1]:'aucun',sportDuree:du?parseInt(du[1]):0,douleur:details.indexOf('Douleur:oui')>=0,ballons:details.indexOf('Ballons:oui')>=0,regles:details.indexOf('Regles:oui')>=0,note:''};count++;}});saveData(all);input.value='';refreshAll();showToast('✅ '+count+t('tImport'));};reader.readAsText(file);
+  reader.onload=function(e){var text=e.target.result.replace(/^\uFEFF/,'');var lines=text.split('\n').slice(1).filter(function(l){return l.trim();});var all=getData();var count=0;lines.forEach(function(line){var parts=parseCSVLine(line);if(parts.length<4)return;var date=parts[0],type=parts[1],heure=parts[2],data=parts[3],details=parts[4]||'';if(!date||!type)return;if(!all[date])all[date]={repas:[],selles:[],etat:null};if(type==='Repas'&&heure&&data){all[date].repas.push({heure:heure,aliments:data.split(';'),id:Date.now()+Math.random()});count++;}else if(type==='Selle'&&heure){var bm=data.match(/Bristol (\d)/);if(bm){all[date].selles.push({heure:heure,bristol:parseInt(bm[1]),collante:details.indexOf('collante')>=0,sang:details.indexOf('sang')>=0,id:Date.now()+Math.random()});count++;}}else if(type==='Etat'){var hm=data.match(/Humeur:(\d)/),som=data.match(/Sommeil:(\d)/),hy=data.match(/Hydratation:(\w+)/),sp=data.match(/Sport:(\w+)/),du=details.match(/Duree:(\d+)/);all[date].etat={humeur:hm?parseInt(hm[1]):null,sommeil:som?parseInt(som[1]):null,hydration:hy?hy[1]:null,sport:sp?sp[1]:'aucun',sportDuree:du?parseInt(du[1]):0,douleur:details.indexOf('Douleur:oui')>=0,ballons:details.indexOf('Ballons:oui')>=0,regles:details.indexOf('Regles:oui')>=0,note:''};count++;}});saveData(all);input.value='';refreshAll();showToast('✅ '+count+t('tImport'));};reader.readAsText(file);
 }
 function parseCSVLine(line){var res=[],cur='',inQ=false;for(var i=0;i<line.length;i++){var c=line[i];if(c==='"'){inQ=!inQ;continue;}if(c===','&&!inQ){res.push(cur);cur='';continue;}cur+=c;}res.push(cur);return res;}
 function resetAllData(){if(!confirm(t('confirmReset')))return;localStorage.removeItem('supercaca_data');selectedCalDate=null;document.getElementById('calDayDetail').innerHTML='';refreshAll();showToast(t('tReset'));}
