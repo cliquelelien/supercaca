@@ -590,7 +590,7 @@ main{position:relative;z-index:1;}
     <div class="checkbox-group">
       <label class="checkbox-item" id="cbDouleurEtat"><input type="checkbox" id="eDouleur"><div class="checkbox-visual"></div><span class="checkbox-icon">😣</span><span class="checkbox-text" id="lbl_douleur_etat">Douleur au côlon</span></label>
       <label class="checkbox-item" id="cbBallonsEtat"><input type="checkbox" id="eBallons"><div class="checkbox-visual"></div><span class="checkbox-icon">🎈</span><span class="checkbox-text" id="lbl_ballons_etat">Ballonnements / Gaz</span></label>
-      <label class="checkbox-item" id="cbSangEtat"><input type="checkbox" id="eSang"><div class="checkbox-visual"></div><span class="checkbox-icon">🩸</span><span class="checkbox-text" id="lbl_sang_etat">Saignement digestif</span></label>
+      
     </div>
   </div>
   <div class="card">
@@ -802,7 +802,6 @@ T.fr = {
   lbl_symptomes_etat_desc:'Indépendamment des selles — impacte le score même sans selle enregistrée',
   lbl_douleur_etat:'Douleur au côlon',
   lbl_ballons_etat:'Ballonnements / Gaz',
-  lbl_sang_etat:'Saignement digestif',
   lbl_regles_title:'🌸 Période menstruelle', lbl_regles_cb:'En période de règles actuellement',
   lbl_note_title:'📝 Note libre', ph_note:'Observations, médicaments, stress, sommeil...',
   lbl_save_etat:"💾 Enregistrer l'état général", etat_enregistre:'✅ État enregistré',
@@ -818,7 +817,7 @@ T.fr = {
   cal_repas:'🍽️ Repas', cal_selles:'🚽 Selles', cal_etat:'🌟 État général',
   cal_calcul:'📐 Calcul du score', cal_nodata:'Aucune donnée pour ce jour',
   regleLabel:'🌸 Règles', noteLabel:'📝',
-  symptLabel_douleur:'😣 Douleur', symptLabel_ballons:'🎈 Ballons', symptLabel_sang_etat:'🩸 Saignement',
+  symptLabel_douleur:'😣 Douleur', symptLabel_ballons:'🎈 Ballons',
   symptLabel_collante:'🩹 Collante', symptLabel_sang:'🩸 Sang',
   lbl_analyse_title:'🔍 Analyse alimentaire',
   lbl_analyse_desc:'Analyse la corrélation entre les aliments et la qualité des selles <strong>12–48h après</strong>.',
@@ -913,7 +912,6 @@ T.en = {
   lbl_symptomes_etat_desc:'Independent of stools — affects score even without a stool recorded',
   lbl_douleur_etat:'Colon pain',
   lbl_ballons_etat:'Bloating / Gas',
-  lbl_sang_etat:'Digestive bleeding',
   lbl_regles_title:'🌸 Menstrual period', lbl_regles_cb:'Currently in menstrual period',
   lbl_note_title:'📝 Free note', ph_note:'Observations, medication, stress, sleep...',
   lbl_save_etat:'💾 Save daily status', etat_enregistre:'✅ Status saved',
@@ -929,7 +927,7 @@ T.en = {
   cal_repas:'🍽️ Meals', cal_selles:'🚽 Stools', cal_etat:'🌟 Daily status',
   cal_calcul:'📐 Score breakdown', cal_nodata:'No data for this day',
   regleLabel:'🌸 Period', noteLabel:'📝',
-  symptLabel_douleur:'😣 Pain', symptLabel_ballons:'🎈 Bloating', symptLabel_sang_etat:'🩸 Bleeding',
+  symptLabel_douleur:'😣 Pain', symptLabel_ballons:'🎈 Bloating',
   symptLabel_collante:'🩹 Sticky', symptLabel_sang:'🩸 Blood',
   lbl_analyse_title:'🔍 Food analysis',
   lbl_analyse_desc:'Analyses the correlation between foods and stool quality <strong>12–48h later</strong>.',
@@ -1037,7 +1035,7 @@ function applyLang(){
   s('lbl_duree','lbl_duree'); p('sportDuree','ph_duree');
   s('lbl_symptomes_etat_title','lbl_symptomes_etat_title');
   s('lbl_symptomes_etat_desc','lbl_symptomes_etat_desc');
-  s('lbl_douleur_etat','lbl_douleur_etat'); s('lbl_ballons_etat','lbl_ballons_etat'); s('lbl_sang_etat','lbl_sang_etat');
+  s('lbl_douleur_etat','lbl_douleur_etat'); s('lbl_ballons_etat','lbl_ballons_etat');
   s('lbl_regles_title','lbl_regles_title'); s('lbl_regles_cb','lbl_regles_cb');
   s('lbl_note_title','lbl_note_title'); p('etatNote','ph_note');
   s('lbl_save_etat','lbl_save_etat'); s('lbl_score_missing','lbl_score_missing');
@@ -1288,7 +1286,7 @@ function saveEtat(){
     // Digestive symptoms — independent of stools
     douleur:document.getElementById('eDouleur').checked,
     ballons:document.getElementById('eBallons').checked,
-    sang:document.getElementById('eSang').checked,
+    
     regles:document.getElementById('etatRegles').checked,
     note:document.getElementById('etatNote').value.trim()
   };
@@ -1311,7 +1309,6 @@ function renderEtatDisplay(){
   if(e.sport&&e.sport!=='aucun') tags+='<span class="tag tag-green">'+(spI[e.sport]||'🏃')+' '+e.sport+(e.sportDuree?' '+e.sportDuree+' min':'')+'</span> ';
   if(e.douleur) tags+='<span class="tag tag-red">'+t('symptLabel_douleur')+'</span> ';
   if(e.ballons) tags+='<span class="tag tag-red">'+t('symptLabel_ballons')+'</span> ';
-  if(e.sang) tags+='<span class="tag tag-red" style="font-weight:900">'+t('symptLabel_sang_etat')+'</span> ';
   if(e.regles) tags+='<span class="tag tag-red">'+t('regleLabel')+'</span>';
   var noteHtml=e.note?'<div style="margin-top:8px;font-size:12px;color:var(--text2);border-top:1px solid var(--border);padding-top:8px">'+t('noteLabel')+' '+e.note+'</div>':'';
   c.innerHTML='<div class="card"><div class="card-title" style="justify-content:space-between"><span>'+t('etat_enregistre')+'</span><button class="entry-delete" id="deleteEtatBtn">🗑</button></div><div style="display:flex;gap:7px;flex-wrap:wrap">'+tags+'</div>'+noteHtml+'</div>';
@@ -1348,8 +1345,7 @@ function calculateScore(day){
     var sp2=0;
     if(e.douleur)sp2-=1;
     if(e.ballons)sp2-=0.5;
-    if(e.sang)sp2-=3;
-    if(sp2!==0){score+=sp2; details.symptomes_etat={score:sp2,name:t('score_symp_etat_lbl'),icon:'🩺',douleur:e.douleur,ballons:e.ballons,sang:e.sang};}
+    if(sp2!==0){score+=sp2; details.symptomes_etat={score:sp2,name:t('score_symp_etat_lbl'),icon:'🩺',douleur:e.douleur,ballons:e.ballons};}
 
     // Humeur
     if(e.humeur){var hs=(e.humeur-3)*0.4;score+=hs;details.humeur={score:hs,name:t('score_humeur_lbl'),icon:HUM_EMOJIS[e.humeur],desc:e.humeur+'/5'};}
@@ -1394,7 +1390,7 @@ function renderScoreDetailRow(det){
   }
   // Digestive symptoms from état
   if(det.symptomes_etat&&det.symptomes_etat.score!==0){
-    var el=[];if(det.symptomes_etat.sang)el.push(t('symptLabel_sang_etat'));if(det.symptomes_etat.douleur)el.push(t('symptLabel_douleur'));if(det.symptomes_etat.ballons)el.push(t('symptLabel_ballons'));
+    var el=[];if(det.symptomes_etat.douleur)el.push(t('symptLabel_douleur'));if(det.symptomes_etat.ballons)el.push(t('symptLabel_ballons'));
     rows+='<div class="score-formula-row"><span class="score-formula-left">🩺 '+t('score_symp_etat_lbl')+' ('+el.join(', ')+')</span><span class="score-formula-right '+valCls(det.symptomes_etat.score)+'">'+fmtVal(det.symptomes_etat.score)+'</span></div>';
   }
   if(det.humeur) rows+='<div class="score-formula-row"><span class="score-formula-left">'+det.humeur.icon+' '+t('score_humeur_lbl')+' '+det.humeur.desc+'</span><span class="score-formula-right '+valCls(det.humeur.score)+'">'+fmtVal(det.humeur.score)+'</span></div>';
@@ -1466,7 +1462,6 @@ function renderCalDayDetail(ds){
     if(e.sport&&e.sport!=='aucun')etags+='<span class="tag tag-green">'+(sI[e.sport]||'🏃')+' '+e.sport+(e.sportDuree?' '+e.sportDuree+'min':'')+'</span> ';
     if(e.douleur)etags+='<span class="tag tag-red">'+t('symptLabel_douleur')+'</span> ';
     if(e.ballons)etags+='<span class="tag tag-red">'+t('symptLabel_ballons')+'</span> ';
-    if(e.sang)etags+='<span class="tag tag-red">'+t('symptLabel_sang_etat')+'</span> ';
     if(e.regles)etags+='<span class="tag tag-red">'+t('regleLabel')+'</span>';
     html+='<div class="cal-detail-section"><div class="cal-detail-section-title">'+t('cal_etat')+'</div><div style="display:flex;gap:5px;flex-wrap:wrap">'+etags+'</div>'+(e.note?'<div style="font-size:11px;color:var(--text3);margin-top:4px">'+t('noteLabel')+' '+e.note+'</div>':'')+'</div>';
   }
@@ -1492,13 +1487,13 @@ function runAnalysis(){
 // ===== IMPORT/EXPORT =====
 function exportCSV(){
   var all=getData();var rows=[['Date','Type','Heure','Données','Détails']];
-  Object.keys(all).sort().forEach(function(date){var day=all[date];(day.repas||[]).forEach(function(r){rows.push([date,'Repas',r.heure,r.aliments.join(';'),'']);});(day.selles||[]).forEach(function(s){var det=[s.collante?'collante':'',s.sang?'sang':''].filter(Boolean).join(';');rows.push([date,'Selle',s.heure,'Bristol '+s.bristol+' Qte:'+(s.quantite||''),det]);});if(day.etat){var e=day.etat;rows.push([date,'Etat','','Humeur:'+(e.humeur||'')+' Hydratation:'+(e.hydration||'')+' Sport:'+(e.sport||''),'Duree:'+(e.sportDuree||0)+'min Douleur:'+(e.douleur?'oui':'non')+' Ballons:'+(e.ballons?'oui':'non')+' Sang:'+(e.sang?'oui':'non')+' Regles:'+(e.regles?'oui':'non')+' Note:'+(e.note||'')]);}var res=calculateScore(day);if(res)rows.push([date,'Score','',res.score,'']);});
+  Object.keys(all).sort().forEach(function(date){var day=all[date];(day.repas||[]).forEach(function(r){rows.push([date,'Repas',r.heure,r.aliments.join(';'),'']);});(day.selles||[]).forEach(function(s){var det=[s.collante?'collante':'',s.sang?'sang':''].filter(Boolean).join(';');rows.push([date,'Selle',s.heure,'Bristol '+s.bristol+' Qte:'+(s.quantite||''),det]);});if(day.etat){var e=day.etat;rows.push([date,'Etat','','Humeur:'+(e.humeur||'')+' Hydratation:'+(e.hydration||'')+' Sport:'+(e.sport||''),'Duree:'+(e.sportDuree||0)+'min Douleur:'+(e.douleur?'oui':'non')+' Ballons:'+(e.ballons?'oui':'non')+'' Regles:'+(e.regles?'oui':'non')+' Note:'+(e.note||'')]);}var res=calculateScore(day);if(res)rows.push([date,'Score','',res.score,'']);});
   var csv=rows.map(function(r){return r.map(function(c){return'"'+String(c).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
   var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='supercaca_'+new Date().toISOString().split('T')[0]+'.csv';a.click();showToast(t('toastExport'));
 }
 function importCSV(input){
   var file=input.files[0];if(!file)return;var reader=new FileReader();
-  reader.onload=function(e){var text=e.target.result.replace(/^\uFEFF/,'');var lines=text.split('\n').slice(1).filter(function(l){return l.trim();});var all=getData();var count=0;lines.forEach(function(line){var parts=parseCSVLine(line);if(parts.length<4)return;var date=parts[0],type=parts[1],heure=parts[2],data=parts[3],details=parts[4]||'';if(!date||!type)return;if(!all[date])all[date]={repas:[],selles:[],etat:null};if(type==='Repas'&&heure&&data){all[date].repas.push({heure:heure,aliments:data.split(';'),id:Date.now()+Math.random()});count++;}else if(type==='Selle'&&heure){var bm=data.match(/Bristol (\d)/);if(bm){all[date].selles.push({heure:heure,bristol:parseInt(bm[1]),collante:details.indexOf('collante')>=0,sang:details.indexOf('sang')>=0,id:Date.now()+Math.random()});count++;}}else if(type==='Etat'){var hm=data.match(/Humeur:(\d)/),hy=data.match(/Hydratation:(\w+)/),sp=data.match(/Sport:(\w+)/),du=details.match(/Duree:(\d+)/);all[date].etat={humeur:hm?parseInt(hm[1]):null,hydration:hy?hy[1]:null,sport:sp?sp[1]:'aucun',sportDuree:du?parseInt(du[1]):0,douleur:details.indexOf('Douleur:oui')>=0,ballons:details.indexOf('Ballons:oui')>=0,sang:details.indexOf('Sang:oui')>=0,regles:details.indexOf('Regles:oui')>=0,note:''};count++;}});saveData(all);input.value='';refreshAll();showToast('✅ '+count+t('toastImport'));};reader.readAsText(file);
+  reader.onload=function(e){var text=e.target.result.replace(/^\uFEFF/,'');var lines=text.split('\n').slice(1).filter(function(l){return l.trim();});var all=getData();var count=0;lines.forEach(function(line){var parts=parseCSVLine(line);if(parts.length<4)return;var date=parts[0],type=parts[1],heure=parts[2],data=parts[3],details=parts[4]||'';if(!date||!type)return;if(!all[date])all[date]={repas:[],selles:[],etat:null};if(type==='Repas'&&heure&&data){all[date].repas.push({heure:heure,aliments:data.split(';'),id:Date.now()+Math.random()});count++;}else if(type==='Selle'&&heure){var bm=data.match(/Bristol (\d)/);if(bm){all[date].selles.push({heure:heure,bristol:parseInt(bm[1]),collante:details.indexOf('collante')>=0,sang:details.indexOf('sang')>=0,id:Date.now()+Math.random()});count++;}}else if(type==='Etat'){var hm=data.match(/Humeur:(\d)/),hy=data.match(/Hydratation:(\w+)/),sp=data.match(/Sport:(\w+)/),du=details.match(/Duree:(\d+)/);all[date].etat={humeur:hm?parseInt(hm[1]):null,hydration:hy?hy[1]:null,sport:sp?sp[1]:'aucun',sportDuree:du?parseInt(du[1]):0,douleur:details.indexOf('Douleur:oui')>=0,ballons:details.indexOf('Ballons:oui')>=0,regles:details.indexOf('Regles:oui')>=0,note:''};count++;}});saveData(all);input.value='';refreshAll();showToast('✅ '+count+t('toastImport'));};reader.readAsText(file);
 }
 function parseCSVLine(line){var res=[],cur='',inQ=false;for(var i=0;i<line.length;i++){var c=line[i];if(c==='"'){inQ=!inQ;continue;}if(c===','&&!inQ){res.push(cur);cur='';continue;}cur+=c;}res.push(cur);return res;}
 function resetAllData(){if(!confirm(t('confirmReset')))return;localStorage.removeItem('supercaca_data');selectedCalDate=null;document.getElementById('calDayDetail').innerHTML='';refreshAll();showToast(t('toastReset'));}
