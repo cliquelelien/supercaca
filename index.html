@@ -434,7 +434,6 @@ main{position:relative;z-index:1;}
 </style>
 </head>
 <body>
-
 <header class="header">
   <div class="header-inner">
     <div class="logo">
@@ -448,112 +447,107 @@ main{position:relative;z-index:1;}
     </div>
   </div>
 </header>
-
 <div class="tabs-wrapper">
   <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('repas',this)" id="tab_btn_repas">🍽️ Repas</button>
-    <button class="tab-btn" onclick="switchTab('selles',this)" id="tab_btn_selles">🚽 Selles</button>
-    <button class="tab-btn" onclick="switchTab('etat',this)" id="tab_btn_etat">🌟 État</button>
-    <button class="tab-btn" onclick="switchTab('score',this)" id="tab_btn_score">📊 Score</button>
-    <button class="tab-btn" onclick="switchTab('calendrier',this)" id="tab_btn_cal">🗓️ Calendrier</button>
-    <button class="tab-btn" onclick="switchTab('analyse',this)" id="tab_btn_analyse">🔍 Analyse</button>
-    <button class="tab-btn" onclick="switchTab('plats',this)" id="tab_btn_plats">🍲 Aliments types</button>
-    <button class="tab-btn" onclick="switchTab('io',this)" id="tab_btn_io">💾 Import/Export</button>
+    <button class="tab-btn active" onclick="switchTab('repas',this)" id="tb_repas">🍽️ Repas</button>
+    <button class="tab-btn" onclick="switchTab('selles',this)" id="tb_selles">🚽 Selles</button>
+    <button class="tab-btn" onclick="switchTab('etat',this)" id="tb_etat">🌟 État</button>
+    <button class="tab-btn" onclick="switchTab('score',this)" id="tb_score">📊 Score</button>
+    <button class="tab-btn" onclick="switchTab('calendrier',this)" id="tb_cal">🗓️ Calendrier</button>
+    <button class="tab-btn" onclick="switchTab('analyse',this)" id="tb_analyse">🔍 Analyse</button>
+    <button class="tab-btn" onclick="switchTab('plats',this)" id="tb_plats">🍲 Aliments types</button>
+    <button class="tab-btn" onclick="switchTab('io',this)" id="tb_io">💾 Import/Export</button>
   </div>
 </div>
-
 <main>
-
 <!-- REPAS -->
 <div id="tab-repas" class="tab-content active">
   <div class="card">
-    <div class="card-title" id="lbl_repas_title">🍽️ Enregistrer un repas</div>
+    <div class="card-title" id="L_repas_title">🍽️ Enregistrer un repas</div>
     <div class="form-group">
-      <label class="form-label" id="lbl_repas_heure">Heure du repas</label>
+      <label class="form-label" id="L_repas_heure">Heure du repas</label>
       <div class="time-row">
         <input type="time" id="repasHeure" class="form-input" style="flex:1">
-        <button class="time-now-btn" onclick="setNow('repasHeure')" id="lbl_now_repas">⏱️ Maintenant</button>
+        <button class="time-now-btn" onclick="setNow('repasHeure')" id="L_now_repas">⏱️ Maintenant</button>
       </div>
     </div>
     <div class="form-group plat-suggest">
-      <label class="form-label" id="lbl_plat_search_label">Chercher un plat type</label>
+      <label class="form-label" id="L_plat_search">Chercher un plat type</label>
       <input type="text" id="platSearch" class="form-input" oninput="onPlatSearch(this.value)" autocomplete="off">
       <div class="plat-suggest-list" id="platSuggestList" style="display:none"></div>
     </div>
     <div class="form-group">
-      <label class="form-label" id="lbl_aliments_courants">Aliments courants</label>
+      <label class="form-label" id="L_aliments_courants">Aliments courants</label>
       <div class="food-common" id="foodCommon"></div>
     </div>
     <div class="form-group">
-      <label class="form-label" id="lbl_selectionnes">Sélectionnés</label>
+      <label class="form-label" id="L_selectionnes">Sélectionnés</label>
       <div class="food-chips" id="selectedFoodsChips"></div>
     </div>
     <div class="form-group">
-      <label class="form-label" id="lbl_texte_libre">Texte libre (virgules pour séparer)</label>
+      <label class="form-label" id="L_texte_libre">Texte libre (virgules pour séparer)</label>
       <div class="input-with-btn">
         <input type="text" id="repasAlimentInput" class="form-input">
-        <button class="btn btn-secondary btn-sm" onclick="addFoodFromInput()" id="lbl_ajouter_repas">+ Ajouter</button>
+        <button class="btn btn-secondary btn-sm" onclick="addFoodFromInput()" id="L_ajouter">+ Ajouter</button>
       </div>
     </div>
-    <button class="btn btn-primary btn-full" onclick="saveRepas()" id="lbl_save_repas">💾 Enregistrer le repas</button>
+    <button class="btn btn-primary btn-full" onclick="saveRepas()" id="L_save_repas">💾 Enregistrer le repas</button>
   </div>
   <div class="entries-list">
-    <div class="entries-title"><span id="lbl_repas_jour">📋 Repas du jour</span> <span id="repasCount" style="font-weight:400"></span></div>
+    <div class="entries-title"><span id="L_repas_jour">📋 Repas du jour</span> <span id="repasCount" style="font-weight:400"></span></div>
     <div id="repasList"></div>
   </div>
 </div>
-
 <!-- SELLES -->
 <div id="tab-selles" class="tab-content">
   <div class="card">
-    <div class="card-title" id="lbl_selle_title">🚽 Enregistrer une selle</div>
+    <div class="card-title" id="L_selle_title">🚽 Enregistrer une selle</div>
     <div class="form-group">
-      <label class="form-label" id="lbl_heure_selle">Heure</label>
+      <label class="form-label" id="L_heure_selle">Heure</label>
       <div class="time-row">
         <input type="time" id="selleHeure" class="form-input" style="flex:1">
-        <button class="time-now-btn" onclick="setNow('selleHeure')" id="lbl_now_selle">⏱️ Maintenant</button>
+        <button class="time-now-btn" onclick="setNow('selleHeure')" id="L_now_selle">⏱️ Maintenant</button>
       </div>
     </div>
     <div class="form-group">
-      <label class="form-label" id="lbl_quantite">Quantité (abondance)</label>
+      <label class="form-label" id="L_quantite">Quantité (abondance)</label>
       <div class="qty-scale">
-        <div class="qty-option"><input type="radio" name="selleQty" id="q1" value="1"><label class="qty-label" for="q1"><span class="qty-dots">●</span><span id="lbl_qty1">Très peu</span></label></div>
-        <div class="qty-option"><input type="radio" name="selleQty" id="q2" value="2"><label class="qty-label" for="q2"><span class="qty-dots">●●</span><span id="lbl_qty2">Peu</span></label></div>
-        <div class="qty-option"><input type="radio" name="selleQty" id="q3" value="3"><label class="qty-label" for="q3"><span class="qty-dots">●●●</span><span id="lbl_qty3">Moyen</span></label></div>
-        <div class="qty-option"><input type="radio" name="selleQty" id="q4" value="4"><label class="qty-label" for="q4"><span class="qty-dots">●●●●</span><span id="lbl_qty4">Abondant</span></label></div>
-        <div class="qty-option"><input type="radio" name="selleQty" id="q5" value="5"><label class="qty-label" for="q5"><span class="qty-dots">●●●●●</span><span id="lbl_qty5">Très abon.</span></label></div>
+        <div class="qty-option"><input type="radio" name="selleQty" id="q1" value="1"><label class="qty-label" for="q1"><span class="qty-dots">●</span><span id="L_qty1">Très peu</span></label></div>
+        <div class="qty-option"><input type="radio" name="selleQty" id="q2" value="2"><label class="qty-label" for="q2"><span class="qty-dots">●●</span><span id="L_qty2">Peu</span></label></div>
+        <div class="qty-option"><input type="radio" name="selleQty" id="q3" value="3"><label class="qty-label" for="q3"><span class="qty-dots">●●●</span><span id="L_qty3">Moyen</span></label></div>
+        <div class="qty-option"><input type="radio" name="selleQty" id="q4" value="4"><label class="qty-label" for="q4"><span class="qty-dots">●●●●</span><span id="L_qty4">Abondant</span></label></div>
+        <div class="qty-option"><input type="radio" name="selleQty" id="q5" value="5"><label class="qty-label" for="q5"><span class="qty-dots">●●●●●</span><span id="L_qty5">Très abon.</span></label></div>
       </div>
     </div>
     <div class="form-group">
-      <label class="form-label" id="lbl_bristol_title">Type — Échelle de Bristol</label>
+      <label class="form-label" id="L_bristol_title">Type — Échelle de Bristol</label>
       <div class="bristol-grid">
-        <div class="bristol-option"><input type="radio" name="bristol" id="b1" value="1"><label class="bristol-label" for="b1"><span class="bristol-emoji">🪨</span><span class="bristol-name" id="lbl_b1">Très dur</span><span class="bristol-num">Type 1</span></label></div>
-        <div class="bristol-option"><input type="radio" name="bristol" id="b2" value="2"><label class="bristol-label" for="b2"><span class="bristol-emoji">🌰</span><span class="bristol-name" id="lbl_b2">Dur</span><span class="bristol-num">Type 2</span></label></div>
-        <div class="bristol-option"><input type="radio" name="bristol" id="b3" value="3"><label class="bristol-label" for="b3"><span class="bristol-emoji">🍫</span><span class="bristol-name" id="lbl_b3">Normal</span><span class="bristol-num">Type 3-4</span></label></div>
-        <div class="bristol-option"><input type="radio" name="bristol" id="b4" value="4"><label class="bristol-label" for="b4"><span class="bristol-emoji">🍌</span><span class="bristol-name" id="lbl_b4">Mou</span><span class="bristol-num">Type 5</span></label></div>
-        <div class="bristol-option"><input type="radio" name="bristol" id="b5" value="5"><label class="bristol-label" for="b5"><span class="bristol-emoji">💩</span><span class="bristol-name" id="lbl_b5">Très mou</span><span class="bristol-num">Type 6</span></label></div>
-        <div class="bristol-option"><input type="radio" name="bristol" id="b6" value="6"><label class="bristol-label" for="b6"><span class="bristol-emoji">💦</span><span class="bristol-name" id="lbl_b6">Liquide</span><span class="bristol-num">Type 7</span></label></div>
+        <div class="bristol-option"><input type="radio" name="bristol" id="b1" value="1"><label class="bristol-label" for="b1"><span class="bristol-emoji">🪨</span><span class="bristol-name" id="L_b1">Très dur</span><span class="bristol-num">Type 1</span></label></div>
+        <div class="bristol-option"><input type="radio" name="bristol" id="b2" value="2"><label class="bristol-label" for="b2"><span class="bristol-emoji">🌰</span><span class="bristol-name" id="L_b2">Dur</span><span class="bristol-num">Type 2</span></label></div>
+        <div class="bristol-option"><input type="radio" name="bristol" id="b3" value="3"><label class="bristol-label" for="b3"><span class="bristol-emoji">🍫</span><span class="bristol-name" id="L_b3">Normal</span><span class="bristol-num">Type 3-4</span></label></div>
+        <div class="bristol-option"><input type="radio" name="bristol" id="b4" value="4"><label class="bristol-label" for="b4"><span class="bristol-emoji">🍌</span><span class="bristol-name" id="L_b4">Mou</span><span class="bristol-num">Type 5</span></label></div>
+        <div class="bristol-option"><input type="radio" name="bristol" id="b5" value="5"><label class="bristol-label" for="b5"><span class="bristol-emoji">💩</span><span class="bristol-name" id="L_b5">Très mou</span><span class="bristol-num">Type 6</span></label></div>
+        <div class="bristol-option"><input type="radio" name="bristol" id="b6" value="6"><label class="bristol-label" for="b6"><span class="bristol-emoji">💦</span><span class="bristol-name" id="L_b6">Liquide</span><span class="bristol-num">Type 7</span></label></div>
       </div>
     </div>
     <div class="form-group">
-      <label class="form-label" id="lbl_symptomes_selle_title">Symptômes associés à cette selle</label>
+      <label class="form-label" id="L_symp_selle">Symptômes associés à cette selle</label>
       <div class="checkbox-group">
-        <label class="checkbox-item" id="cbColles"><input type="checkbox" id="sColles"><div class="checkbox-visual"></div><span class="checkbox-icon">🩹</span><span class="checkbox-text" id="lbl_collante">Selles collantes</span></label>
-        <label class="checkbox-item" id="cbSang"><input type="checkbox" id="sSang"><div class="checkbox-visual"></div><span class="checkbox-icon">🩸</span><span class="checkbox-text" id="lbl_sang">Sang dans les selles</span></label>
+        <label class="checkbox-item" id="cbColles"><input type="checkbox" id="sColles"><div class="checkbox-visual"></div><span class="checkbox-icon">🩹</span><span class="checkbox-text" id="L_collante">Selles collantes</span></label>
+        <label class="checkbox-item" id="cbSang"><input type="checkbox" id="sSang"><div class="checkbox-visual"></div><span class="checkbox-icon">🩸</span><span class="checkbox-text" id="L_sang">Sang dans les selles</span></label>
       </div>
     </div>
-    <button class="btn btn-primary btn-full" onclick="saveSelle()" id="lbl_save_selle">💾 Enregistrer la selle</button>
+    <button class="btn btn-primary btn-full" onclick="saveSelle()" id="L_save_selle">💾 Enregistrer la selle</button>
   </div>
   <div class="entries-list">
-    <div class="entries-title" id="lbl_selles_jour">📋 Selles du jour</div>
+    <div class="entries-title" id="L_selles_jour">📋 Selles du jour</div>
     <div id="sellesList"></div>
   </div>
 </div>
-
 <!-- ÉTAT -->
 <div id="tab-etat" class="tab-content">
   <div class="card">
-    <div class="card-title" id="lbl_humeur_title">😊 Humeur</div>
+    <div class="card-title" id="L_humeur_title">😊 Humeur</div>
     <div class="mood-scale">
       <div class="mood-option"><input type="radio" name="humeur" id="h1" value="1"><label class="mood-label" for="h1"><span class="mood-emoji">😫</span><span class="mood-num">1</span></label></div>
       <div class="mood-option"><input type="radio" name="humeur" id="h2" value="2"><label class="mood-label" for="h2"><span class="mood-emoji">😕</span><span class="mood-num">2</span></label></div>
@@ -563,50 +557,47 @@ main{position:relative;z-index:1;}
     </div>
   </div>
   <div class="card">
-    <div class="card-title" id="lbl_hydration_title">💧 Hydratation</div>
+    <div class="card-title" id="L_hydration_title">💧 Hydratation</div>
     <div class="hydration-row">
-      <div class="hydration-option"><input type="radio" name="hydration" id="hyd1" value="faible"><label class="hydration-label" for="hyd1"><span class="hydration-icon">🥤</span><span id="lbl_hyd_faible">Faible</span></label></div>
-      <div class="hydration-option"><input type="radio" name="hydration" id="hyd2" value="moyen"><label class="hydration-label" for="hyd2"><span class="hydration-icon">💧</span><span id="lbl_hyd_moyen">Moyen</span></label></div>
-      <div class="hydration-option"><input type="radio" name="hydration" id="hyd3" value="bon"><label class="hydration-label" for="hyd3"><span class="hydration-icon">💦</span><span id="lbl_hyd_bon">Bon</span></label></div>
+      <div class="hydration-option"><input type="radio" name="hydration" id="hyd1" value="faible"><label class="hydration-label" for="hyd1"><span class="hydration-icon">🥤</span><span id="L_hyd_faible">Faible</span></label></div>
+      <div class="hydration-option"><input type="radio" name="hydration" id="hyd2" value="moyen"><label class="hydration-label" for="hyd2"><span class="hydration-icon">💧</span><span id="L_hyd_moyen">Moyen</span></label></div>
+      <div class="hydration-option"><input type="radio" name="hydration" id="hyd3" value="bon"><label class="hydration-label" for="hyd3"><span class="hydration-icon">💦</span><span id="L_hyd_bon">Bon</span></label></div>
     </div>
   </div>
   <div class="card">
-    <div class="card-title" id="lbl_sport_title">🏃 Activité physique</div>
+    <div class="card-title" id="L_sport_title">🏃 Activité physique</div>
     <div class="sport-types">
-      <div class="sport-option sport-none"><input type="radio" name="sport" id="sp0" value="aucun" checked><label class="sport-label" for="sp0"><span class="sport-icon">💤</span><span id="lbl_sport_aucune">Aucune</span></label></div>
-      <div class="sport-option"><input type="radio" name="sport" id="sp1" value="endurance"><label class="sport-label" for="sp1"><span class="sport-icon">🏃</span><span id="lbl_sport_endurance">Endurance</span></label></div>
-      <div class="sport-option"><input type="radio" name="sport" id="sp2" value="cardio"><label class="sport-label" for="sp2"><span class="sport-icon">🚴</span><span id="lbl_sport_cardio">Cardio</span></label></div>
-      <div class="sport-option"><input type="radio" name="sport" id="sp3" value="musculation"><label class="sport-label" for="sp3"><span class="sport-icon">🏋️</span><span id="lbl_sport_muscu">Muscu</span></label></div>
+      <div class="sport-option sport-none"><input type="radio" name="sport" id="sp0" value="aucun" checked><label class="sport-label" for="sp0"><span class="sport-icon">💤</span><span id="L_sport_aucune">Aucune</span></label></div>
+      <div class="sport-option"><input type="radio" name="sport" id="sp1" value="endurance"><label class="sport-label" for="sp1"><span class="sport-icon">🏃</span><span id="L_sport_endurance">Endurance</span></label></div>
+      <div class="sport-option"><input type="radio" name="sport" id="sp2" value="cardio"><label class="sport-label" for="sp2"><span class="sport-icon">🚴</span><span id="L_sport_cardio">Cardio</span></label></div>
+      <div class="sport-option"><input type="radio" name="sport" id="sp3" value="musculation"><label class="sport-label" for="sp3"><span class="sport-icon">🏋️</span><span id="L_sport_muscu">Muscu</span></label></div>
     </div>
     <div class="form-group" id="sportDureeGroup" style="display:none">
-      <label class="form-label" id="lbl_duree">Durée (minutes)</label>
+      <label class="form-label" id="L_duree">Durée (minutes)</label>
       <input type="number" id="sportDuree" class="form-input" placeholder="Ex: 45" min="0" max="360">
     </div>
   </div>
-  <!-- Symptômes digestifs indépendants des selles -->
   <div class="card">
-    <div class="card-title" id="lbl_symptomes_etat_title">🩺 Symptômes digestifs du jour</div>
-    <p id="lbl_symptomes_etat_desc" style="font-size:12px;color:var(--text3);margin:0 0 10px 0">Indépendamment des selles — impacte le score même sans selle enregistrée</p>
+    <div class="card-title" id="L_symp_etat_title">🩺 Symptômes digestifs du jour</div>
+    <p id="L_symp_etat_desc" style="font-size:12px;color:var(--text3);margin:0 0 10px 0">Indépendamment des selles — impacte le score même sans selle enregistrée</p>
     <div class="checkbox-group">
-      <label class="checkbox-item" id="cbDouleurEtat"><input type="checkbox" id="eDouleur"><div class="checkbox-visual"></div><span class="checkbox-icon">😣</span><span class="checkbox-text" id="lbl_douleur_etat">Douleur au côlon</span></label>
-      <label class="checkbox-item" id="cbBallonsEtat"><input type="checkbox" id="eBallons"><div class="checkbox-visual"></div><span class="checkbox-icon">🎈</span><span class="checkbox-text" id="lbl_ballons_etat">Ballonnements / Gaz</span></label>
-      
+      <label class="checkbox-item" id="cbDouleur"><input type="checkbox" id="eDouleur"><div class="checkbox-visual"></div><span class="checkbox-icon">😣</span><span class="checkbox-text" id="L_douleur">Douleur au côlon</span></label>
+      <label class="checkbox-item" id="cbBallons"><input type="checkbox" id="eBallons"><div class="checkbox-visual"></div><span class="checkbox-icon">🎈</span><span class="checkbox-text" id="L_ballons">Ballonnements / Gaz</span></label>
     </div>
   </div>
   <div class="card">
-    <div class="card-title" id="lbl_regles_title">🌸 Période menstruelle</div>
+    <div class="card-title" id="L_regles_title">🌸 Période menstruelle</div>
     <div class="checkbox-group">
-      <label class="checkbox-item" id="cbRegles"><input type="checkbox" id="etatRegles"><div class="checkbox-visual"></div><span class="checkbox-icon">🌸</span><span class="checkbox-text" id="lbl_regles_cb">En période de règles actuellement</span></label>
+      <label class="checkbox-item" id="cbRegles"><input type="checkbox" id="etatRegles"><div class="checkbox-visual"></div><span class="checkbox-icon">🌸</span><span class="checkbox-text" id="L_regles_cb">En période de règles actuellement</span></label>
     </div>
   </div>
   <div class="card">
-    <div class="card-title" id="lbl_note_title">📝 Note libre</div>
+    <div class="card-title" id="L_note_title">📝 Note libre</div>
     <textarea id="etatNote" class="form-input" style="min-height:80px;resize:vertical"></textarea>
   </div>
-  <button class="btn btn-primary btn-full" onclick="saveEtat()" id="lbl_save_etat">💾 Enregistrer l'état général</button>
+  <button class="btn btn-primary btn-full" onclick="saveEtat()" id="L_save_etat">💾 Enregistrer l'état général</button>
   <div id="etatDisplay" style="margin-top:14px"></div>
 </div>
-
 <!-- SCORE -->
 <div id="tab-score" class="tab-content">
   <div class="card" style="padding:12px 14px">
@@ -616,13 +607,12 @@ main{position:relative;z-index:1;}
     </div>
   </div>
   <div id="scoreMissing" class="card" style="display:none">
-    <div style="text-align:center;padding:8px 0"><div style="font-size:30px">📊</div><div id="lbl_score_missing" style="font-size:14px;font-weight:600;color:var(--text2);margin-top:8px">Aucune donnée pour cette date.</div></div>
+    <div style="text-align:center;padding:8px 0"><div style="font-size:30px">📊</div><div id="L_score_missing" style="font-size:14px;font-weight:600;color:var(--text2);margin-top:8px">Aucune donnée pour cette date.</div></div>
   </div>
   <div id="scoreDisplay"></div>
   <div id="scoreBreakdown" class="score-breakdown"></div>
   <div id="scoreFormula"></div>
 </div>
-
 <!-- CALENDRIER -->
 <div id="tab-calendrier" class="tab-content">
   <div class="card">
@@ -639,442 +629,403 @@ main{position:relative;z-index:1;}
   </div>
   <div id="calDayDetail"></div>
 </div>
-
 <!-- ANALYSE -->
 <div id="tab-analyse" class="tab-content">
   <div class="card">
-    <div class="card-title" id="lbl_analyse_title">🔍 Analyse alimentaire</div>
-    <p id="lbl_analyse_desc" style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6">Analyse la corrélation entre les aliments et la qualité des selles <strong>12–48h après</strong>.</p>
-    <button class="btn btn-primary btn-full" onclick="runAnalysis()" id="lbl_run_analyse">🔍 Lancer l'analyse</button>
+    <div class="card-title" id="L_analyse_title">🔍 Analyse alimentaire</div>
+    <p id="L_analyse_desc" style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6">Analyse la corrélation entre les aliments et la qualité des selles <strong>12–48h après</strong>.</p>
+    <button class="btn btn-primary btn-full" onclick="runAnalysis()" id="L_run_analyse">🔍 Lancer l'analyse</button>
   </div>
   <div id="analysisResults"></div>
 </div>
-
-<!-- ALIMENTS TYPES -->
+<!-- PLATS -->
 <div id="tab-plats" class="tab-content">
   <div class="card">
-    <div class="card-title" id="lbl_plat_create">🍲 Créer un plat type</div>
+    <div class="card-title" id="L_plat_create">🍲 Créer un plat type</div>
     <div class="form-group">
-      <label class="form-label" id="lbl_plat_nom_label">Nom du plat</label>
+      <label class="form-label" id="L_plat_nom">Nom du plat</label>
       <input type="text" id="platNom" class="form-input">
     </div>
     <div class="form-group">
-      <label class="form-label" id="lbl_plat_aliments_courants">Aliments courants</label>
+      <label class="form-label" id="L_plat_aliments">Aliments courants</label>
       <div class="food-common" id="platFoodCommon"></div>
     </div>
     <div class="form-group">
-      <label class="form-label" id="lbl_plat_selectionnes">Ingrédients sélectionnés</label>
+      <label class="form-label" id="L_plat_selectionnes">Ingrédients sélectionnés</label>
       <div class="food-chips" id="platSelectedChips"></div>
     </div>
     <div class="form-group">
-      <label class="form-label" id="lbl_plat_texte_libre">Texte libre (virgules acceptées)</label>
+      <label class="form-label" id="L_plat_texte_libre">Texte libre (virgules acceptées)</label>
       <div class="input-with-btn">
         <input type="text" id="platIngredientInput" class="form-input">
-        <button class="btn btn-secondary btn-sm" onclick="addPlatIngredientFromInput()" id="lbl_ajouter_plat">+ Ajouter</button>
+        <button class="btn btn-secondary btn-sm" onclick="addPlatIngredientFromInput()" id="L_plat_ajouter">+ Ajouter</button>
       </div>
     </div>
-    <button class="btn btn-purple btn-full" onclick="savePlat()" id="lbl_save_plat">💾 Enregistrer ce plat</button>
+    <button class="btn btn-purple btn-full" onclick="savePlat()" id="L_save_plat">💾 Enregistrer ce plat</button>
   </div>
   <div class="entries-list">
-    <div class="entries-title" id="lbl_plats_enregistres">📚 Plats enregistrés</div>
+    <div class="entries-title" id="L_plats_enregistres">📚 Plats enregistrés</div>
     <div id="platsList"></div>
   </div>
 </div>
-
-<!-- IMPORT/EXPORT -->
+<!-- IO -->
 <div id="tab-io" class="tab-content">
   <div class="card">
-    <div class="card-title" id="lbl_install_title">📱 Installer l'application</div>
+    <div class="card-title" id="L_install_title">📱 Installer l'application</div>
     <div style="text-align:center;padding:8px 0 12px"><div style="font-size:42px">📲</div></div>
     <div id="pwaDesc" class="io-desc"></div>
     <div id="pwaActions"></div>
   </div>
   <div class="card">
-    <div class="card-title" id="lbl_notif_title">🔔 Rappel quotidien 21h</div>
+    <div class="card-title" id="L_notif_title">🔔 Rappel quotidien 21h</div>
     <div style="text-align:center;padding:8px 0 12px"><div style="font-size:42px">🔔</div></div>
     <div id="notifDesc" class="io-desc"></div>
     <div id="notifActions"></div>
   </div>
   <div class="card">
-    <div class="card-title" id="lbl_export_title">📤 Exporter les données</div>
+    <div class="card-title" id="L_export_title">📤 Exporter les données</div>
     <div class="io-section">
       <div class="io-icon">📊</div>
-      <div class="io-desc" id="lbl_export_desc">Génère un fichier CSV contenant tous vos repas, selles, états et scores.</div>
-      <button class="btn btn-success btn-full" onclick="exportCSV()" id="lbl_export_btn">📥 Télécharger CSV</button>
+      <div class="io-desc" id="L_export_desc">Génère un fichier CSV contenant tous vos repas, selles, états et scores.</div>
+      <button class="btn btn-success btn-full" onclick="exportCSV()" id="L_export_btn">📥 Télécharger CSV</button>
     </div>
   </div>
   <div class="card">
-    <div class="card-title" id="lbl_import_title">📥 Importer des données</div>
+    <div class="card-title" id="L_import_title">📥 Importer des données</div>
     <div class="io-section">
       <div class="io-icon">📂</div>
-      <div class="io-desc" id="lbl_import_desc">Importez un fichier CSV précédemment exporté.</div>
+      <div class="io-desc" id="L_import_desc">Importez un fichier CSV précédemment exporté.</div>
       <input type="file" id="importFile" accept=".csv" style="display:none" onchange="importCSV(this)">
-      <button class="btn btn-secondary btn-full" onclick="document.getElementById('importFile').click()" id="lbl_import_btn">📂 Choisir un fichier CSV</button>
+      <button class="btn btn-secondary btn-full" onclick="document.getElementById('importFile').click()" id="L_import_btn">📂 Choisir un fichier CSV</button>
     </div>
   </div>
   <div class="card">
-    <div class="card-title" id="lbl_storage_title">📂 Où sont stockées vos données ?</div>
-    <div class="io-section"><div class="io-icon">💾</div><div class="io-desc" id="storageLocationDesc"></div></div>
+    <div class="card-title" id="L_storage_title">📂 Où sont stockées vos données ?</div>
+    <div class="io-section"><div class="io-icon">💾</div><div class="io-desc" id="storageDesc"></div></div>
   </div>
   <div class="card">
-    <div class="card-title" style="color:var(--red)" id="lbl_reset_title">⚠️ Réinitialiser</div>
+    <div class="card-title" style="color:var(--red)" id="L_reset_title">⚠️ Réinitialiser</div>
     <div class="io-section">
-      <div class="io-desc" style="color:var(--red)" id="lbl_reset_desc">Efface toutes les données. Action irréversible.</div>
-      <button class="btn btn-danger btn-full" onclick="resetAllData()" id="lbl_reset_btn">🗑️ Effacer toutes les données</button>
+      <div class="io-desc" style="color:var(--red)" id="L_reset_desc">Efface toutes les données. Action irréversible.</div>
+      <button class="btn btn-danger btn-full" onclick="resetAllData()" id="L_reset_btn">🗑️ Effacer toutes les données</button>
     </div>
   </div>
 </div>
-
 </main>
-
 <div class="pwa-banner" id="pwaBanner">
   <span style="font-size:32px">💩</span>
   <div class="pwa-banner-text">
-    <div class="pwa-banner-title" id="lbl_banner_title">Installer SuperCaca</div>
-    <span id="lbl_banner_desc">Accédez-y depuis votre écran d'accueil</span>
+    <div class="pwa-banner-title" id="L_banner_title">Installer SuperCaca</div>
+    <span id="L_banner_desc">Accédez-y depuis votre écran d'accueil</span>
   </div>
   <div class="pwa-banner-btns">
-    <button class="pwa-install-btn" onclick="doInstall()" id="lbl_banner_install">Installer</button>
+    <button class="pwa-install-btn" onclick="doInstall()" id="L_banner_install">Installer</button>
     <button class="pwa-dismiss-btn" onclick="dismissBanner()">✕</button>
   </div>
 </div>
-
 <div class="toast-container" id="toastContainer"></div>
-
 <div class="modal-overlay" id="dateModal">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title" id="lbl_date_title">📅 Choisir une date</div>
+    <div class="modal-title" id="L_date_title">📅 Choisir une date</div>
     <input type="date" id="datePicker" class="form-input" style="margin-bottom:14px">
     <div style="display:flex;gap:10px">
-      <button class="btn btn-primary" style="flex:1" onclick="confirmDate()" id="lbl_confirmer">Confirmer</button>
-      <button class="btn btn-secondary" style="flex:1" onclick="closeModal('dateModal')" id="lbl_annuler">Annuler</button>
+      <button class="btn btn-primary" style="flex:1" onclick="confirmDate()" id="L_confirmer">Confirmer</button>
+      <button class="btn btn-secondary" style="flex:1" onclick="closeModal('dateModal')" id="L_annuler">Annuler</button>
     </div>
   </div>
 </div>
 
 <script>
-// ===== LANGUAGE =====
-var LANG = localStorage.getItem('sc_lang') || 'fr';
+var LANG=localStorage.getItem('sc_lang')||'fr';
+var FOODS_FR=['Pain','Lait','Fromage','Oeuf','Viande','Poisson','Poulet','Brocoli','Carotte','Oignon','Ail','Tomate','Salade','Riz','Pates','Legumineuses','Fruit','Cafe','Alcool','Soda','Chocolat','Gluten','Noix','Sucre','Huile','Sel','Epices','Pomme de terre'];
+var FOODS_EN=['Bread','Milk','Cheese','Egg','Meat','Fish','Chicken','Broccoli','Carrot','Onion','Garlic','Tomato','Salad','Rice','Pasta','Legumes','Fruit','Coffee','Alcohol','Soda','Chocolate','Gluten','Nuts','Sugar','Oil','Salt','Spices','Potato'];
+var FOODS_EM=['🍞','🥛','🧀','🥚','🥩','🐟','🍗','🥦','🥕','🧅','🧄','🍅','🥬','🍚','🍝','🫘','🍎','☕','🍺','🥤','🍫','🌾','🥜','🧁','🫒','🧂','🌶','🥔'];
+var BRISTOL_FR=['','Très dur','Dur','Normal','Mou','Très mou','Liquide'];
+var BRISTOL_EN=['','Very hard','Hard','Normal','Soft','Very soft','Liquid'];
+var BRISTOL_EM=['','🪨','🌰','🍫','🍌','💩','💦'];
+var HUM_EM=['','😫','😕','😐','😊','😄'];
+var QTY_DOTS=['','●','●●','●●●','●●●●','●●●●●'];
 
-var FOODS_FR = ['Pain','Lait','Fromage','Oeuf','Viande','Poisson','Poulet','Brocoli','Carotte','Oignon','Ail','Tomate','Salade','Riz','Pates','Legumineuses','Fruit','Cafe','Alcool','Soda','Chocolat','Gluten','Noix','Sucre','Huile','Sel','Epices','Pomme de terre'];
-var FOODS_EN = ['Bread','Milk','Cheese','Egg','Meat','Fish','Chicken','Broccoli','Carrot','Onion','Garlic','Tomato','Salad','Rice','Pasta','Legumes','Fruit','Coffee','Alcohol','Soda','Chocolate','Gluten','Nuts','Sugar','Oil','Salt','Spices','Potato'];
-var FOODS_EM = ['🍞','🥛','🧀','🥚','🥩','🐟','🍗','🥦','🥕','🧅','🧄','🍅','🥬','🍚','🍝','🫘','🍎','☕','🍺','🥤','🍫','🌾','🥜','🧁','🫒','🧂','🌶','🥔'];
-var BRISTOL_FR = ['','Très dur','Dur','Normal','Mou','Très mou','Liquide'];
-var BRISTOL_EN = ['','Very hard','Hard','Normal','Soft','Very soft','Liquid'];
-var BRISTOL_EMOJIS = ['','🪨','🌰','🍫','🍌','💩','💦'];
-var HUM_EMOJIS = ['','😫','😕','😐','😊','😄'];
-var QTY_DOTS = ['','●','●●','●●●','●●●●','●●●●●'];
-
-var T = {};
-T.fr = {
-  langBtn:'🇬🇧 EN', themeNight:'🌙 Nuit', themeDay:'☀️ Jour',
-  tab_repas:'🍽️ Repas', tab_selles:'🚽 Selles', tab_etat:'🌟 État',
-  tab_score:'📊 Score', tab_cal:'🗓️ Calendrier', tab_analyse:'🔍 Analyse',
-  tab_plats:'🍲 Aliments types', tab_io:'💾 Import/Export',
+var FR={
+  langBtn:'🇬🇧 EN',themeNight:'🌙 Nuit',themeDay:'☀️ Jour',
+  tb_repas:'🍽️ Repas',tb_selles:'🚽 Selles',tb_etat:'🌟 État',tb_score:'📊 Score',
+  tb_cal:'🗓️ Calendrier',tb_analyse:'🔍 Analyse',tb_plats:'🍲 Aliments types',tb_io:'💾 Import/Export',
   today:"Aujourd'hui",
-  lbl_repas_title:'🍽️ Enregistrer un repas', lbl_repas_heure:'Heure du repas',
-  lbl_now_repas:'⏱️ Maintenant', lbl_now_selle:'⏱️ Maintenant',
-  lbl_plat_search_label:'Chercher un plat type (pré-remplissage auto)',
+  L_repas_title:'🍽️ Enregistrer un repas',L_repas_heure:'Heure du repas',
+  L_now_repas:'⏱️ Maintenant',L_now_selle:'⏱️ Maintenant',
+  L_plat_search:'Chercher un plat type (pré-remplissage auto)',
   ph_plat_search:'Ex: Biryani, Salade niçoise...',
-  lbl_aliments_courants:'Aliments courants', lbl_selectionnes:'Sélectionnés',
-  lbl_aucun_aliment:'Aucun aliment sélectionné',
-  lbl_texte_libre:'Texte libre (virgules pour séparer)',
+  L_aliments_courants:'Aliments courants',L_selectionnes:'Sélectionnés',
+  aucun_aliment:'Aucun aliment sélectionné',
+  L_texte_libre:'Texte libre (virgules pour séparer)',
   ph_texte_libre:'Ex: Quinoa, fromage, tomates...',
-  lbl_ajouter_repas:'+ Ajouter', lbl_save_repas:'💾 Enregistrer le repas',
-  lbl_repas_jour:'📋 Repas du jour', noRepas:'Aucun repas enregistré',
-  lbl_selle_title:'🚽 Enregistrer une selle', lbl_heure_selle:'Heure',
-  lbl_quantite:'Quantité (abondance)',
-  lbl_qty1:'Très peu', lbl_qty2:'Peu', lbl_qty3:'Moyen', lbl_qty4:'Abondant', lbl_qty5:'Très abon.',
-  lbl_bristol_title:'Type — Échelle de Bristol',
-  lbl_b1:'Très dur', lbl_b2:'Dur', lbl_b3:'Normal', lbl_b4:'Mou', lbl_b5:'Très mou', lbl_b6:'Liquide',
-  lbl_symptomes_selle_title:'Symptômes associés à cette selle',
-  lbl_collante:'Selles collantes', lbl_sang:'Sang dans les selles',
-  lbl_save_selle:'💾 Enregistrer la selle', lbl_selles_jour:'📋 Selles du jour',
+  L_ajouter:'+ Ajouter',L_save_repas:'💾 Enregistrer le repas',
+  L_repas_jour:'📋 Repas du jour',noRepas:'Aucun repas enregistré',
+  L_selle_title:'🚽 Enregistrer une selle',L_heure_selle:'Heure',
+  L_quantite:'Quantité (abondance)',
+  L_qty1:'Très peu',L_qty2:'Peu',L_qty3:'Moyen',L_qty4:'Abondant',L_qty5:'Très abon.',
+  L_bristol_title:'Type — Échelle de Bristol',
+  L_b1:'Très dur',L_b2:'Dur',L_b3:'Normal',L_b4:'Mou',L_b5:'Très mou',L_b6:'Liquide',
+  L_symp_selle:'Symptômes associés à cette selle',
+  L_collante:'Selles collantes',L_sang:'Sang dans les selles',
+  L_save_selle:'💾 Enregistrer la selle',L_selles_jour:'📋 Selles du jour',
   noSelles:'Aucune selle enregistrée',
-  lbl_humeur_title:'😊 Humeur', lbl_hydration_title:'💧 Hydratation',
-  lbl_hyd_faible:'Faible', lbl_hyd_moyen:'Moyen', lbl_hyd_bon:'Bon',
-  lbl_sport_title:'🏃 Activité physique',
-  lbl_sport_aucune:'Aucune', lbl_sport_endurance:'Endurance',
-  lbl_sport_cardio:'Cardio', lbl_sport_muscu:'Muscu',
-  lbl_duree:'Durée (minutes)', ph_duree:'Ex: 45',
-  lbl_symptomes_etat_title:'🩺 Symptômes digestifs du jour',
-  lbl_symptomes_etat_desc:'Indépendamment des selles — impacte le score même sans selle enregistrée',
-  lbl_douleur_etat:'Douleur au côlon',
-  lbl_ballons_etat:'Ballonnements / Gaz',
-  lbl_regles_title:'🌸 Période menstruelle', lbl_regles_cb:'En période de règles actuellement',
-  lbl_note_title:'📝 Note libre', ph_note:'Observations, médicaments, stress, sommeil...',
-  lbl_save_etat:"💾 Enregistrer l'état général", etat_enregistre:'✅ État enregistré',
-  lbl_score_missing:'Aucune donnée pour cette date.',
-  score_base:'🎯 Base', score_detail:'📐 Détail du calcul', score_final:'🏆 Score final',
-  score_no_selle:'🚽 Aucune selle', score_note:'ℹ️ Sans selle : points Bristol = 0.',
-  score_humeur_lbl:'Humeur', score_hydra_lbl:'Hydratation', score_sport_lbl:'Activité',
-  score_bristol_lbl:'Consistance (Bristol)', score_symp_selle_lbl:'Symptômes (selle)',
-  score_symp_etat_lbl:'Symptômes digestifs',
+  L_humeur_title:'😊 Humeur',L_hydration_title:'💧 Hydratation',
+  L_hyd_faible:'Faible',L_hyd_moyen:'Moyen',L_hyd_bon:'Bon',
+  L_sport_title:'🏃 Activité physique',
+  L_sport_aucune:'Aucune',L_sport_endurance:'Endurance',L_sport_cardio:'Cardio',L_sport_muscu:'Muscu',
+  L_duree:'Durée (minutes)',ph_duree:'Ex: 45',
+  L_symp_etat_title:'🩺 Symptômes digestifs du jour',
+  L_symp_etat_desc:'Indépendamment des selles — impacte le score même sans selle enregistrée',
+  L_douleur:'Douleur au côlon',L_ballons:'Ballonnements / Gaz',
+  L_regles_title:'🌸 Période menstruelle',L_regles_cb:'En période de règles actuellement',
+  L_note_title:'📝 Note libre',ph_note:'Observations, médicaments, stress, sommeil...',
+  L_save_etat:"💾 Enregistrer l'état général",etat_ok:'✅ État enregistré',
+  L_score_missing:'Aucune donnée pour cette date.',
+  s_base:'🎯 Base',s_detail:'📐 Détail du calcul',s_final:'🏆 Score final',
+  s_no_selle:'🚽 Aucune selle',s_note:'ℹ️ Sans selle : points Bristol = 0.',
+  s_humeur:'Humeur',s_hydra:'Hydratation',s_sport:'Activité',
+  s_bristol:'Consistance (Bristol)',s_symp_selle:'Symptômes (selle)',s_symp_etat:'Symptômes digestifs',
   scoreLabels:['','Très mauvaise journée','Journée difficile','Journée correcte','Journée correcte','Bonne journée','Bonne journée','Excellente journée !','Excellente journée !','Excellente journée !','Excellente journée !'],
   months:['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'],
   weekdays:['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'],
-  cal_repas:'🍽️ Repas', cal_selles:'🚽 Selles', cal_etat:'🌟 État général',
-  cal_calcul:'📐 Calcul du score', cal_nodata:'Aucune donnée pour ce jour',
-  regleLabel:'🌸 Règles', noteLabel:'📝',
-  symptLabel_douleur:'😣 Douleur', symptLabel_ballons:'🎈 Ballons',
-  symptLabel_collante:'🩹 Collante', symptLabel_sang:'🩸 Sang',
-  lbl_analyse_title:'🔍 Analyse alimentaire',
-  lbl_analyse_desc:'Analyse la corrélation entre les aliments et la qualité des selles <strong>12–48h après</strong>.',
-  lbl_run_analyse:"🔍 Lancer l'analyse", noAnalysis:'Pas assez de données.',
+  cal_repas:'🍽️ Repas',cal_selles:'🚽 Selles',cal_etat:'🌟 État général',
+  cal_calcul:'📐 Calcul du score',cal_nodata:'Aucune donnée pour ce jour',
+  regleLabel:'🌸 Règles',noteLabel:'📝',
+  tag_collante:'🩹 Collante',tag_sang:'🩸 Sang',tag_douleur:'😣 Douleur',tag_ballons:'🎈 Ballons',
+  L_analyse_title:'🔍 Analyse alimentaire',
+  L_analyse_desc:'Analyse la corrélation entre les aliments et la qualité des selles <strong>12–48h après</strong>.',
+  L_run_analyse:"🔍 Lancer l'analyse",noAnalysis:'Pas assez de données.',
   analyse_corr:'📊 Corrélation aliments / troubles',
-  analyse_warn:'aliment(s) potentiellement problématique(s)',
-  analyse_selles:' selle(s) analysée(s)',
-  lbl_plat_create:'🍲 Créer un plat type', lbl_plat_nom_label:'Nom du plat',
+  analyse_warn:'aliment(s) potentiellement problématique(s)',analyse_selles:' selle(s) analysée(s)',
+  L_plat_create:'🍲 Créer un plat type',L_plat_nom:'Nom du plat',
   ph_plat_nom:'Ex: Biryani, Salade niçoise...',
-  lbl_plat_aliments_courants:'Aliments courants', lbl_plat_selectionnes:'Ingrédients sélectionnés',
-  lbl_aucun_ingredient:'Aucun ingrédient sélectionné',
-  lbl_plat_texte_libre:'Texte libre (virgules acceptées)',
+  L_plat_aliments:'Aliments courants',L_plat_selectionnes:'Ingrédients sélectionnés',
+  aucun_ingredient:'Aucun ingrédient sélectionné',
+  L_plat_texte_libre:'Texte libre (virgules acceptées)',
   ph_plat_input:'Ex: Garam masala, safran...',
-  lbl_ajouter_plat:'+ Ajouter', lbl_save_plat:'💾 Enregistrer ce plat',
-  lbl_plats_enregistres:'📚 Plats enregistrés', noPlats:'Aucun plat type enregistré.',
-  plat_utiliser:'🍽️ Utiliser',
-  lbl_install_title:"📱 Installer l'application", lbl_notif_title:'🔔 Rappel quotidien 21h',
-  lbl_export_title:'📤 Exporter les données',
-  lbl_export_desc:'Génère un fichier CSV contenant tous vos repas, selles, états et scores.',
-  lbl_export_btn:'📥 Télécharger CSV', lbl_import_title:'📥 Importer des données',
-  lbl_import_desc:'Importez un fichier CSV précédemment exporté. Les données seront fusionnées.',
-  lbl_import_btn:'📂 Choisir un fichier CSV',
-  lbl_storage_title:'📂 Où sont stockées vos données ?',
-  lbl_reset_title:'⚠️ Réinitialiser', lbl_reset_desc:'Efface toutes les données. Action irréversible.',
-  lbl_reset_btn:'🗑️ Effacer toutes les données',
+  L_plat_ajouter:'+ Ajouter',L_save_plat:'💾 Enregistrer ce plat',
+  L_plats_enregistres:'📚 Plats enregistrés',noPlats:'Aucun plat type enregistré.',plat_use:'🍽️ Utiliser',
+  L_install_title:"📱 Installer l'application",L_notif_title:'🔔 Rappel quotidien 21h',
+  L_export_title:'📤 Exporter les données',
+  L_export_desc:'Génère un fichier CSV contenant tous vos repas, selles, états et scores.',
+  L_export_btn:'📥 Télécharger CSV',
+  L_import_title:'📥 Importer des données',
+  L_import_desc:'Importez un fichier CSV précédemment exporté. Les données seront fusionnées.',
+  L_import_btn:'📂 Choisir un fichier CSV',
+  L_storage_title:'📂 Où sont stockées vos données ?',
+  L_reset_title:'⚠️ Réinitialiser',L_reset_desc:'Efface toutes les données. Action irréversible.',
+  L_reset_btn:'🗑️ Effacer toutes les données',
   storage_local:'Données stockées <strong>localement</strong> sur votre appareil. Jamais envoyées sur internet.',
-  storage_path:'📍 <strong>Emplacement :</strong>', storage_content:'📊 <strong>Contenu :</strong>',
+  storage_path:'📍 <strong>Emplacement :</strong>',storage_content:'📊 <strong>Contenu :</strong>',
   storage_size:'💾 <strong>Taille :</strong>',
-  storage_warn:'⚠️ Effacer les données du navigateur supprime tout. Exportez régulièrement en CSV.',
-  storage_days:'jour(s)', storage_meals:'repas', storage_stools:'selle(s)',
-  storage_status:'état(s)', storage_types:'plat(s)',
+  storage_warn:'⚠️ Effacer les données du navigateur supprime tout. Exportez régulièrement.',
+  storage_days:'jour(s)',storage_meals:'repas',storage_stools:'selle(s)',storage_status:'état(s)',storage_types:'plat(s)',
   pwa_installed:'✅ <strong>SuperCaca est installé</strong> en mode application.',
   pwa_localfile:"<strong>⚠️ Installation impossible depuis un fichier local.</strong><br>Hébergez sur GitHub Pages ou Netlify.",
-  pwa_prompt:"Installez SuperCaca sur votre écran d'accueil.", pwa_install_btn:'📲 Installer SuperCaca',
+  pwa_prompt:"Installez SuperCaca sur votre écran d'accueil.",pwa_install_btn:'📲 Installer SuperCaca',
   pwa_ios:"Sur iPhone/iPad : <strong>↑ Partager</strong> → <strong>Sur l'écran d'accueil</strong>",
   pwa_samsung:"Samsung Internet : menu <strong>☰</strong> → <strong>Ajouter page à</strong> → <strong>Écran d'accueil</strong>",
   pwa_chrome:"Chrome : menu <strong>⋮</strong> → <strong>Ajouter à l'écran d'accueil</strong>",
   notif_ok:'✅ <strong>Rappel activé.</strong> Notification à 21h si aucune saisie.',
-  notif_test:'🔔 Tester', notif_denied:'🚫 Notifications bloquées. Réactivez dans Paramètres → Applications → Navigateur.',
+  notif_test:'🔔 Tester',notif_denied:'🚫 Notifications bloquées. Réactivez dans Paramètres → Applications → Navigateur.',
   notif_local:'<strong>⚠️ Notifications bloquées</strong> en fichier local.',
-  notif_none:'❌ Notifications non supportées.', notif_ask:'Rappel à <strong>21h chaque jour</strong>.',
+  notif_none:'❌ Notifications non supportées.',notif_ask:'Rappel à <strong>21h chaque jour</strong>.',
   notif_btn:'🔔 Activer le rappel 21h',
-  lbl_banner_title:'Installer SuperCaca', lbl_banner_desc:"Accédez-y depuis votre écran d'accueil",
-  lbl_banner_install:'Installer', lbl_date_title:'📅 Choisir une date',
-  lbl_confirmer:'Confirmer', lbl_annuler:'Annuler',
-  toastRepas:'✅ Repas enregistré !', toastSelle:'✅ Selle enregistrée !',
-  toastEtat:'✅ État enregistré !', toastDelRepas:'🗑️ Repas supprimé',
-  toastDelSelle:'🗑️ Selle supprimée', toastDelEtat:'🗑️ État supprimé',
-  toastPlat:'✅ Plat enregistré !', toastDelPlat:'🗑️ Plat supprimé',
-  toastExport:'📥 Export CSV téléchargé !', toastImport:' entrées importées !',
-  toastReset:'🗑️ Données effacées', toastPlatApply:'pré-rempli !',
+  L_banner_title:'Installer SuperCaca',L_banner_desc:"Accédez-y depuis votre écran d'accueil",
+  L_banner_install:'Installer',L_date_title:'📅 Choisir une date',
+  L_confirmer:'Confirmer',L_annuler:'Annuler',
+  tRepas:'✅ Repas enregistré !',tSelle:'✅ Selle enregistrée !',tEtat:'✅ État enregistré !',
+  tDelRepas:'🗑️ Repas supprimé',tDelSelle:'🗑️ Selle supprimée',tDelEtat:'🗑️ État supprimé',
+  tPlat:'✅ Plat enregistré !',tDelPlat:'🗑️ Plat supprimé',
+  tExport:'📥 Export CSV téléchargé !',tImport:' entrées importées !',
+  tReset:'🗑️ Données effacées',tPlatApply:'pré-rempli !',
   confirmDelEtat:"Supprimer l'état général de cette journée ?",
-  confirmDelPlat:'Remplacer ce plat ?', confirmReset:'Effacer toutes les données ? Action irréversible.',
-  errHeure:"⏱️ Indiquez l'heure", errAliment:'🍽️ Sélectionnez un aliment',
+  confirmDelPlat:'Remplacer ce plat ?',confirmReset:'Effacer toutes les données ? Action irréversible.',
+  errHeure:"⏱️ Indiquez l'heure",errAliment:'🍽️ Sélectionnez un aliment',
   errBristol:'🚽 Sélectionnez un type Bristol',
-  errPlatNom:'📝 Donnez un nom au plat', errPlatIng:'🥘 Ajoutez au moins un ingrédient',
-  notifTestMsg:'💩 SuperCaca — Test', notifTestBody:'Rappels 21h fonctionnels !',
-  notifReminderTitle:'💩 SuperCaca — Rappel', notifReminderBody:"Rien saisi aujourd'hui. Pensez à enregistrer !"
+  errPlatNom:'📝 Donnez un nom au plat',errPlatIng:'🥘 Ajoutez au moins un ingrédient',
+  notifTestTitle:'💩 SuperCaca — Test',notifTestBody:'Rappels 21h fonctionnels !',
+  notifTitle:'💩 SuperCaca — Rappel',notifBody:"Rien saisi aujourd'hui. Pensez à enregistrer !"
 };
-T.en = {
-  langBtn:'🇫🇷 FR', themeNight:'🌙 Night', themeDay:'☀️ Day',
-  tab_repas:'🍽️ Meals', tab_selles:'🚽 Stools', tab_etat:'🌟 Status',
-  tab_score:'📊 Score', tab_cal:'🗓️ Calendar', tab_analyse:'🔍 Analysis',
-  tab_plats:'🍲 Meal types', tab_io:'💾 Import/Export',
+var EN={
+  langBtn:'🇫🇷 FR',themeNight:'🌙 Night',themeDay:'☀️ Day',
+  tb_repas:'🍽️ Meals',tb_selles:'🚽 Stools',tb_etat:'🌟 Status',tb_score:'📊 Score',
+  tb_cal:'🗓️ Calendar',tb_analyse:'🔍 Analysis',tb_plats:'🍲 Meal types',tb_io:'💾 Import/Export',
   today:'Today',
-  lbl_repas_title:'🍽️ Record a meal', lbl_repas_heure:'Meal time',
-  lbl_now_repas:'⏱️ Now', lbl_now_selle:'⏱️ Now',
-  lbl_plat_search_label:'Search a meal type (auto-fill)',
+  L_repas_title:'🍽️ Record a meal',L_repas_heure:'Meal time',
+  L_now_repas:'⏱️ Now',L_now_selle:'⏱️ Now',
+  L_plat_search:'Search a meal type (auto-fill)',
   ph_plat_search:'E.g. Biryani, Caesar salad...',
-  lbl_aliments_courants:'Common foods', lbl_selectionnes:'Selected',
-  lbl_aucun_aliment:'No food selected',
-  lbl_texte_libre:'Free text (separate with commas)',
+  L_aliments_courants:'Common foods',L_selectionnes:'Selected',
+  aucun_aliment:'No food selected',
+  L_texte_libre:'Free text (separate with commas)',
   ph_texte_libre:'E.g. Quinoa, cheese, tomatoes...',
-  lbl_ajouter_repas:'+ Add', lbl_save_repas:'💾 Save meal',
-  lbl_repas_jour:'📋 Today meals', noRepas:'No meals recorded today',
-  lbl_selle_title:'🚽 Record a stool', lbl_heure_selle:'Time',
-  lbl_quantite:'Quantity (abundance)',
-  lbl_qty1:'Very little', lbl_qty2:'Little', lbl_qty3:'Medium', lbl_qty4:'Abundant', lbl_qty5:'Very abund.',
-  lbl_bristol_title:'Type — Bristol scale',
-  lbl_b1:'Very hard', lbl_b2:'Hard', lbl_b3:'Normal', lbl_b4:'Soft', lbl_b5:'Very soft', lbl_b6:'Liquid',
-  lbl_symptomes_selle_title:'Symptoms for this stool',
-  lbl_collante:'Sticky stools', lbl_sang:'Blood in stools',
-  lbl_save_selle:'💾 Save stool', lbl_selles_jour:'📋 Today stools',
+  L_ajouter:'+ Add',L_save_repas:'💾 Save meal',
+  L_repas_jour:'📋 Today meals',noRepas:'No meals recorded today',
+  L_selle_title:'🚽 Record a stool',L_heure_selle:'Time',
+  L_quantite:'Quantity (abundance)',
+  L_qty1:'Very little',L_qty2:'Little',L_qty3:'Medium',L_qty4:'Abundant',L_qty5:'Very abund.',
+  L_bristol_title:'Type — Bristol scale',
+  L_b1:'Very hard',L_b2:'Hard',L_b3:'Normal',L_b4:'Soft',L_b5:'Very soft',L_b6:'Liquid',
+  L_symp_selle:'Symptoms for this stool',
+  L_collante:'Sticky stools',L_sang:'Blood in stools',
+  L_save_selle:'💾 Save stool',L_selles_jour:'📋 Today stools',
   noSelles:'No stools recorded',
-  lbl_humeur_title:'😊 Mood', lbl_hydration_title:'💧 Hydration',
-  lbl_hyd_faible:'Low', lbl_hyd_moyen:'Medium', lbl_hyd_bon:'Good',
-  lbl_sport_title:'🏃 Physical activity',
-  lbl_sport_aucune:'None', lbl_sport_endurance:'Endurance',
-  lbl_sport_cardio:'Cardio', lbl_sport_muscu:'Strength',
-  lbl_duree:'Duration (minutes)', ph_duree:'E.g. 45',
-  lbl_symptomes_etat_title:'🩺 Digestive symptoms today',
-  lbl_symptomes_etat_desc:'Independent of stools — affects score even without a stool recorded',
-  lbl_douleur_etat:'Colon pain',
-  lbl_ballons_etat:'Bloating / Gas',
-  lbl_regles_title:'🌸 Menstrual period', lbl_regles_cb:'Currently in menstrual period',
-  lbl_note_title:'📝 Free note', ph_note:'Observations, medication, stress, sleep...',
-  lbl_save_etat:'💾 Save daily status', etat_enregistre:'✅ Status saved',
-  lbl_score_missing:'No data for this date.',
-  score_base:'🎯 Base', score_detail:'📐 Score breakdown', score_final:'🏆 Final score',
-  score_no_selle:'🚽 No stool recorded', score_note:'ℹ️ Without stools: Bristol points = 0.',
-  score_humeur_lbl:'Mood', score_hydra_lbl:'Hydration', score_sport_lbl:'Activity',
-  score_bristol_lbl:'Consistency (Bristol)', score_symp_selle_lbl:'Symptoms (stool)',
-  score_symp_etat_lbl:'Digestive symptoms',
+  L_humeur_title:'😊 Mood',L_hydration_title:'💧 Hydration',
+  L_hyd_faible:'Low',L_hyd_moyen:'Medium',L_hyd_bon:'Good',
+  L_sport_title:'🏃 Physical activity',
+  L_sport_aucune:'None',L_sport_endurance:'Endurance',L_sport_cardio:'Cardio',L_sport_muscu:'Strength',
+  L_duree:'Duration (minutes)',ph_duree:'E.g. 45',
+  L_symp_etat_title:'🩺 Digestive symptoms today',
+  L_symp_etat_desc:'Independent of stools — affects score even without a stool recorded',
+  L_douleur:'Colon pain',L_ballons:'Bloating / Gas',
+  L_regles_title:'🌸 Menstrual period',L_regles_cb:'Currently in menstrual period',
+  L_note_title:'📝 Free note',ph_note:'Observations, medication, stress, sleep...',
+  L_save_etat:'💾 Save daily status',etat_ok:'✅ Status saved',
+  L_score_missing:'No data for this date.',
+  s_base:'🎯 Base',s_detail:'📐 Score breakdown',s_final:'🏆 Final score',
+  s_no_selle:'🚽 No stool recorded',s_note:'ℹ️ Without stools: Bristol points = 0.',
+  s_humeur:'Mood',s_hydra:'Hydration',s_sport:'Activity',
+  s_bristol:'Consistency (Bristol)',s_symp_selle:'Symptoms (stool)',s_symp_etat:'Digestive symptoms',
   scoreLabels:['','Very bad day','Difficult day','Decent day','Decent day','Good day','Good day','Excellent day!','Excellent day!','Excellent day!','Excellent day!'],
   months:['January','February','March','April','May','June','July','August','September','October','November','December'],
   weekdays:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
-  cal_repas:'🍽️ Meals', cal_selles:'🚽 Stools', cal_etat:'🌟 Daily status',
-  cal_calcul:'📐 Score breakdown', cal_nodata:'No data for this day',
-  regleLabel:'🌸 Period', noteLabel:'📝',
-  symptLabel_douleur:'😣 Pain', symptLabel_ballons:'🎈 Bloating',
-  symptLabel_collante:'🩹 Sticky', symptLabel_sang:'🩸 Blood',
-  lbl_analyse_title:'🔍 Food analysis',
-  lbl_analyse_desc:'Analyses the correlation between foods and stool quality <strong>12–48h later</strong>.',
-  lbl_run_analyse:'🔍 Run analysis', noAnalysis:'Not enough data.',
+  cal_repas:'🍽️ Meals',cal_selles:'🚽 Stools',cal_etat:'🌟 Daily status',
+  cal_calcul:'📐 Score breakdown',cal_nodata:'No data for this day',
+  regleLabel:'🌸 Period',noteLabel:'📝',
+  tag_collante:'🩹 Sticky',tag_sang:'🩸 Blood',tag_douleur:'😣 Pain',tag_ballons:'🎈 Bloating',
+  L_analyse_title:'🔍 Food analysis',
+  L_analyse_desc:'Analyses the correlation between foods and stool quality <strong>12–48h later</strong>.',
+  L_run_analyse:'🔍 Run analysis',noAnalysis:'Not enough data.',
   analyse_corr:'📊 Food / trouble correlation',
-  analyse_warn:'potentially problematic food(s)',
-  analyse_selles:' stool(s) analysed',
-  lbl_plat_create:'🍲 Create a meal type', lbl_plat_nom_label:'Meal name',
+  analyse_warn:'potentially problematic food(s)',analyse_selles:' stool(s) analysed',
+  L_plat_create:'🍲 Create a meal type',L_plat_nom:'Meal name',
   ph_plat_nom:'E.g. Biryani, Caesar salad...',
-  lbl_plat_aliments_courants:'Common foods', lbl_plat_selectionnes:'Selected ingredients',
-  lbl_aucun_ingredient:'No ingredient selected',
-  lbl_plat_texte_libre:'Free text (commas accepted)',
+  L_plat_aliments:'Common foods',L_plat_selectionnes:'Selected ingredients',
+  aucun_ingredient:'No ingredient selected',
+  L_plat_texte_libre:'Free text (commas accepted)',
   ph_plat_input:'E.g. Garam masala, saffron...',
-  lbl_ajouter_plat:'+ Add', lbl_save_plat:'💾 Save this meal type',
-  lbl_plats_enregistres:'📚 Saved meal types', noPlats:'No meal types yet.',
-  plat_utiliser:'🍽️ Use',
-  lbl_install_title:'📱 Install the app', lbl_notif_title:'🔔 Daily reminder 9pm',
-  lbl_export_title:'📤 Export data',
-  lbl_export_desc:'Generates a CSV file with all your meals, stools, daily status and scores.',
-  lbl_export_btn:'📥 Download CSV', lbl_import_title:'📥 Import data',
-  lbl_import_desc:'Import a previously exported CSV file. Data will be merged.',
-  lbl_import_btn:'📂 Choose a CSV file',
-  lbl_storage_title:'📂 Where is your data stored?',
-  lbl_reset_title:'⚠️ Reset', lbl_reset_desc:'Deletes all data. This cannot be undone.',
-  lbl_reset_btn:'🗑️ Delete all data',
+  L_plat_ajouter:'+ Add',L_save_plat:'💾 Save this meal type',
+  L_plats_enregistres:'📚 Saved meal types',noPlats:'No meal types yet.',plat_use:'🍽️ Use',
+  L_install_title:'📱 Install the app',L_notif_title:'🔔 Daily reminder 9pm',
+  L_export_title:'📤 Export data',
+  L_export_desc:'Generates a CSV file with all your meals, stools, daily status and scores.',
+  L_export_btn:'📥 Download CSV',
+  L_import_title:'📥 Import data',
+  L_import_desc:'Import a previously exported CSV file. Data will be merged.',
+  L_import_btn:'📂 Choose a CSV file',
+  L_storage_title:'📂 Where is your data stored?',
+  L_reset_title:'⚠️ Reset',L_reset_desc:'Deletes all data. This cannot be undone.',
+  L_reset_btn:'🗑️ Delete all data',
   storage_local:'Data stored <strong>locally</strong> on your device. Never sent to the internet.',
-  storage_path:'📍 <strong>Location:</strong>', storage_content:'📊 <strong>Content:</strong>',
+  storage_path:'📍 <strong>Location:</strong>',storage_content:'📊 <strong>Content:</strong>',
   storage_size:'💾 <strong>Size:</strong>',
   storage_warn:'⚠️ Clearing browser data deletes everything. Export your CSV regularly.',
-  storage_days:'day(s)', storage_meals:'meals', storage_stools:'stool(s)',
-  storage_status:'status', storage_types:'meal type(s)',
+  storage_days:'day(s)',storage_meals:'meals',storage_stools:'stool(s)',storage_status:'status',storage_types:'meal type(s)',
   pwa_installed:'✅ <strong>SuperCaca is installed</strong> as an app.',
   pwa_localfile:'<strong>⚠️ Cannot install from a local file.</strong><br>Host on GitHub Pages or Netlify.',
-  pwa_prompt:'Install SuperCaca on your home screen.', pwa_install_btn:'📲 Install SuperCaca',
+  pwa_prompt:'Install SuperCaca on your home screen.',pwa_install_btn:'📲 Install SuperCaca',
   pwa_ios:'On iPhone/iPad: <strong>↑ Share</strong> → <strong>Add to Home Screen</strong>',
   pwa_samsung:'Samsung Internet: menu <strong>☰</strong> → <strong>Add page to</strong> → <strong>Home screen</strong>',
   pwa_chrome:'Chrome: menu <strong>⋮</strong> → <strong>Add to Home screen</strong>',
   notif_ok:'✅ <strong>Reminder active.</strong> Notification at 9pm if no data entered.',
-  notif_test:'🔔 Test', notif_denied:'🚫 Notifications blocked. Re-enable in Settings → Apps → Browser.',
+  notif_test:'🔔 Test',notif_denied:'🚫 Notifications blocked. Re-enable in Settings → Apps → Browser.',
   notif_local:'<strong>⚠️ Notifications blocked</strong> on local file.',
-  notif_none:'❌ Notifications not supported.', notif_ask:'Reminder at <strong>9pm every day</strong>.',
+  notif_none:'❌ Notifications not supported.',notif_ask:'Reminder at <strong>9pm every day</strong>.',
   notif_btn:'🔔 Enable daily reminder',
-  lbl_banner_title:'Install SuperCaca', lbl_banner_desc:'Access it from your home screen',
-  lbl_banner_install:'Install', lbl_date_title:'📅 Choose a date',
-  lbl_confirmer:'Confirm', lbl_annuler:'Cancel',
-  toastRepas:'✅ Meal saved!', toastSelle:'✅ Stool saved!',
-  toastEtat:'✅ Status saved!', toastDelRepas:'🗑️ Meal deleted',
-  toastDelSelle:'🗑️ Stool deleted', toastDelEtat:'🗑️ Status deleted',
-  toastPlat:'✅ Meal type saved!', toastDelPlat:'🗑️ Meal type deleted',
-  toastExport:'📥 CSV downloaded!', toastImport:' entries imported!',
-  toastReset:'🗑️ Data cleared', toastPlatApply:'pre-filled!',
+  L_banner_title:'Install SuperCaca',L_banner_desc:'Access it from your home screen',
+  L_banner_install:'Install',L_date_title:'📅 Choose a date',
+  L_confirmer:'Confirm',L_annuler:'Cancel',
+  tRepas:'✅ Meal saved!',tSelle:'✅ Stool saved!',tEtat:'✅ Status saved!',
+  tDelRepas:'🗑️ Meal deleted',tDelSelle:'🗑️ Stool deleted',tDelEtat:'🗑️ Status deleted',
+  tPlat:'✅ Meal type saved!',tDelPlat:'🗑️ Meal type deleted',
+  tExport:'📥 CSV downloaded!',tImport:' entries imported!',
+  tReset:'🗑️ Data cleared',tPlatApply:'pre-filled!',
   confirmDelEtat:"Delete today's status?",
-  confirmDelPlat:'Replace this meal?', confirmReset:'Delete all data? This cannot be undone.',
-  errHeure:'⏱️ Please enter a time', errAliment:'🍽️ Select at least one food',
+  confirmDelPlat:'Replace this meal?',confirmReset:'Delete all data? This cannot be undone.',
+  errHeure:'⏱️ Please enter a time',errAliment:'🍽️ Select at least one food',
   errBristol:'🚽 Select a Bristol type',
-  errPlatNom:'📝 Give this meal a name', errPlatIng:'🥘 Add at least one ingredient',
-  notifTestMsg:'💩 SuperCaca — Test', notifTestBody:'Daily reminders are working!',
-  notifReminderTitle:'💩 SuperCaca — Reminder', notifReminderBody:"Nothing recorded today. Remember to log your data!"
+  errPlatNom:'📝 Give this meal a name',errPlatIng:'🥘 Add at least one ingredient',
+  notifTestTitle:'💩 SuperCaca — Test',notifTestBody:'Daily reminders are working!',
+  notifTitle:'💩 SuperCaca — Reminder',notifBody:"Nothing recorded today. Remember to log your data!"
 };
 
-function t(key){ return (T[LANG]&&T[LANG][key]!==undefined)?T[LANG][key]:(T.fr[key]!==undefined?T.fr[key]:key); }
-function getFoods(){ return (LANG==='en'?FOODS_EN:FOODS_FR).map(function(n,i){ return {em:FOODS_EM[i],name:n}; }); }
-function getBristolNames(){ return LANG==='en'?BRISTOL_EN:BRISTOL_FR; }
+function t(k){var d=LANG==='en'?EN:FR;return d[k]!==undefined?d[k]:(FR[k]!==undefined?FR[k]:k);}
+function getFoods(){return(LANG==='en'?FOODS_EN:FOODS_FR).map(function(n,i){return{em:FOODS_EM[i],name:n};});}
+function getBN(){return LANG==='en'?BRISTOL_EN:BRISTOL_FR;}
 
 function toggleLang(){
   LANG=LANG==='fr'?'en':'fr';
   localStorage.setItem('sc_lang',LANG);
   applyLang();
-  initFoodCommon(); initPlatFoodCommon();
-  renderRepasList(); renderSellesList(); renderEtatDisplay(); renderPlatsList();
+  initFoodCommon();initPlatFoodCommon();
+  renderRepasList();renderSellesList();renderEtatDisplay();renderPlatsList();
 }
-
 function applyLang(){
-  function s(id,key){ var el=document.getElementById(id); if(el) el.textContent=t(key); }
-  function h(id,key){ var el=document.getElementById(id); if(el) el.innerHTML=t(key); }
-  function p(id,key){ var el=document.getElementById(id); if(el) el.placeholder=t(key); }
-  var isDark=document.documentElement.getAttribute('data-theme')==='dark';
-  s('langBtn','langBtn'); s('themeToggleBtn',isDark?'themeDay':'themeNight');
-  s('tab_btn_repas','tab_repas'); s('tab_btn_selles','tab_selles'); s('tab_btn_etat','tab_etat');
-  s('tab_btn_score','tab_score'); s('tab_btn_cal','tab_cal'); s('tab_btn_analyse','tab_analyse');
-  s('tab_btn_plats','tab_plats'); s('tab_btn_io','tab_io');
-  // Repas
-  s('lbl_repas_title','lbl_repas_title'); s('lbl_repas_heure','lbl_repas_heure');
-  s('lbl_now_repas','lbl_now_repas'); s('lbl_plat_search_label','lbl_plat_search_label');
-  p('platSearch','ph_plat_search'); s('lbl_aliments_courants','lbl_aliments_courants');
-  s('lbl_selectionnes','lbl_selectionnes'); s('lbl_texte_libre','lbl_texte_libre');
-  p('repasAlimentInput','ph_texte_libre'); s('lbl_ajouter_repas','lbl_ajouter_repas');
-  s('lbl_save_repas','lbl_save_repas'); s('lbl_repas_jour','lbl_repas_jour');
-  // Selles
-  s('lbl_selle_title','lbl_selle_title'); s('lbl_heure_selle','lbl_heure_selle');
-  s('lbl_now_selle','lbl_now_selle'); s('lbl_quantite','lbl_quantite');
-  s('lbl_qty1','lbl_qty1'); s('lbl_qty2','lbl_qty2'); s('lbl_qty3','lbl_qty3');
-  s('lbl_qty4','lbl_qty4'); s('lbl_qty5','lbl_qty5');
-  s('lbl_bristol_title','lbl_bristol_title');
-  s('lbl_b1','lbl_b1'); s('lbl_b2','lbl_b2'); s('lbl_b3','lbl_b3');
-  s('lbl_b4','lbl_b4'); s('lbl_b5','lbl_b5'); s('lbl_b6','lbl_b6');
-  s('lbl_symptomes_selle_title','lbl_symptomes_selle_title');
-  s('lbl_collante','lbl_collante'); s('lbl_sang','lbl_sang');
-  s('lbl_save_selle','lbl_save_selle'); s('lbl_selles_jour','lbl_selles_jour');
-  // État
-  s('lbl_humeur_title','lbl_humeur_title'); s('lbl_hydration_title','lbl_hydration_title');
-  s('lbl_hyd_faible','lbl_hyd_faible'); s('lbl_hyd_moyen','lbl_hyd_moyen'); s('lbl_hyd_bon','lbl_hyd_bon');
-  s('lbl_sport_title','lbl_sport_title'); s('lbl_sport_aucune','lbl_sport_aucune');
-  s('lbl_sport_endurance','lbl_sport_endurance'); s('lbl_sport_cardio','lbl_sport_cardio'); s('lbl_sport_muscu','lbl_sport_muscu');
-  s('lbl_duree','lbl_duree'); p('sportDuree','ph_duree');
-  s('lbl_symptomes_etat_title','lbl_symptomes_etat_title');
-  s('lbl_symptomes_etat_desc','lbl_symptomes_etat_desc');
-  s('lbl_douleur_etat','lbl_douleur_etat'); s('lbl_ballons_etat','lbl_ballons_etat');
-  s('lbl_regles_title','lbl_regles_title'); s('lbl_regles_cb','lbl_regles_cb');
-  s('lbl_note_title','lbl_note_title'); p('etatNote','ph_note');
-  s('lbl_save_etat','lbl_save_etat'); s('lbl_score_missing','lbl_score_missing');
-  // Analyse
-  s('lbl_analyse_title','lbl_analyse_title'); h('lbl_analyse_desc','lbl_analyse_desc'); s('lbl_run_analyse','lbl_run_analyse');
-  // Plats
-  s('lbl_plat_create','lbl_plat_create'); s('lbl_plat_nom_label','lbl_plat_nom_label'); p('platNom','ph_plat_nom');
-  s('lbl_plat_aliments_courants','lbl_plat_aliments_courants'); s('lbl_plat_selectionnes','lbl_plat_selectionnes');
-  s('lbl_plat_texte_libre','lbl_plat_texte_libre'); p('platIngredientInput','ph_plat_input');
-  s('lbl_ajouter_plat','lbl_ajouter_plat'); s('lbl_save_plat','lbl_save_plat');
-  s('lbl_plats_enregistres','lbl_plats_enregistres');
-  // IO
-  s('lbl_install_title','lbl_install_title'); s('lbl_notif_title','lbl_notif_title');
-  s('lbl_export_title','lbl_export_title'); s('lbl_export_desc','lbl_export_desc'); s('lbl_export_btn','lbl_export_btn');
-  s('lbl_import_title','lbl_import_title'); s('lbl_import_desc','lbl_import_desc'); s('lbl_import_btn','lbl_import_btn');
-  s('lbl_storage_title','lbl_storage_title');
-  s('lbl_reset_title','lbl_reset_title'); s('lbl_reset_desc','lbl_reset_desc'); s('lbl_reset_btn','lbl_reset_btn');
-  s('lbl_banner_title','lbl_banner_title'); s('lbl_banner_desc','lbl_banner_desc'); s('lbl_banner_install','lbl_banner_install');
-  s('lbl_date_title','lbl_date_title'); s('lbl_confirmer','lbl_confirmer'); s('lbl_annuler','lbl_annuler');
-  for(var i=0;i<7;i++){ var el=document.getElementById('wd'+i); if(el) el.textContent=t('weekdays')[i]; }
-  updateDateDisplay(); renderStorageInfo(); refreshIOTab();
+  function s(id,k){var el=document.getElementById(id);if(el)el.textContent=t(k);}
+  function h(id,k){var el=document.getElementById(id);if(el)el.innerHTML=t(k);}
+  function p(id,k){var el=document.getElementById(id);if(el)el.placeholder=t(k);}
+  var dark=document.documentElement.getAttribute('data-theme')==='dark';
+  s('langBtn','langBtn');s('themeToggleBtn',dark?'themeDay':'themeNight');
+  s('tb_repas','tb_repas');s('tb_selles','tb_selles');s('tb_etat','tb_etat');s('tb_score','tb_score');
+  s('tb_cal','tb_cal');s('tb_analyse','tb_analyse');s('tb_plats','tb_plats');s('tb_io','tb_io');
+  s('L_repas_title','L_repas_title');s('L_repas_heure','L_repas_heure');
+  s('L_now_repas','L_now_repas');s('L_plat_search','L_plat_search');
+  p('platSearch','ph_plat_search');
+  s('L_aliments_courants','L_aliments_courants');s('L_selectionnes','L_selectionnes');
+  s('L_texte_libre','L_texte_libre');p('repasAlimentInput','ph_texte_libre');
+  s('L_ajouter','L_ajouter');s('L_save_repas','L_save_repas');s('L_repas_jour','L_repas_jour');
+  s('L_selle_title','L_selle_title');s('L_heure_selle','L_heure_selle');
+  s('L_now_selle','L_now_selle');s('L_quantite','L_quantite');
+  s('L_qty1','L_qty1');s('L_qty2','L_qty2');s('L_qty3','L_qty3');s('L_qty4','L_qty4');s('L_qty5','L_qty5');
+  s('L_bristol_title','L_bristol_title');
+  s('L_b1','L_b1');s('L_b2','L_b2');s('L_b3','L_b3');s('L_b4','L_b4');s('L_b5','L_b5');s('L_b6','L_b6');
+  s('L_symp_selle','L_symp_selle');s('L_collante','L_collante');s('L_sang','L_sang');
+  s('L_save_selle','L_save_selle');s('L_selles_jour','L_selles_jour');
+  s('L_humeur_title','L_humeur_title');s('L_hydration_title','L_hydration_title');
+  s('L_hyd_faible','L_hyd_faible');s('L_hyd_moyen','L_hyd_moyen');s('L_hyd_bon','L_hyd_bon');
+  s('L_sport_title','L_sport_title');s('L_sport_aucune','L_sport_aucune');
+  s('L_sport_endurance','L_sport_endurance');s('L_sport_cardio','L_sport_cardio');s('L_sport_muscu','L_sport_muscu');
+  s('L_duree','L_duree');p('sportDuree','ph_duree');
+  s('L_symp_etat_title','L_symp_etat_title');s('L_symp_etat_desc','L_symp_etat_desc');
+  s('L_douleur','L_douleur');s('L_ballons','L_ballons');
+  s('L_regles_title','L_regles_title');s('L_regles_cb','L_regles_cb');
+  s('L_note_title','L_note_title');p('etatNote','ph_note');
+  s('L_save_etat','L_save_etat');s('L_score_missing','L_score_missing');
+  s('L_analyse_title','L_analyse_title');h('L_analyse_desc','L_analyse_desc');s('L_run_analyse','L_run_analyse');
+  s('L_plat_create','L_plat_create');s('L_plat_nom','L_plat_nom');p('platNom','ph_plat_nom');
+  s('L_plat_aliments','L_plat_aliments');s('L_plat_selectionnes','L_plat_selectionnes');
+  s('L_plat_texte_libre','L_plat_texte_libre');p('platIngredientInput','ph_plat_input');
+  s('L_plat_ajouter','L_plat_ajouter');s('L_save_plat','L_save_plat');s('L_plats_enregistres','L_plats_enregistres');
+  s('L_install_title','L_install_title');s('L_notif_title','L_notif_title');
+  s('L_export_title','L_export_title');s('L_export_desc','L_export_desc');s('L_export_btn','L_export_btn');
+  s('L_import_title','L_import_title');s('L_import_desc','L_import_desc');s('L_import_btn','L_import_btn');
+  s('L_storage_title','L_storage_title');
+  s('L_reset_title','L_reset_title');s('L_reset_desc','L_reset_desc');s('L_reset_btn','L_reset_btn');
+  s('L_banner_title','L_banner_title');s('L_banner_desc','L_banner_desc');s('L_banner_install','L_banner_install');
+  s('L_date_title','L_date_title');s('L_confirmer','L_confirmer');s('L_annuler','L_annuler');
+  for(var i=0;i<7;i++){var el=document.getElementById('wd'+i);if(el)el.textContent=t('weekdays')[i];}
+  updateDateDisplay();renderStorageInfo();refreshIOTab();
 }
 
-// ===== STORAGE =====
-function getData(){ try{ return JSON.parse(localStorage.getItem('supercaca_data')||'{}'); }catch(e){ return {}; } }
-function saveData(d){ localStorage.setItem('supercaca_data',JSON.stringify(d)); }
-function getDayData(date){ var all=getData(); if(!all[date]) all[date]={repas:[],selles:[],etat:null}; return all[date]; }
-function saveDayData(date,day){ var all=getData(); all[date]=day; saveData(all); }
-function getPlats(){ try{ return JSON.parse(localStorage.getItem('supercaca_plats')||'[]'); }catch(e){ return []; } }
-function savePlats(p){ localStorage.setItem('supercaca_plats',JSON.stringify(p)); }
+// STORAGE
+function getData(){try{return JSON.parse(localStorage.getItem('supercaca_data')||'{}');}catch(e){return{};}}
+function saveData(d){localStorage.setItem('supercaca_data',JSON.stringify(d));}
+function getDayData(date){var all=getData();if(!all[date])all[date]={repas:[],selles:[],etat:null};return all[date];}
+function saveDayData(date,day){var all=getData();all[date]=day;saveData(all);}
+function getPlats(){try{return JSON.parse(localStorage.getItem('supercaca_plats')||'[]');}catch(e){return[];}}
+function savePlats(p){localStorage.setItem('supercaca_plats',JSON.stringify(p));}
 
-// ===== THEME =====
+// THEME
 function toggleTheme(){
-  var isDark=document.documentElement.getAttribute('data-theme')==='dark';
-  var next=isDark?'light':'dark';
+  var dark=document.documentElement.getAttribute('data-theme')==='dark';
+  var next=dark?'light':'dark';
   document.documentElement.setAttribute('data-theme',next);
-  document.getElementById('themeColorMeta').content=isDark?'#1565C0':'#050D18';
+  document.getElementById('themeColorMeta').content=dark?'#1565C0':'#050D18';
   localStorage.setItem('supercaca_theme',next);
-  document.getElementById('themeToggleBtn').textContent=isDark?t('themeNight'):t('themeDay');
+  document.getElementById('themeToggleBtn').textContent=dark?t('themeNight'):t('themeDay');
 }
 function initTheme(){
   var saved=localStorage.getItem('supercaca_theme')||'light';
@@ -1082,105 +1033,113 @@ function initTheme(){
   document.getElementById('themeColorMeta').content=saved==='dark'?'#050D18':'#1565C0';
 }
 
-// ===== FOOD GRIDS =====
-function makeFoodGrid(containerId,foods,targetList){
-  var c=document.getElementById(containerId); if(!c)return; c.innerHTML='';
+// FOOD GRIDS
+function makeFoodGrid(cid,foods,list){
+  var c=document.getElementById(cid);if(!c)return;c.innerHTML='';
   foods.forEach(function(f){
-    var btn=document.createElement('button'); btn.className='food-common-btn';
+    var btn=document.createElement('button');btn.className='food-common-btn';
     btn.setAttribute('data-name',f.name);
     btn.innerHTML='<span class="food-em">'+f.em+'</span>'+f.name;
-    if(targetList.indexOf(f.name)>=0) btn.classList.add('sel');
+    if(list.indexOf(f.name)>=0)btn.classList.add('sel');
     btn.addEventListener('click',function(){
-      var idx=targetList.indexOf(f.name);
-      if(idx>=0){targetList.splice(idx,1);btn.classList.remove('sel');}
-      else{targetList.push(f.name);btn.classList.add('sel');}
-      if(targetList===selectedFoods) renderSelectedFoods(); else renderPlatSelectedFoods();
+      var idx=list.indexOf(f.name);
+      if(idx>=0){list.splice(idx,1);btn.classList.remove('sel');}
+      else{list.push(f.name);btn.classList.add('sel');}
+      if(list===selectedFoods)renderSelectedFoods();else renderPlatSelectedFoods();
     });
     c.appendChild(btn);
   });
 }
-function initFoodCommon(){ makeFoodGrid('foodCommon',getFoods(),selectedFoods); }
-function initPlatFoodCommon(){ makeFoodGrid('platFoodCommon',getFoods(),platSelectedFoods); }
+function initFoodCommon(){makeFoodGrid('foodCommon',getFoods(),selectedFoods);}
+function initPlatFoodCommon(){makeFoodGrid('platFoodCommon',getFoods(),platSelectedFoods);}
 
 function addFoodFromInput(){
   var inp=document.getElementById('repasAlimentInput');
   inp.value.split(',').map(function(s){return s.trim();}).filter(function(s){return s.length>0;})
-    .forEach(function(v){if(selectedFoods.indexOf(v)<0) selectedFoods.push(v);});
-  renderSelectedFoods(); inp.value='';
+    .forEach(function(v){if(selectedFoods.indexOf(v)<0)selectedFoods.push(v);});
+  renderSelectedFoods();inp.value='';
 }
 function renderSelectedFoods(){
   var c=document.getElementById('selectedFoodsChips');
-  if(!selectedFoods.length){c.innerHTML='<span style="font-size:12px;color:var(--text3)">'+t('lbl_aucun_aliment')+'</span>';return;}
+  if(!selectedFoods.length){c.innerHTML='<span style="font-size:12px;color:var(--text3)">'+t('aucun_aliment')+'</span>';return;}
   c.innerHTML='';
   selectedFoods.forEach(function(name,i){
-    var span=document.createElement('span'); span.className='food-chip'; span.textContent=name+' ✕';
-    span.addEventListener('click',function(){ selectedFoods.splice(i,1); document.querySelectorAll('#foodCommon .food-common-btn').forEach(function(b){if(selectedFoods.indexOf(b.getAttribute('data-name'))<0)b.classList.remove('sel');}); renderSelectedFoods(); });
+    var span=document.createElement('span');span.className='food-chip';span.textContent=name+' ✕';
+    span.addEventListener('click',function(){
+      selectedFoods.splice(i,1);
+      document.querySelectorAll('#foodCommon .food-common-btn').forEach(function(b){if(selectedFoods.indexOf(b.getAttribute('data-name'))<0)b.classList.remove('sel');});
+      renderSelectedFoods();
+    });
     c.appendChild(span);
   });
 }
 function addPlatIngredientFromInput(){
   var inp=document.getElementById('platIngredientInput');
   inp.value.split(',').map(function(s){return s.trim();}).filter(function(s){return s.length>0;})
-    .forEach(function(v){if(platSelectedFoods.indexOf(v)<0) platSelectedFoods.push(v);});
-  renderPlatSelectedFoods(); inp.value='';
+    .forEach(function(v){if(platSelectedFoods.indexOf(v)<0)platSelectedFoods.push(v);});
+  renderPlatSelectedFoods();inp.value='';
 }
 function renderPlatSelectedFoods(){
   var c=document.getElementById('platSelectedChips');
-  if(!platSelectedFoods.length){c.innerHTML='<span style="font-size:12px;color:var(--text3)">'+t('lbl_aucun_ingredient')+'</span>';return;}
+  if(!platSelectedFoods.length){c.innerHTML='<span style="font-size:12px;color:var(--text3)">'+t('aucun_ingredient')+'</span>';return;}
   c.innerHTML='';
   platSelectedFoods.forEach(function(name,i){
-    var span=document.createElement('span'); span.className='food-chip'; span.style.background='var(--accent2)'; span.textContent=name+' ✕';
-    span.addEventListener('click',function(){ platSelectedFoods.splice(i,1); document.querySelectorAll('#platFoodCommon .food-common-btn').forEach(function(b){if(platSelectedFoods.indexOf(b.getAttribute('data-name'))<0)b.classList.remove('sel');}); renderPlatSelectedFoods(); });
+    var span=document.createElement('span');span.className='food-chip';span.style.background='var(--accent2)';span.textContent=name+' ✕';
+    span.addEventListener('click',function(){
+      platSelectedFoods.splice(i,1);
+      document.querySelectorAll('#platFoodCommon .food-common-btn').forEach(function(b){if(platSelectedFoods.indexOf(b.getAttribute('data-name'))<0)b.classList.remove('sel');});
+      renderPlatSelectedFoods();
+    });
     c.appendChild(span);
   });
 }
 
-// ===== PLAT SEARCH =====
+// PLAT SEARCH
 function onPlatSearch(val){
   var list=document.getElementById('platSuggestList');
   if(!val.trim()){list.style.display='none';return;}
-  var matches=getPlats().filter(function(p){return p.nom.toLowerCase().indexOf(val.toLowerCase())>=0;});
-  if(!matches.length){list.style.display='none';return;}
-  list.style.display='block'; list.innerHTML='';
-  matches.forEach(function(p){
-    var item=document.createElement('div'); item.className='plat-suggest-item';
+  var m=getPlats().filter(function(p){return p.nom.toLowerCase().indexOf(val.toLowerCase())>=0;});
+  if(!m.length){list.style.display='none';return;}
+  list.style.display='block';list.innerHTML='';
+  m.forEach(function(p){
+    var item=document.createElement('div');item.className='plat-suggest-item';
     item.innerHTML='🍲 <strong>'+p.nom+'</strong> <span class="plat-suggest-badge">'+p.aliments.length+' ingr.</span>';
     item.addEventListener('click',function(){applyPlat(p.nom);});
     list.appendChild(item);
   });
 }
 function applyPlat(nom){
-  var plat=getPlats().find(function(p){return p.nom===nom;}); if(!plat)return;
-  plat.aliments.forEach(function(a){if(selectedFoods.indexOf(a)<0) selectedFoods.push(a);});
+  var plat=getPlats().find(function(p){return p.nom===nom;});if(!plat)return;
+  plat.aliments.forEach(function(a){if(selectedFoods.indexOf(a)<0)selectedFoods.push(a);});
   renderSelectedFoods();
   document.querySelectorAll('#foodCommon .food-common-btn').forEach(function(b){if(selectedFoods.indexOf(b.getAttribute('data-name'))>=0)b.classList.add('sel');});
-  document.getElementById('platSearch').value=''; document.getElementById('platSuggestList').style.display='none';
-  showToast('🍲 '+nom+' '+t('toastPlatApply'));
+  document.getElementById('platSearch').value='';document.getElementById('platSuggestList').style.display='none';
+  showToast('🍲 '+nom+' '+t('tPlatApply'));
 }
 document.addEventListener('click',function(e){if(!e.target.closest('.plat-suggest'))document.getElementById('platSuggestList').style.display='none';});
 
-// ===== PLATS =====
+// PLATS CRUD
 function savePlat(){
   var nom=document.getElementById('platNom').value.trim();
   if(!nom)return showToast(t('errPlatNom'));
   if(!platSelectedFoods.length)return showToast(t('errPlatIng'));
-  var plats=getPlats(); var idx=plats.findIndex(function(p){return p.nom.toLowerCase()===nom.toLowerCase();});
-  if(idx>=0){if(!confirm(t('confirmDelPlat')))return; plats[idx]={nom:nom,aliments:platSelectedFoods.slice(),id:Date.now()};}
+  var plats=getPlats();var idx=plats.findIndex(function(p){return p.nom.toLowerCase()===nom.toLowerCase();});
+  if(idx>=0){if(!confirm(t('confirmDelPlat')))return;plats[idx]={nom:nom,aliments:platSelectedFoods.slice(),id:Date.now()};}
   else plats.push({nom:nom,aliments:platSelectedFoods.slice(),id:Date.now()});
-  savePlats(plats); document.getElementById('platNom').value='';
-  platSelectedFoods=[]; renderPlatSelectedFoods();
+  savePlats(plats);document.getElementById('platNom').value='';
+  platSelectedFoods=[];renderPlatSelectedFoods();
   document.querySelectorAll('#platFoodCommon .food-common-btn').forEach(function(b){b.classList.remove('sel');});
-  renderPlatsList(); showToast(t('toastPlat'));
+  renderPlatsList();showToast(t('tPlat'));
 }
 function renderPlatsList(){
-  var plats=getPlats(); var c=document.getElementById('platsList');
+  var plats=getPlats();var c=document.getElementById('platsList');
   if(!plats.length){c.innerHTML='<div class="empty-state"><div class="empty-icon">🍲</div><div class="empty-text">'+t('noPlats')+'</div></div>';return;}
   c.innerHTML='';
   plats.forEach(function(p){
-    var div=document.createElement('div'); div.className='plat-item';
+    var div=document.createElement('div');div.className='plat-item';
     var chips=p.aliments.map(function(a){return'<span class="plat-aliment-chip">'+a+'</span>';}).join('');
     div.innerHTML='<div class="plat-item-header"><div class="plat-name">🍲 '+p.nom+'</div>'
-      +'<div class="plat-actions"><button class="plat-select-btn" data-nom="'+p.nom+'">'+t('plat_utiliser')+'</button>'
+      +'<div class="plat-actions"><button class="plat-select-btn" data-nom="'+p.nom+'">'+t('plat_use')+'</button>'
       +'<button class="entry-delete" data-id="'+p.id+'">🗑</button></div></div>'
       +'<div class="plat-aliments">'+chips+'</div>';
     div.querySelector('.plat-select-btn').addEventListener('click',function(){applyPlatFromList(this.getAttribute('data-nom'));});
@@ -1193,46 +1152,44 @@ function applyPlatFromList(nom){
   document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});
   document.querySelectorAll('.tab-btn').forEach(function(el){el.classList.remove('active');});
   document.getElementById('tab-repas').classList.add('active');
-  document.getElementById('tab_btn_repas').classList.add('active');
+  document.getElementById('tb_repas').classList.add('active');
 }
-function deletePlat(id){savePlats(getPlats().filter(function(p){return p.id!==id;}));renderPlatsList();showToast(t('toastDelPlat'));}
+function deletePlat(id){savePlats(getPlats().filter(function(p){return p.id!==id;}));renderPlatsList();showToast(t('tDelPlat'));}
 
-// ===== STATE =====
+// STATE
 var currentDate=new Date().toISOString().split('T')[0];
-var selectedFoods=[]; var platSelectedFoods=[];
-var calYear=new Date().getFullYear(); var calMonth=new Date().getMonth();
+var selectedFoods=[];var platSelectedFoods=[];
+var calYear=new Date().getFullYear();var calMonth=new Date().getMonth();
 var selectedCalDate=null;
 
-// ===== REPAS =====
+// REPAS
 function saveRepas(){
   var h=document.getElementById('repasHeure').value;
   if(!h)return showToast(t('errHeure'));
   if(!selectedFoods.length)return showToast(t('errAliment'));
   var day=getDayData(currentDate);
   day.repas.push({heure:h,aliments:selectedFoods.slice(),id:Date.now()});
-  saveDayData(currentDate,day); selectedFoods=[]; renderSelectedFoods();
-  document.getElementById('repasHeure').value=''; document.getElementById('platSearch').value='';
+  saveDayData(currentDate,day);selectedFoods=[];renderSelectedFoods();
+  document.getElementById('repasHeure').value='';document.getElementById('platSearch').value='';
   document.querySelectorAll('#foodCommon .food-common-btn').forEach(function(b){b.classList.remove('sel');});
-  renderRepasList(); showToast(t('toastRepas'));
+  renderRepasList();showToast(t('tRepas'));
 }
 function renderRepasList(){
-  var day=getDayData(currentDate); var c=document.getElementById('repasList');
+  var day=getDayData(currentDate);var c=document.getElementById('repasList');
   var sorted=day.repas.slice().sort(function(a,b){return a.heure.localeCompare(b.heure);});
-  var cnt=document.getElementById('repasCount'); if(cnt) cnt.textContent=sorted.length?'('+sorted.length+')':'';
+  var cnt=document.getElementById('repasCount');if(cnt)cnt.textContent=sorted.length?'('+sorted.length+')':'';
   if(!sorted.length){c.innerHTML='<div class="empty-state"><div class="empty-icon">🍽️</div><div class="empty-text">'+t('noRepas')+'</div></div>';return;}
   c.innerHTML='';
   sorted.forEach(function(r){
-    var div=document.createElement('div'); div.className='entry-item';
+    var div=document.createElement('div');div.className='entry-item';
     div.innerHTML='<span class="entry-time">'+r.heure+'</span><div class="entry-body"><div class="entry-main">'+r.aliments.join(', ')+'</div></div><button class="entry-delete" data-id="'+r.id+'">🗑</button>';
     div.querySelector('.entry-delete').addEventListener('click',function(){deleteRepas(parseInt(this.getAttribute('data-id')));});
     c.appendChild(div);
   });
 }
-function deleteRepas(id){var day=getDayData(currentDate);day.repas=day.repas.filter(function(r){return r.id!==id;});saveDayData(currentDate,day);renderRepasList();showToast(t('toastDelRepas'));}
+function deleteRepas(id){var day=getDayData(currentDate);day.repas=day.repas.filter(function(r){return r.id!==id;});saveDayData(currentDate,day);renderRepasList();showToast(t('tDelRepas'));}
 
-// ===== SELLES =====
-// Note: symptoms collante and sang only are stool-specific
-// douleur, ballons are now in état tab
+// SELLES
 function saveSelle(){
   var h=document.getElementById('selleHeure').value;
   if(!h)return showToast(t('errHeure'));
@@ -1242,37 +1199,36 @@ function saveSelle(){
   var day=getDayData(currentDate);
   day.selles.push({heure:h,bristol:parseInt(bEl.value),quantite:qEl?parseInt(qEl.value):null,
     collante:document.getElementById('sColles').checked,
-    sang:document.getElementById('sSang').checked,
-    id:Date.now()});
+    sang:document.getElementById('sSang').checked,id:Date.now()});
   saveDayData(currentDate,day);
-  document.getElementById('selleHeure').value=''; bEl.checked=false; if(qEl)qEl.checked=false;
+  document.getElementById('selleHeure').value='';bEl.checked=false;if(qEl)qEl.checked=false;
   ['sColles','sSang'].forEach(function(id){document.getElementById(id).checked=false;});
   ['cbColles','cbSang'].forEach(function(id){
-    var el=document.getElementById(id); if(!el)return; el.classList.remove('checked');
-    var v=el.querySelector('.checkbox-visual'); if(v){v.style.background='var(--card)';v.style.borderColor='var(--border2)';v.innerHTML='';}
+    var el=document.getElementById(id);if(!el)return;el.classList.remove('checked');
+    var v=el.querySelector('.checkbox-visual');if(v){v.style.background='var(--card)';v.style.borderColor='var(--border2)';v.innerHTML='';}
   });
-  renderSellesList(); showToast(t('toastSelle'));
+  renderSellesList();showToast(t('tSelle'));
 }
 function renderSellesList(){
-  var day=getDayData(currentDate); var c=document.getElementById('sellesList');
-  var BN=getBristolNames();
+  var day=getDayData(currentDate);var c=document.getElementById('sellesList');
+  var BN=getBN();
   if(!day.selles.length){c.innerHTML='<div class="empty-state"><div class="empty-icon">🚽</div><div class="empty-text">'+t('noSelles')+'</div></div>';return;}
   c.innerHTML='';
   day.selles.forEach(function(s){
     var tags='';
-    if(s.quantite) tags+='<span class="tag tag-blue">'+QTY_DOTS[s.quantite]+'</span> ';
-    if(s.collante) tags+='<span class="tag tag-red">'+t('symptLabel_collante')+'</span> ';
-    if(s.sang) tags+='<span class="tag tag-red" style="font-weight:900">'+t('symptLabel_sang')+'</span>';
-    var div=document.createElement('div'); div.className='entry-item';
-    if(s.sang) div.style.borderColor='var(--red)';
-    div.innerHTML='<span class="entry-time">'+s.heure+'</span><div class="entry-body"><div class="entry-main">'+BRISTOL_EMOJIS[s.bristol]+' '+BN[s.bristol]+'</div>'+(tags?'<div class="entry-tags">'+tags+'</div>':'')+'</div><button class="entry-delete" data-id="'+s.id+'">🗑</button>';
+    if(s.quantite)tags+='<span class="tag tag-blue">'+QTY_DOTS[s.quantite]+'</span> ';
+    if(s.collante)tags+='<span class="tag tag-red">'+t('tag_collante')+'</span> ';
+    if(s.sang)tags+='<span class="tag tag-red" style="font-weight:900">'+t('tag_sang')+'</span>';
+    var div=document.createElement('div');div.className='entry-item';
+    if(s.sang)div.style.borderColor='var(--red)';
+    div.innerHTML='<span class="entry-time">'+s.heure+'</span><div class="entry-body"><div class="entry-main">'+BRISTOL_EM[s.bristol]+' '+BN[s.bristol]+'</div>'+(tags?'<div class="entry-tags">'+tags+'</div>':'')+'</div><button class="entry-delete" data-id="'+s.id+'">🗑</button>';
     div.querySelector('.entry-delete').addEventListener('click',function(){deleteSelle(parseInt(this.getAttribute('data-id')));});
     c.appendChild(div);
   });
 }
-function deleteSelle(id){var day=getDayData(currentDate);day.selles=day.selles.filter(function(s){return s.id!==id;});saveDayData(currentDate,day);renderSellesList();showToast(t('toastDelSelle'));}
+function deleteSelle(id){var day=getDayData(currentDate);day.selles=day.selles.filter(function(s){return s.id!==id;});saveDayData(currentDate,day);renderSellesList();showToast(t('tDelSelle'));}
 
-// ===== ÉTAT =====
+// ÉTAT
 function saveEtat(){
   var hEl=document.querySelector('input[name="humeur"]:checked');
   var hydEl=document.querySelector('input[name="hydration"]:checked');
@@ -1283,126 +1239,108 @@ function saveEtat(){
     hydration:hydEl?hydEl.value:null,
     sport:spEl?spEl.value:'aucun',
     sportDuree:parseInt(document.getElementById('sportDuree').value)||0,
-    // Digestive symptoms — independent of stools
     douleur:document.getElementById('eDouleur').checked,
     ballons:document.getElementById('eBallons').checked,
-    
     regles:document.getElementById('etatRegles').checked,
     note:document.getElementById('etatNote').value.trim()
   };
-  saveDayData(currentDate,day); renderEtatDisplay(); showToast(t('toastEtat'));
+  saveDayData(currentDate,day);renderEtatDisplay();showToast(t('tEtat'));
 }
 function deleteEtat(){
   if(!confirm(t('confirmDelEtat')))return;
-  var day=getDayData(currentDate); day.etat=null; saveDayData(currentDate,day);
-  renderEtatDisplay(); showToast(t('toastDelEtat'));
+  var day=getDayData(currentDate);day.etat=null;saveDayData(currentDate,day);
+  renderEtatDisplay();showToast(t('tDelEtat'));
 }
 function renderEtatDisplay(){
-  var day=getDayData(currentDate); var c=document.getElementById('etatDisplay');
+  var day=getDayData(currentDate);var c=document.getElementById('etatDisplay');
   if(!day.etat){c.innerHTML='';return;}
   var e=day.etat;
   var hydI={faible:'🥤',moyen:'💧',bon:'💦'};
   var spI={aucun:'💤',endurance:'🏃',cardio:'🚴',musculation:'🏋️'};
   var tags='';
-  if(e.humeur) tags+='<span class="tag tag-yellow">'+HUM_EMOJIS[e.humeur]+' '+t('score_humeur_lbl')+' '+e.humeur+'/5</span> ';
-  if(e.hydration) tags+='<span class="tag tag-blue">'+(hydI[e.hydration]||'')+' '+t('lbl_hyd_'+e.hydration)+'</span> ';
-  if(e.sport&&e.sport!=='aucun') tags+='<span class="tag tag-green">'+(spI[e.sport]||'🏃')+' '+e.sport+(e.sportDuree?' '+e.sportDuree+' min':'')+'</span> ';
-  if(e.douleur) tags+='<span class="tag tag-red">'+t('symptLabel_douleur')+'</span> ';
-  if(e.ballons) tags+='<span class="tag tag-red">'+t('symptLabel_ballons')+'</span> ';
-  if(e.regles) tags+='<span class="tag tag-red">'+t('regleLabel')+'</span>';
+  if(e.humeur)tags+='<span class="tag tag-yellow">'+HUM_EM[e.humeur]+' '+t('s_humeur')+' '+e.humeur+'/5</span> ';
+  if(e.hydration)tags+='<span class="tag tag-blue">'+(hydI[e.hydration]||'')+' '+t('L_hyd_'+e.hydration)+'</span> ';
+  if(e.sport&&e.sport!=='aucun')tags+='<span class="tag tag-green">'+(spI[e.sport]||'🏃')+' '+e.sport+(e.sportDuree?' '+e.sportDuree+' min':'')+'</span> ';
+  if(e.douleur)tags+='<span class="tag tag-red">'+t('tag_douleur')+'</span> ';
+  if(e.ballons)tags+='<span class="tag tag-red">'+t('tag_ballons')+'</span> ';
+  if(e.regles)tags+='<span class="tag tag-red">'+t('regleLabel')+'</span>';
   var noteHtml=e.note?'<div style="margin-top:8px;font-size:12px;color:var(--text2);border-top:1px solid var(--border);padding-top:8px">'+t('noteLabel')+' '+e.note+'</div>':'';
-  c.innerHTML='<div class="card"><div class="card-title" style="justify-content:space-between"><span>'+t('etat_enregistre')+'</span><button class="entry-delete" id="deleteEtatBtn">🗑</button></div><div style="display:flex;gap:7px;flex-wrap:wrap">'+tags+'</div>'+noteHtml+'</div>';
+  c.innerHTML='<div class="card"><div class="card-title" style="justify-content:space-between"><span>'+t('etat_ok')+'</span><button class="entry-delete" id="deleteEtatBtn">🗑</button></div><div style="display:flex;gap:7px;flex-wrap:wrap">'+tags+'</div>'+noteHtml+'</div>';
   document.getElementById('deleteEtatBtn').addEventListener('click',deleteEtat);
 }
 
-// ===== SCORE =====
-// KEY CHANGE: symptoms (douleur, ballons, sang) now come from etat, not selles
-// They apply regardless of whether a stool was recorded
+// SCORE
 function calculateScore(day){
   if(!day)return null;
   var hasSelles=(day.selles&&day.selles.length>0);
   var hasEtat=(day.etat!==null&&day.etat!==undefined);
   if(!hasSelles&&!hasEtat)return null;
-  var score=5; var details={};
-
-  // --- Bristol score (only if stools recorded) ---
+  var score=5;var details={};
   if(hasSelles){
     var s=day.selles[day.selles.length-1];
     var bMap={1:-2,2:-0.5,3:2,4:2,5:-0.5,6:-2};
-    var bs=bMap[s.bristol]||0; score+=bs;
-    var BN=getBristolNames();
-    details.bristol={score:bs,name:t('score_bristol_lbl'),icon:BRISTOL_EMOJIS[s.bristol],desc:BN[s.bristol]};
-    // Stool-specific symptoms (collante, sang on stool)
+    var bs=bMap[s.bristol]||0;score+=bs;
+    var BN=getBN();
+    details.bristol={score:bs,name:t('s_bristol'),icon:BRISTOL_EM[s.bristol],desc:BN[s.bristol]};
     var sp=0;
     if(s.collante)sp-=0.5;
     if(s.sang)sp-=3;
-    if(sp!==0){score+=sp; details.symptomes_selle={score:sp,name:t('score_symp_selle_lbl'),icon:'🩹',collante:s.collante,sang:s.sang};}
+    if(sp!==0){score+=sp;details.symp_selle={score:sp,name:t('s_symp_selle'),icon:'🩹',collante:s.collante,sang:s.sang};}
   }
-
-  // --- Digestive symptoms from état (douleur, ballons, sang) — apply regardless of stools ---
   if(hasEtat){
     var e=day.etat;
     var sp2=0;
     if(e.douleur)sp2-=1;
     if(e.ballons)sp2-=0.5;
-    if(sp2!==0){score+=sp2; details.symptomes_etat={score:sp2,name:t('score_symp_etat_lbl'),icon:'🩺',douleur:e.douleur,ballons:e.ballons};}
-
-    // Humeur
-    if(e.humeur){var hs=(e.humeur-3)*0.4;score+=hs;details.humeur={score:hs,name:t('score_humeur_lbl'),icon:HUM_EMOJIS[e.humeur],desc:e.humeur+'/5'};}
-    // Hydratation
+    if(sp2!==0){score+=sp2;details.symp_etat={score:sp2,name:t('s_symp_etat'),icon:'🩺',douleur:e.douleur,ballons:e.ballons};}
+    if(e.humeur){var hs=(e.humeur-3)*0.4;score+=hs;details.humeur={score:hs,name:t('s_humeur'),icon:HUM_EM[e.humeur],desc:e.humeur+'/5'};}
     var hydMap={faible:-0.5,moyen:0.25,bon:0.75};var hv=hydMap[e.hydration]||0;
-    if(e.hydration){score+=hv;details.hydration={score:hv,name:t('score_hydra_lbl'),icon:'💧',desc:t('lbl_hyd_'+e.hydration)};}
-    // Sport
+    if(e.hydration){score+=hv;details.hydration={score:hv,name:t('s_hydra'),icon:'💧',desc:t('L_hyd_'+e.hydration)};}
     var spMap={aucun:0,endurance:0.3,cardio:0.3,musculation:0.2};var sv=spMap[e.sport]||0;
-    if(e.sport&&e.sport!=='aucun'){score+=sv;details.sport={score:sv,name:t('score_sport_lbl'),icon:'🏃',desc:e.sport+(e.sportDuree?' '+e.sportDuree+'min':'')};}
+    if(e.sport&&e.sport!=='aucun'){score+=sv;details.sport={score:sv,name:t('s_sport'),icon:'🏃',desc:e.sport+(e.sportDuree?' '+e.sportDuree+'min':'')};}
   }
-
   score=Math.max(0,Math.min(10,score));
   return{score:Math.round(score*10)/10,details:details};
 }
-
 function getScoreEmoji(s){return s>=8?'🎉':s>=6?'😊':s>=4?'😐':s>=2?'😕':'😫';}
 function getScoreLabel(s){var labels=t('scoreLabels');return labels[Math.round(Math.min(10,Math.max(0,s)))]||'';}
-function fmtVal(v){var r=Math.round(v*10)/10;return(r>0?'+':'')+r;}
-function valCls(v){return v>0?'sval-pos':v<0?'sval-neg':'sval-neu';}
-function cdprCls(v){return v>0?'cdpr-pos':v<0?'cdpr-neg':'cdpr-neu';}
+function fmtV(v){var r=Math.round(v*10)/10;return(r>0?'+':'')+r;}
+function vCls(v){return v>0?'sval-pos':v<0?'sval-neg':'sval-neu';}
+function dCls(v){return v>0?'cdpr-pos':v<0?'cdpr-neg':'cdpr-neu';}
 
 function populateScoreDateSelect(){
   var all=getData();var sel=document.getElementById('scoreDateSelect');
   var today=new Date().toISOString().split('T')[0];
   var dates=Object.keys(all).filter(function(d){var dd=all[d];return(dd.selles&&dd.selles.length)||(dd.etat);}).sort().reverse();
-  if(dates.indexOf(today)<0)dates.unshift(today); if(!dates.length)dates=[today];
+  if(dates.indexOf(today)<0)dates.unshift(today);if(!dates.length)dates=[today];
   var cur=sel.value||currentDate;
-  sel.innerHTML=dates.map(function(d){return'<option value="'+d+'"'+(d===cur?' selected':'')+'>'+(d===today?t('today')+' — ':'')+fmtDateFR(d)+'</option>';}).join('');
-  if(dates.indexOf(cur)<0)sel.innerHTML='<option value="'+cur+'" selected>'+fmtDateFR(cur)+'</option>'+sel.innerHTML;
+  sel.innerHTML=dates.map(function(d){return'<option value="'+d+'"'+(d===cur?' selected':'')+'>'+(d===today?t('today')+' — ':'')+fmtDate(d)+'</option>';}).join('');
+  if(dates.indexOf(cur)<0)sel.innerHTML='<option value="'+cur+'" selected>'+fmtDate(cur)+'</option>'+sel.innerHTML;
 }
 function onScoreDateChange(date){currentDate=date;updateDateDisplay();renderScore();}
 
-function renderScoreDetailRow(det){
+function buildScoreRows(det){
   var rows='';
-  // Bristol
-  if(det.bristol) rows+='<div class="score-formula-row"><span class="score-formula-left">'+det.bristol.icon+' Bristol : '+det.bristol.desc+'</span><span class="score-formula-right '+valCls(det.bristol.score)+'">'+fmtVal(det.bristol.score)+'</span></div>';
-  else rows+='<div class="score-formula-row"><span class="score-formula-left">'+t('score_no_selle')+'</span><span class="score-formula-right sval-neu">0</span></div>';
-  // Stool symptoms
-  if(det.symptomes_selle&&det.symptomes_selle.score!==0){
-    var sl=[];if(det.symptomes_selle.sang)sl.push(t('symptLabel_sang'));if(det.symptomes_selle.collante)sl.push(t('symptLabel_collante'));
-    rows+='<div class="score-formula-row"><span class="score-formula-left">🩹 '+t('score_symp_selle_lbl')+' ('+sl.join(', ')+')</span><span class="score-formula-right '+valCls(det.symptomes_selle.score)+'">'+fmtVal(det.symptomes_selle.score)+'</span></div>';
+  if(det.bristol)rows+='<div class="score-formula-row"><span class="score-formula-left">'+det.bristol.icon+' Bristol : '+det.bristol.desc+'</span><span class="score-formula-right '+vCls(det.bristol.score)+'">'+fmtV(det.bristol.score)+'</span></div>';
+  else rows+='<div class="score-formula-row"><span class="score-formula-left">'+t('s_no_selle')+'</span><span class="score-formula-right sval-neu">0</span></div>';
+  if(det.symp_selle&&det.symp_selle.score!==0){
+    var sl=[];if(det.symp_selle.sang)sl.push(t('tag_sang'));if(det.symp_selle.collante)sl.push(t('tag_collante'));
+    rows+='<div class="score-formula-row"><span class="score-formula-left">🩹 '+t('s_symp_selle')+' ('+sl.join(', ')+')</span><span class="score-formula-right '+vCls(det.symp_selle.score)+'">'+fmtV(det.symp_selle.score)+'</span></div>';
   }
-  // Digestive symptoms from état
-  if(det.symptomes_etat&&det.symptomes_etat.score!==0){
-    var el=[];if(det.symptomes_etat.douleur)el.push(t('symptLabel_douleur'));if(det.symptomes_etat.ballons)el.push(t('symptLabel_ballons'));
-    rows+='<div class="score-formula-row"><span class="score-formula-left">🩺 '+t('score_symp_etat_lbl')+' ('+el.join(', ')+')</span><span class="score-formula-right '+valCls(det.symptomes_etat.score)+'">'+fmtVal(det.symptomes_etat.score)+'</span></div>';
+  if(det.symp_etat&&det.symp_etat.score!==0){
+    var el=[];if(det.symp_etat.douleur)el.push(t('tag_douleur'));if(det.symp_etat.ballons)el.push(t('tag_ballons'));
+    rows+='<div class="score-formula-row"><span class="score-formula-left">🩺 '+t('s_symp_etat')+' ('+el.join(', ')+')</span><span class="score-formula-right '+vCls(det.symp_etat.score)+'">'+fmtV(det.symp_etat.score)+'</span></div>';
   }
-  if(det.humeur) rows+='<div class="score-formula-row"><span class="score-formula-left">'+det.humeur.icon+' '+t('score_humeur_lbl')+' '+det.humeur.desc+'</span><span class="score-formula-right '+valCls(det.humeur.score)+'">'+fmtVal(det.humeur.score)+'</span></div>';
-  if(det.hydration) rows+='<div class="score-formula-row"><span class="score-formula-left">💧 '+t('score_hydra_lbl')+' : '+det.hydration.desc+'</span><span class="score-formula-right '+valCls(det.hydration.score)+'">'+fmtVal(det.hydration.score)+'</span></div>';
-  if(det.sport) rows+='<div class="score-formula-row"><span class="score-formula-left">🏃 '+det.sport.desc+'</span><span class="score-formula-right '+valCls(det.sport.score)+'">'+fmtVal(det.sport.score)+'</span></div>';
+  if(det.humeur)rows+='<div class="score-formula-row"><span class="score-formula-left">'+det.humeur.icon+' '+t('s_humeur')+' '+det.humeur.desc+'</span><span class="score-formula-right '+vCls(det.humeur.score)+'">'+fmtV(det.humeur.score)+'</span></div>';
+  if(det.hydration)rows+='<div class="score-formula-row"><span class="score-formula-left">💧 '+t('s_hydra')+' : '+det.hydration.desc+'</span><span class="score-formula-right '+vCls(det.hydration.score)+'">'+fmtV(det.hydration.score)+'</span></div>';
+  if(det.sport)rows+='<div class="score-formula-row"><span class="score-formula-left">🏃 '+det.sport.desc+'</span><span class="score-formula-right '+vCls(det.sport.score)+'">'+fmtV(det.sport.score)+'</span></div>';
   return rows;
 }
 
 function renderScore(){
   populateScoreDateSelect();
-  var scoreDate=document.getElementById('scoreDateSelect').value||currentDate;
-  var day=getDayData(scoreDate);var result=calculateScore(day);
+  var sd2=document.getElementById('scoreDateSelect').value||currentDate;
+  var day=getDayData(sd2);var result=calculateScore(day);
   var sd=document.getElementById('scoreDisplay');var sb=document.getElementById('scoreBreakdown');
   var miss=document.getElementById('scoreMissing');var sf=document.getElementById('scoreFormula');
   if(!result){miss.style.display='block';sd.innerHTML='';sb.innerHTML='';sf.innerHTML='';return;}
@@ -1410,26 +1348,25 @@ function renderScore(){
   sd.innerHTML='<div class="score-display"><div class="score-emoji">'+getScoreEmoji(s)+'</div><div class="score-num">'+s+'<span class="score-max">/10</span></div><div class="score-label">'+getScoreLabel(s)+'</div></div>';
   sb.innerHTML=Object.values(result.details).map(function(item){
     var pct=item.score>=0?Math.min(100,Math.abs(item.score)*20+50):Math.max(0,50-Math.abs(item.score)*20);
-    return'<div class="score-item"><span class="score-item-icon">'+item.icon+'</span><div class="score-item-body"><div class="score-item-name">'+item.name+'</div><div class="score-item-val '+valCls(item.score)+'">'+fmtVal(item.score)+'</div><div class="score-bar"><div class="score-bar-fill" style="width:'+pct+'%"></div></div></div></div>';
+    return'<div class="score-item"><span class="score-item-icon">'+item.icon+'</span><div class="score-item-body"><div class="score-item-name">'+item.name+'</div><div class="score-item-val '+vCls(item.score)+'">'+fmtV(item.score)+'</div><div class="score-bar"><div class="score-bar-fill" style="width:'+pct+'%"></div></div></div></div>';
   }).join('');
-  var det=result.details;
-  sf.innerHTML='<div class="card"><div class="score-formula"><div class="score-formula-title">'+t('score_detail')+'</div>'
-    +'<div class="score-formula-row"><span class="score-formula-left">'+t('score_base')+'</span><span class="score-formula-right sval-neu">5,0</span></div>'
-    +renderScoreDetailRow(det)
-    +'<div class="score-formula-row" style="font-weight:800;border-top:2px solid var(--border);margin-top:4px;padding-top:8px"><span class="score-formula-left" style="color:var(--text)">'+t('score_final')+'</span><span class="score-formula-right" style="color:var(--accent);font-size:17px">'+s+'/10</span></div>'
-    +'<div class="score-base-note">'+t('score_note')+'</div></div></div>';
+  sf.innerHTML='<div class="card"><div class="score-formula"><div class="score-formula-title">'+t('s_detail')+'</div>'
+    +'<div class="score-formula-row"><span class="score-formula-left">'+t('s_base')+'</span><span class="score-formula-right sval-neu">5,0</span></div>'
+    +buildScoreRows(result.details)
+    +'<div class="score-formula-row" style="font-weight:800;border-top:2px solid var(--border);margin-top:4px;padding-top:8px"><span class="score-formula-left" style="color:var(--text)">'+t('s_final')+'</span><span class="score-formula-right" style="color:var(--accent);font-size:17px">'+s+'/10</span></div>'
+    +'<div class="score-base-note">'+t('s_note')+'</div></div></div>';
 }
 
-// ===== CALENDAR =====
-function getBristolEm(day){if(!day||!day.selles||!day.selles.length)return'';return BRISTOL_EMOJIS[day.selles[day.selles.length-1].bristol]||'';}
-function getMoodEm(day){if(!day||!day.etat||!day.etat.humeur)return'';return HUM_EMOJIS[day.etat.humeur]||'';}
+// CALENDAR
+function getBristolEm(day){if(!day||!day.selles||!day.selles.length)return'';return BRISTOL_EM[day.selles[day.selles.length-1].bristol]||'';}
+function getMoodEm(day){if(!day||!day.etat||!day.etat.humeur)return'';return HUM_EM[day.etat.humeur]||'';}
 function renderCalendar(){
   var mN=t('months');
   document.getElementById('calMonthLabel').textContent=mN[calMonth]+' '+calYear;
   var first=new Date(calYear,calMonth,1),last=new Date(calYear,calMonth+1,0);
   var dow=first.getDay();dow=dow===0?6:dow-1;
   var all=getData(),today=new Date().toISOString().split('T')[0];
-  var grid=document.getElementById('calGrid'); grid.innerHTML='';
+  var grid=document.getElementById('calGrid');grid.innerHTML='';
   for(var i=0;i<dow;i++){var pd=new Date(calYear,calMonth,1-dow+i);var cell=document.createElement('div');cell.className='cal-day other-month';cell.innerHTML='<div class="cal-day-num">'+pd.getDate()+'</div>';grid.appendChild(cell);}
   for(var d=1;d<=last.getDate();d++){
     var ds=calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
@@ -1450,27 +1387,27 @@ function changeMonth(dir){calMonth+=dir;if(calMonth>11){calMonth=0;calYear++;}if
 function selectCalDay(ds){selectedCalDate=ds;currentDate=ds;updateDateDisplay();renderCalendar();renderCalDayDetail(ds);}
 function renderCalDayDetail(ds){
   var day=getDayData(ds);var c=document.getElementById('calDayDetail');
-  var res=calculateScore(day);var BN=getBristolNames();
-  var html='<div class="cal-detail-card"><div class="cal-detail-header"><div class="cal-detail-date">📅 '+fmtDateFR(ds)+'</div>'+(res?'<div class="cal-detail-score-badge"><span>'+getScoreEmoji(res.score)+'</span><span class="cal-detail-score-num"> '+res.score+'</span><span style="opacity:0.7;font-size:12px">/10</span></div>':'')+'</div>';
+  var res=calculateScore(day);var BN=getBN();
+  var html='<div class="cal-detail-card"><div class="cal-detail-header"><div class="cal-detail-date">📅 '+fmtDate(ds)+'</div>'+(res?'<div class="cal-detail-score-badge"><span>'+getScoreEmoji(res.score)+'</span><span class="cal-detail-score-num"> '+res.score+'</span><span style="opacity:0.7;font-size:12px">/10</span></div>':'')+'</div>';
   if(day.repas&&day.repas.length){var sorted=day.repas.slice().sort(function(a,b){return a.heure.localeCompare(b.heure);});html+='<div class="cal-detail-section"><div class="cal-detail-section-title">'+t('cal_repas')+' ('+sorted.length+')</div>';sorted.forEach(function(r){html+='<div class="entry-item" style="margin-bottom:5px"><span class="entry-time">'+r.heure+'</span><div class="entry-body"><div class="entry-main" style="font-size:12px">'+r.aliments.join(', ')+'</div></div></div>';});html+='</div>';}
-  if(day.selles&&day.selles.length){html+='<div class="cal-detail-section"><div class="cal-detail-section-title">'+t('cal_selles')+' ('+day.selles.length+')</div>';day.selles.forEach(function(s){var sy=[];if(s.quantite)sy.push(QTY_DOTS[s.quantite]);if(s.collante)sy.push(t('symptLabel_collante'));if(s.sang)sy.push(t('symptLabel_sang'));html+='<div class="entry-item" style="margin-bottom:5px'+(s.sang?';border-color:var(--red)':'')+'"><span class="entry-time">'+s.heure+'</span><div class="entry-body"><div class="entry-main" style="font-size:12px">'+BRISTOL_EMOJIS[s.bristol]+' '+BN[s.bristol]+(sy.length?' — '+sy.join(' '):'')+'</div></div></div>';});html+='</div>';}
+  if(day.selles&&day.selles.length){html+='<div class="cal-detail-section"><div class="cal-detail-section-title">'+t('cal_selles')+' ('+day.selles.length+')</div>';day.selles.forEach(function(s){var sy=[];if(s.quantite)sy.push(QTY_DOTS[s.quantite]);if(s.collante)sy.push(t('tag_collante'));if(s.sang)sy.push(t('tag_sang'));html+='<div class="entry-item" style="margin-bottom:5px'+(s.sang?';border-color:var(--red)':'')+'"><span class="entry-time">'+s.heure+'</span><div class="entry-body"><div class="entry-main" style="font-size:12px">'+BRISTOL_EM[s.bristol]+' '+BN[s.bristol]+(sy.length?' — '+sy.join(' '):'')+'</div></div></div>';});html+='</div>';}
   if(day.etat){
     var e=day.etat;var hI={faible:'🥤',moyen:'💧',bon:'💦'};var sI={aucun:'💤',endurance:'🏃',cardio:'🚴',musculation:'🏋️'};
     var etags='';
-    if(e.humeur)etags+='<span class="tag tag-yellow">'+HUM_EMOJIS[e.humeur]+' '+e.humeur+'/5</span> ';
-    if(e.hydration)etags+='<span class="tag tag-blue">'+(hI[e.hydration]||'')+' '+t('lbl_hyd_'+e.hydration)+'</span> ';
+    if(e.humeur)etags+='<span class="tag tag-yellow">'+HUM_EM[e.humeur]+' '+e.humeur+'/5</span> ';
+    if(e.hydration)etags+='<span class="tag tag-blue">'+(hI[e.hydration]||'')+' '+t('L_hyd_'+e.hydration)+'</span> ';
     if(e.sport&&e.sport!=='aucun')etags+='<span class="tag tag-green">'+(sI[e.sport]||'🏃')+' '+e.sport+(e.sportDuree?' '+e.sportDuree+'min':'')+'</span> ';
-    if(e.douleur)etags+='<span class="tag tag-red">'+t('symptLabel_douleur')+'</span> ';
-    if(e.ballons)etags+='<span class="tag tag-red">'+t('symptLabel_ballons')+'</span> ';
+    if(e.douleur)etags+='<span class="tag tag-red">'+t('tag_douleur')+'</span> ';
+    if(e.ballons)etags+='<span class="tag tag-red">'+t('tag_ballons')+'</span> ';
     if(e.regles)etags+='<span class="tag tag-red">'+t('regleLabel')+'</span>';
     html+='<div class="cal-detail-section"><div class="cal-detail-section-title">'+t('cal_etat')+'</div><div style="display:flex;gap:5px;flex-wrap:wrap">'+etags+'</div>'+(e.note?'<div style="font-size:11px;color:var(--text3);margin-top:4px">'+t('noteLabel')+' '+e.note+'</div>':'')+'</div>';
   }
-  if(res){var det=res.details;html+='<div class="cal-detail-section"><div class="cal-detail-section-title">'+t('cal_calcul')+'</div><div class="cal-detail-points"><div class="cal-detail-points-row"><span class="cdpr-label">'+t('score_base')+'</span><span class="cdpr-val cdpr-neu">5,0</span></div>';if(det.bristol)html+='<div class="cal-detail-points-row"><span class="cdpr-label">'+det.bristol.icon+' '+det.bristol.desc+'</span><span class="cdpr-val '+cdprCls(det.bristol.score)+'">'+fmtVal(det.bristol.score)+'</span></div>';if(det.symptomes_selle&&det.symptomes_selle.score!==0)html+='<div class="cal-detail-points-row"><span class="cdpr-label">🩹 '+t('score_symp_selle_lbl')+'</span><span class="cdpr-val '+cdprCls(det.symptomes_selle.score)+'">'+fmtVal(det.symptomes_selle.score)+'</span></div>';if(det.symptomes_etat&&det.symptomes_etat.score!==0)html+='<div class="cal-detail-points-row"><span class="cdpr-label">🩺 '+t('score_symp_etat_lbl')+'</span><span class="cdpr-val '+cdprCls(det.symptomes_etat.score)+'">'+fmtVal(det.symptomes_etat.score)+'</span></div>';if(det.humeur)html+='<div class="cal-detail-points-row"><span class="cdpr-label">'+det.humeur.icon+' '+t('score_humeur_lbl')+' '+det.humeur.desc+'</span><span class="cdpr-val '+cdprCls(det.humeur.score)+'">'+fmtVal(det.humeur.score)+'</span></div>';if(det.hydration)html+='<div class="cal-detail-points-row"><span class="cdpr-label">💧 '+t('score_hydra_lbl')+' : '+det.hydration.desc+'</span><span class="cdpr-val '+cdprCls(det.hydration.score)+'">'+fmtVal(det.hydration.score)+'</span></div>';if(det.sport)html+='<div class="cal-detail-points-row"><span class="cdpr-label">🏃 '+det.sport.desc+'</span><span class="cdpr-val '+cdprCls(det.sport.score)+'">'+fmtVal(det.sport.score)+'</span></div>';html+='<div class="cal-detail-total"><span>'+t('score_final')+'</span><span class="cal-detail-total-val">'+res.score+'/10</span></div></div></div>';}
+  if(res){var det=res.details;html+='<div class="cal-detail-section"><div class="cal-detail-section-title">'+t('cal_calcul')+'</div><div class="cal-detail-points"><div class="cal-detail-points-row"><span class="cdpr-label">'+t('s_base')+'</span><span class="cdpr-val cdpr-neu">5,0</span></div>';if(det.bristol)html+='<div class="cal-detail-points-row"><span class="cdpr-label">'+det.bristol.icon+' '+det.bristol.desc+'</span><span class="cdpr-val '+dCls(det.bristol.score)+'">'+fmtV(det.bristol.score)+'</span></div>';if(det.symp_selle&&det.symp_selle.score!==0)html+='<div class="cal-detail-points-row"><span class="cdpr-label">🩹 '+t('s_symp_selle')+'</span><span class="cdpr-val '+dCls(det.symp_selle.score)+'">'+fmtV(det.symp_selle.score)+'</span></div>';if(det.symp_etat&&det.symp_etat.score!==0)html+='<div class="cal-detail-points-row"><span class="cdpr-label">🩺 '+t('s_symp_etat')+'</span><span class="cdpr-val '+dCls(det.symp_etat.score)+'">'+fmtV(det.symp_etat.score)+'</span></div>';if(det.humeur)html+='<div class="cal-detail-points-row"><span class="cdpr-label">'+det.humeur.icon+' '+t('s_humeur')+' '+det.humeur.desc+'</span><span class="cdpr-val '+dCls(det.humeur.score)+'">'+fmtV(det.humeur.score)+'</span></div>';if(det.hydration)html+='<div class="cal-detail-points-row"><span class="cdpr-label">💧 '+t('s_hydra')+' : '+det.hydration.desc+'</span><span class="cdpr-val '+dCls(det.hydration.score)+'">'+fmtV(det.hydration.score)+'</span></div>';if(det.sport)html+='<div class="cal-detail-points-row"><span class="cdpr-label">🏃 '+det.sport.desc+'</span><span class="cdpr-val '+dCls(det.sport.score)+'">'+fmtV(det.sport.score)+'</span></div>';html+='<div class="cal-detail-total"><span>'+t('s_final')+'</span><span class="cal-detail-total-val">'+res.score+'/10</span></div></div></div>';}
   if(!day.repas.length&&!day.selles.length&&!day.etat)html+='<div class="empty-state" style="padding:16px 0"><div class="empty-icon">📭</div><div class="empty-text">'+t('cal_nodata')+'</div></div>';
   html+='</div>';c.innerHTML=html;c.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
-// ===== ANALYSIS =====
+// ANALYSE
 function runAnalysis(){
   var all=getData();var foodStats={};
   Object.keys(all).sort().forEach(function(date){var day=all[date];if(!day.repas||!day.repas.length)return;day.repas.forEach(function(repas){var rt=new Date(date+'T'+repas.heure+':00').getTime();repas.aliments.forEach(function(food){if(!foodStats[food])foodStats[food]={events:0,badEvents:0};var t1=new Date(new Date(date+'T12:00:00').getTime()+86400000).toISOString().split('T')[0];var t2=new Date(new Date(date+'T12:00:00').getTime()+2*86400000).toISOString().split('T')[0];[date,t1,t2].forEach(function(cd){var cday=all[cd];if(!cday||!cday.selles)return;cday.selles.forEach(function(s){var diff=new Date(cd+'T'+s.heure+':00').getTime()-rt;if(diff>=12*3600000&&diff<=48*3600000){foodStats[food].events++;if(s.bristol>=5||s.collante||s.sang)foodStats[food].badEvents++;}});});});});});
@@ -1484,21 +1421,21 @@ function runAnalysis(){
   html+='</div>';c.innerHTML=html;
 }
 
-// ===== IMPORT/EXPORT =====
+// IMPORT/EXPORT
 function exportCSV(){
   var all=getData();var rows=[['Date','Type','Heure','Données','Détails']];
-  Object.keys(all).sort().forEach(function(date){var day=all[date];(day.repas||[]).forEach(function(r){rows.push([date,'Repas',r.heure,r.aliments.join(';'),'']);});(day.selles||[]).forEach(function(s){var det=[s.collante?'collante':'',s.sang?'sang':''].filter(Boolean).join(';');rows.push([date,'Selle',s.heure,'Bristol '+s.bristol+' Qte:'+(s.quantite||''),det]);});if(day.etat){var e=day.etat;rows.push([date,'Etat','','Humeur:'+(e.humeur||'')+' Hydratation:'+(e.hydration||'')+' Sport:'+(e.sport||''),'Duree:'+(e.sportDuree||0)+'min Douleur:'+(e.douleur?'oui':'non')+' Ballons:'+(e.ballons?'oui':'non')+'' Regles:'+(e.regles?'oui':'non')+' Note:'+(e.note||'')]);}var res=calculateScore(day);if(res)rows.push([date,'Score','',res.score,'']);});
+  Object.keys(all).sort().forEach(function(date){var day=all[date];(day.repas||[]).forEach(function(r){rows.push([date,'Repas',r.heure,r.aliments.join(';'),'']);});(day.selles||[]).forEach(function(s){var det=[s.collante?'collante':'',s.sang?'sang':''].filter(Boolean).join(';');rows.push([date,'Selle',s.heure,'Bristol '+s.bristol+' Qte:'+(s.quantite||''),det]);});if(day.etat){var e=day.etat;rows.push([date,'Etat','','Humeur:'+(e.humeur||'')+' Hydratation:'+(e.hydration||'')+' Sport:'+(e.sport||''),'Duree:'+(e.sportDuree||0)+'min Douleur:'+(e.douleur?'oui':'non')+' Ballons:'+(e.ballons?'oui':'non')+' Regles:'+(e.regles?'oui':'non')+' Note:'+(e.note||'')]);}var res=calculateScore(day);if(res)rows.push([date,'Score','',res.score,'']);});
   var csv=rows.map(function(r){return r.map(function(c){return'"'+String(c).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
-  var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='supercaca_'+new Date().toISOString().split('T')[0]+'.csv';a.click();showToast(t('toastExport'));
+  var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='supercaca_'+new Date().toISOString().split('T')[0]+'.csv';a.click();showToast(t('tExport'));
 }
 function importCSV(input){
   var file=input.files[0];if(!file)return;var reader=new FileReader();
-  reader.onload=function(e){var text=e.target.result.replace(/^\uFEFF/,'');var lines=text.split('\n').slice(1).filter(function(l){return l.trim();});var all=getData();var count=0;lines.forEach(function(line){var parts=parseCSVLine(line);if(parts.length<4)return;var date=parts[0],type=parts[1],heure=parts[2],data=parts[3],details=parts[4]||'';if(!date||!type)return;if(!all[date])all[date]={repas:[],selles:[],etat:null};if(type==='Repas'&&heure&&data){all[date].repas.push({heure:heure,aliments:data.split(';'),id:Date.now()+Math.random()});count++;}else if(type==='Selle'&&heure){var bm=data.match(/Bristol (\d)/);if(bm){all[date].selles.push({heure:heure,bristol:parseInt(bm[1]),collante:details.indexOf('collante')>=0,sang:details.indexOf('sang')>=0,id:Date.now()+Math.random()});count++;}}else if(type==='Etat'){var hm=data.match(/Humeur:(\d)/),hy=data.match(/Hydratation:(\w+)/),sp=data.match(/Sport:(\w+)/),du=details.match(/Duree:(\d+)/);all[date].etat={humeur:hm?parseInt(hm[1]):null,hydration:hy?hy[1]:null,sport:sp?sp[1]:'aucun',sportDuree:du?parseInt(du[1]):0,douleur:details.indexOf('Douleur:oui')>=0,ballons:details.indexOf('Ballons:oui')>=0,regles:details.indexOf('Regles:oui')>=0,note:''};count++;}});saveData(all);input.value='';refreshAll();showToast('✅ '+count+t('toastImport'));};reader.readAsText(file);
+  reader.onload=function(e){var text=e.target.result.replace(/^\uFEFF/,'');var lines=text.split('\n').slice(1).filter(function(l){return l.trim();});var all=getData();var count=0;lines.forEach(function(line){var parts=parseCSVLine(line);if(parts.length<4)return;var date=parts[0],type=parts[1],heure=parts[2],data=parts[3],details=parts[4]||'';if(!date||!type)return;if(!all[date])all[date]={repas:[],selles:[],etat:null};if(type==='Repas'&&heure&&data){all[date].repas.push({heure:heure,aliments:data.split(';'),id:Date.now()+Math.random()});count++;}else if(type==='Selle'&&heure){var bm=data.match(/Bristol (\d)/);if(bm){all[date].selles.push({heure:heure,bristol:parseInt(bm[1]),collante:details.indexOf('collante')>=0,sang:details.indexOf('sang')>=0,id:Date.now()+Math.random()});count++;}}else if(type==='Etat'){var hm=data.match(/Humeur:(\d)/),hy=data.match(/Hydratation:(\w+)/),sp=data.match(/Sport:(\w+)/),du=details.match(/Duree:(\d+)/);all[date].etat={humeur:hm?parseInt(hm[1]):null,hydration:hy?hy[1]:null,sport:sp?sp[1]:'aucun',sportDuree:du?parseInt(du[1]):0,douleur:details.indexOf('Douleur:oui')>=0,ballons:details.indexOf('Ballons:oui')>=0,regles:details.indexOf('Regles:oui')>=0,note:''};count++;}});saveData(all);input.value='';refreshAll();showToast('✅ '+count+t('tImport'));};reader.readAsText(file);
 }
 function parseCSVLine(line){var res=[],cur='',inQ=false;for(var i=0;i<line.length;i++){var c=line[i];if(c==='"'){inQ=!inQ;continue;}if(c===','&&!inQ){res.push(cur);cur='';continue;}cur+=c;}res.push(cur);return res;}
-function resetAllData(){if(!confirm(t('confirmReset')))return;localStorage.removeItem('supercaca_data');selectedCalDate=null;document.getElementById('calDayDetail').innerHTML='';refreshAll();showToast(t('toastReset'));}
+function resetAllData(){if(!confirm(t('confirmReset')))return;localStorage.removeItem('supercaca_data');selectedCalDate=null;document.getElementById('calDayDetail').innerHTML='';refreshAll();showToast(t('tReset'));}
 
-// ===== PWA & NOTIF =====
+// PWA & NOTIF
 var IS_HTTPS=location.protocol==='https:';
 var IS_LOCAL_FILE=location.protocol==='file:';
 var IS_STANDALONE=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
@@ -1526,17 +1463,17 @@ function renderNotifCard(){
   desc.innerHTML=t('notif_ask');actions.innerHTML='<button class="btn btn-primary btn-full" id="askNotifBtn">'+t('notif_btn')+'</button>';document.getElementById('askNotifBtn').addEventListener('click',askNotifPermission);
 }
 function askNotifPermission(){Notification.requestPermission().then(function(perm){if(perm==='granted'){showToast('✅ Rappel activé!');scheduleNightlyReminder();localStorage.setItem('sc_notif','granted');}else showToast('⚠️ Permission refusée.');renderNotifCard();});}
-function testNotif(){try{new Notification(t('notifTestMsg'),{body:t('notifTestBody'),tag:'sc-test'});showToast('🔔 OK');}catch(e){showToast('❌ '+e.message);}}
+function testNotif(){try{new Notification(t('notifTestTitle'),{body:t('notifTestBody'),tag:'sc-test'});showToast('🔔 OK');}catch(e){showToast('❌ '+e.message);}}
 function hasDataToday(){var today=new Date().toISOString().split('T')[0];var day=getDayData(today);return(day.repas&&day.repas.length>0)||(day.selles&&day.selles.length>0)||day.etat!==null;}
 function scheduleNightlyReminder(){
   if(!('Notification' in window)||Notification.permission!=='granted')return;
   if(window._scTimer)clearTimeout(window._scTimer);
   var now=new Date();var next21=new Date(now.getFullYear(),now.getMonth(),now.getDate(),21,0,0,0);
   if(now>=next21)next21=new Date(next21.getTime()+86400000);
-  window._scTimer=setTimeout(function(){if(!hasDataToday()){try{new Notification(t('notifReminderTitle'),{body:t('notifReminderBody'),tag:'sc-nightly'});}catch(e){}}scheduleNightlyReminder();},next21.getTime()-now.getTime());
+  window._scTimer=setTimeout(function(){if(!hasDataToday()){try{new Notification(t('notifTitle'),{body:t('notifBody'),tag:'sc-nightly'});}catch(e){}}scheduleNightlyReminder();},next21.getTime()-now.getTime());
 }
 function renderStorageInfo(){
-  var el=document.getElementById('storageLocationDesc');if(!el)return;
+  var el=document.getElementById('storageDesc');if(!el)return;
   var all=getData();var plats=getPlats();
   var nbDays=Object.keys(all).length,nbRepas=0,nbSelles=0,nbEtat=0;
   Object.values(all).forEach(function(d){nbRepas+=(d.repas||[]).length;nbSelles+=(d.selles||[]).length;if(d.etat)nbEtat++;});
@@ -1546,8 +1483,8 @@ function renderStorageInfo(){
   el.innerHTML=t('storage_local')+'<br><br>'+t('storage_path')+' '+path+'<br><br>'+t('storage_content')+' '+nbDays+' '+t('storage_days')+' · '+nbRepas+' '+t('storage_meals')+' · '+nbSelles+' '+t('storage_stools')+' · '+nbEtat+' '+t('storage_status')+' · '+plats.length+' '+t('storage_types')+'<br>'+t('storage_size')+' '+kb+' Ko<br><br>'+t('storage_warn');
 }
 
-// ===== UTILS =====
-function fmtDateFR(ds){var locale=LANG==='en'?'en-GB':'fr-FR';var d=new Date(ds+'T12:00:00');return d.toLocaleDateString(locale,{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
+// UTILS
+function fmtDate(ds){var locale=LANG==='en'?'en-GB':'fr-FR';var d=new Date(ds+'T12:00:00');return d.toLocaleDateString(locale,{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
 function setNow(id){var n=new Date();document.getElementById(id).value=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');}
 function toggleCheckbox(labelEl){var cb=labelEl.querySelector('input[type="checkbox"]');if(!cb)return;cb.checked=!cb.checked;var v=labelEl.querySelector('.checkbox-visual');if(cb.checked){labelEl.classList.add('checked');if(v){v.style.background='var(--accent)';v.style.borderColor='var(--accent)';v.innerHTML='<span style="font-size:13px;font-weight:900;color:white">✓</span>';}}else{labelEl.classList.remove('checked');if(v){v.style.background='var(--card)';v.style.borderColor='var(--border2)';v.innerHTML='';}}}
 function showToast(msg){var c=document.getElementById('toastContainer');var el=document.createElement('div');el.className='toast';el.textContent=msg;c.appendChild(el);setTimeout(function(){el.remove();},2500);}
@@ -1558,22 +1495,22 @@ function updateDateDisplay(){var today=new Date().toISOString().split('T')[0];va
 function switchTab(name,btn){document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});document.querySelectorAll('.tab-btn').forEach(function(el){el.classList.remove('active');});document.getElementById('tab-'+name).classList.add('active');btn.classList.add('active');if(name==='repas')renderRepasList();if(name==='selles')renderSellesList();if(name==='etat')renderEtatDisplay();if(name==='score'){populateScoreDateSelect();renderScore();}if(name==='calendrier')renderCalendar();if(name==='plats')renderPlatsList();if(name==='io')refreshIOTab();}
 function refreshAll(){renderRepasList();renderSellesList();renderEtatDisplay();renderScore();renderCalendar();}
 
-// ===== EVENT LISTENERS =====
+// EVENT LISTENERS
 document.querySelectorAll('input[name="sport"]').forEach(function(el){el.addEventListener('change',function(){document.getElementById('sportDureeGroup').style.display=el.value!=='aucun'?'block':'none';});});
 document.querySelectorAll('.checkbox-item').forEach(function(el){el.addEventListener('click',function(){toggleCheckbox(this);});});
 document.getElementById('dateModal').addEventListener('click',function(e){if(e.target===this)closeModal('dateModal');});
 document.getElementById('repasAlimentInput').addEventListener('keydown',function(e){if(e.key==='Enter')addFoodFromInput();});
 document.getElementById('platIngredientInput').addEventListener('keydown',function(e){if(e.key==='Enter')addPlatIngredientFromInput();});
 
-// ===== INIT =====
-initTheme(); applyLang();
-setNow('repasHeure'); setNow('selleHeure');
-initFoodCommon(); initPlatFoodCommon();
+// INIT
+initTheme();applyLang();
+setNow('repasHeure');setNow('selleHeure');
+initFoodCommon();initPlatFoodCommon();
 updateDateDisplay();
-renderRepasList(); renderSellesList(); renderEtatDisplay(); renderPlatsList();
+renderRepasList();renderSellesList();renderEtatDisplay();renderPlatsList();
 populateScoreDateSelect();
 if(!IS_LOCAL_FILE&&typeof Notification!=='undefined'&&Notification.permission==='granted'){scheduleNightlyReminder();}
-renderPwaCard(); renderNotifCard(); renderStorageInfo();
+renderPwaCard();renderNotifCard();renderStorageInfo();
 
 </script>
 </body>
