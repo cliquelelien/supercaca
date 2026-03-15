@@ -767,202 +767,148 @@ main{position:relative;z-index:1;}
 </div>
 
 
+
 <script>
+
 // ========== TRANSLATIONS ==========
 var LANG = localStorage.getItem('supercaca_lang') || 'fr';
 
 var T = {
   fr: {
-    // Header
-    themeNight: '🌙 Nuit', themeDay: '☀️ Jour', langBtn: '🇬🇧 EN',
-    // Tabs
-    tabRepas: '🍽️ Repas', tabSelles: '🚽 Selles', tabEtat: '🌟 État',
-    tabScore: '📊 Score', tabCal: '🗓️ Calendrier', tabAnalyse: '🔍 Analyse',
-    tabPlats: '🍲 Aliments types', tabIO: '💾 Import/Export',
-    // État
-    labelRegles: '🌸 Période menstruelle',
-    labelReglesCb: 'En période de règles actuellement',
-    labelNote: '📝 Note libre',
-    notePlaceholder: 'Observations, médicaments, stress, sommeil...',
-    btnSaveEtat: '💾 Enregistrer l'état général',
-    // IO Export
-    labelExportTitle: '📤 Exporter les données',
-    labelExportDesc: 'Génère un fichier CSV contenant tous vos repas, selles, états généraux et scores.',
-    labelSaveDir: 'Répertoire de sauvegarde',
-    opt_auto: '📱 Répertoire par défaut (Téléchargements)',
-    opt_gdrive: '☁️ Google Drive (ouvrir après export)',
-    opt_custom: '📂 Autre emplacement (choisir manuellement)',
-    hint_auto: 'Le fichier CSV sera enregistré dans le dossier Téléchargements de votre appareil.',
-    hint_gdrive: 'Exportez le CSV, puis ouvrez Google Drive et uploadez le fichier manuellement.',
-    hint_custom: 'Après téléchargement, votre navigateur vous proposera de choisir l'emplacement (si activé dans les paramètres du navigateur).',
-    btnExportCSV: '📥 Télécharger CSV',
-    // Toasts
-    toastRepas: '✅ Repas enregistré !',
-    toastSelle: '✅ Selle enregistrée !',
-    toastEtat: '✅ État enregistré !',
-    toastDelRepas: '🗑️ Repas supprimé',
-    toastDelSelle: '🗑️ Selle supprimée',
-    toastDelEtat: '🗑️ État supprimé',
-    toastPlat: '✅ Plat enregistré !',
-    toastDelPlat: '🗑️ Plat supprimé',
-    toastExport: '📥 Export CSV téléchargé !',
-    toastImport: '✅ entrées importées !',
-    toastReset: '🗑️ Données effacées',
-    toastPlatApply: 'pré-rempli !',
-    // Misc
-    today: 'Aujourd'hui',
-    confirmDelEtat: 'Supprimer l'état général de cette journée ?',
-    confirmDelPlat: 'Remplacer ce plat ?',
-    confirmReset: 'Effacer toutes les données ? Action irréversible.',
-    noRepas: 'Aucun repas enregistré aujourd'hui',
-    noSelles: 'Aucune selle enregistrée',
-    noPlats: 'Aucun plat type enregistré.',
-    noData: 'Aucune donnée pour ce jour',
-    noAnalysis: 'Pas assez de données.
-Enregistrez repas et selles sur plusieurs jours.',
-    errHeure: '⏱️ Indiquez l'heure',
-    errAliment: '🍽️ Sélectionnez un aliment',
-    errBristol: '🚽 Sélectionnez un type Bristol',
-    errPlatNom: '📝 Donnez un nom au plat',
-    errPlatIng: '🥘 Ajoutez au moins un ingrédient',
-    scoreLabels: ['','Très mauvaise journée','Journée difficile','Journée correcte','Journée correcte','Bonne journée','Bonne journée','Excellente journée !','Excellente journée !','Excellente journée !','Excellente journée !'],
-    months: ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'],
-    weekdays: ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'],
-    regleLabel: '🌸 Règles',
-    noteLabel: '📝'
+    themeNight:'🌙 Nuit', themeDay:'☀️ Jour', langBtn:'🇬🇧 EN',
+    tabRepas:'🍽️ Repas', tabSelles:'🚽 Selles', tabEtat:'🌟 État',
+    tabScore:'📊 Score', tabCal:'🗓️ Calendrier', tabAnalyse:'🔍 Analyse',
+    tabPlats:'🍲 Aliments types', tabIO:'💾 Import/Export',
+    labelRegles:'🌸 Période menstruelle', labelReglesCb:'En période de règles actuellement',
+    labelNote:'📝 Note libre', notePlaceholder:'Observations, médicaments, stress, sommeil...',
+    btnSaveEtat:'💾 Enregistrer l\'état général',
+    labelExportTitle:'📤 Exporter les données',
+    labelExportDesc:'Génère un fichier CSV contenant tous vos repas, selles, états généraux et scores.',
+    labelSaveDir:'Répertoire de sauvegarde',
+    opt_auto:'📱 Répertoire par défaut (Téléchargements)',
+    opt_gdrive:'☁️ Google Drive (ouvrir après export)',
+    opt_custom:'📂 Autre emplacement (choisir manuellement)',
+    hint_auto:'Le fichier CSV sera enregistré dans le dossier Téléchargements de votre appareil.',
+    hint_gdrive:'Exportez le CSV, puis ouvrez Google Drive et uploadez le fichier manuellement.',
+    hint_custom:'Après téléchargement, votre navigateur vous proposera de choisir l\'emplacement (si activé dans les paramètres).',
+    btnExportCSV:'📥 Télécharger CSV',
+    toastRepas:'✅ Repas enregistré !', toastSelle:'✅ Selle enregistrée !',
+    toastEtat:'✅ État enregistré !', toastDelRepas:'🗑️ Repas supprimé',
+    toastDelSelle:'🗑️ Selle supprimée', toastDelEtat:'🗑️ État supprimé',
+    toastPlat:'✅ Plat enregistré !', toastDelPlat:'🗑️ Plat supprimé',
+    toastExport:'📥 Export CSV téléchargé !', toastImport:' entrées importées !',
+    toastReset:'🗑️ Données effacées', toastPlatApply:'pré-rempli !',
+    today:'Aujourd\'hui',
+    confirmDelEtat:'Supprimer l\'état général de cette journée ?',
+    confirmDelPlat:'Remplacer ce plat ?',
+    confirmReset:'Effacer toutes les données ? Action irréversible.',
+    noRepas:'Aucun repas enregistré aujourd\'hui', noSelles:'Aucune selle enregistrée',
+    noPlats:'Aucun plat type enregistré.', noData:'Aucune donnée pour ce jour',
+    noAnalysis:'Pas assez de données.\nEnregistrez repas et selles sur plusieurs jours.',
+    errHeure:'⏱️ Indiquez l\'heure', errAliment:'🍽️ Sélectionnez un aliment',
+    errBristol:'🚽 Sélectionnez un type Bristol',
+    errPlatNom:'📝 Donnez un nom au plat', errPlatIng:'🥘 Ajoutez au moins un ingrédient',
+    scoreLabels:['','Très mauvaise journée','Journée difficile','Journée correcte','Journée correcte','Bonne journée','Bonne journée','Excellente journée !','Excellente journée !','Excellente journée !','Excellente journée !'],
+    months:['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'],
+    weekdays:['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'],
+    regleLabel:'🌸 Règles', noteLabel:'📝'
   },
   en: {
-    themeNight: '🌙 Night', themeDay: '☀️ Day', langBtn: '🇫🇷 FR',
-    tabRepas: '🍽️ Meals', tabSelles: '🚽 Stools', tabEtat: '🌟 Status',
-    tabScore: '📊 Score', tabCal: '🗓️ Calendar', tabAnalyse: '🔍 Analysis',
-    tabPlats: '🍲 Meal types', tabIO: '💾 Import/Export',
-    labelRegles: '🌸 Menstrual period',
-    labelReglesCb: 'Currently in menstrual period',
-    labelNote: '📝 Free note',
-    notePlaceholder: 'Observations, medication, stress, sleep...',
-    btnSaveEtat: '💾 Save daily status',
-    labelExportTitle: '📤 Export data',
-    labelExportDesc: 'Generates a CSV file with all your meals, stools, daily status and scores.',
-    labelSaveDir: 'Save location',
-    opt_auto: '📱 Default folder (Downloads)',
-    opt_gdrive: '☁️ Google Drive (open after export)',
-    opt_custom: '📂 Custom location (choose manually)',
-    hint_auto: 'The CSV file will be saved in your device's Downloads folder.',
-    hint_gdrive: 'Export the CSV, then open Google Drive and upload the file manually.',
-    hint_custom: 'After download, your browser will let you choose the location (if enabled in browser settings).',
-    btnExportCSV: '📥 Download CSV',
-    toastRepas: '✅ Meal saved!',
-    toastSelle: '✅ Stool saved!',
-    toastEtat: '✅ Status saved!',
-    toastDelRepas: '🗑️ Meal deleted',
-    toastDelSelle: '🗑️ Stool deleted',
-    toastDelEtat: '🗑️ Status deleted',
-    toastPlat: '✅ Meal type saved!',
-    toastDelPlat: '🗑️ Meal type deleted',
-    toastExport: '📥 CSV downloaded!',
-    toastImport: '✅ entries imported!',
-    toastReset: '🗑️ Data cleared',
-    toastPlatApply: 'pre-filled!',
-    today: 'Today',
-    confirmDelEtat: 'Delete today's status?',
-    confirmDelPlat: 'Replace this meal?',
-    confirmReset: 'Delete all data? This cannot be undone.',
-    noRepas: 'No meals recorded today',
-    noSelles: 'No stools recorded',
-    noPlats: 'No meal types yet.',
-    noData: 'No data for this day',
-    noAnalysis: 'Not enough data.
-Record meals and stools over several days.',
-    errHeure: '⏱️ Please enter a time',
-    errAliment: '🍽️ Select at least one food',
-    errBristol: '🚽 Select a Bristol type',
-    errPlatNom: '📝 Give this meal a name',
-    errPlatIng: '🥘 Add at least one ingredient',
-    scoreLabels: ['','Very bad day','Difficult day','Decent day','Decent day','Good day','Good day','Excellent day!','Excellent day!','Excellent day!','Excellent day!'],
-    months: ['January','February','March','April','May','June','July','August','September','October','November','December'],
-    weekdays: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
-    regleLabel: '🌸 Period',
-    noteLabel: '📝'
+    themeNight:'🌙 Night', themeDay:'☀️ Day', langBtn:'🇫🇷 FR',
+    tabRepas:'🍽️ Meals', tabSelles:'🚽 Stools', tabEtat:'🌟 Status',
+    tabScore:'📊 Score', tabCal:'🗓️ Calendar', tabAnalyse:'🔍 Analysis',
+    tabPlats:'🍲 Meal types', tabIO:'💾 Import/Export',
+    labelRegles:'🌸 Menstrual period', labelReglesCb:'Currently in menstrual period',
+    labelNote:'📝 Free note', notePlaceholder:'Observations, medication, stress, sleep...',
+    btnSaveEtat:'💾 Save daily status',
+    labelExportTitle:'📤 Export data',
+    labelExportDesc:'Generates a CSV file with all your meals, stools, daily status and scores.',
+    labelSaveDir:'Save location',
+    opt_auto:'📱 Default folder (Downloads)',
+    opt_gdrive:'☁️ Google Drive (open after export)',
+    opt_custom:'📂 Custom location (choose manually)',
+    hint_auto:'The CSV file will be saved in your device\'s Downloads folder.',
+    hint_gdrive:'Export the CSV, then open Google Drive and upload the file manually.',
+    hint_custom:'After download, your browser will let you choose the save location (if enabled in settings).',
+    btnExportCSV:'📥 Download CSV',
+    toastRepas:'✅ Meal saved!', toastSelle:'✅ Stool saved!',
+    toastEtat:'✅ Status saved!', toastDelRepas:'🗑️ Meal deleted',
+    toastDelSelle:'🗑️ Stool deleted', toastDelEtat:'🗑️ Status deleted',
+    toastPlat:'✅ Meal type saved!', toastDelPlat:'🗑️ Meal type deleted',
+    toastExport:'📥 CSV downloaded!', toastImport:' entries imported!',
+    toastReset:'🗑️ Data cleared', toastPlatApply:'pre-filled!',
+    today:'Today',
+    confirmDelEtat:'Delete today\'s status?',
+    confirmDelPlat:'Replace this meal?',
+    confirmReset:'Delete all data? This cannot be undone.',
+    noRepas:'No meals recorded today', noSelles:'No stools recorded',
+    noPlats:'No meal types yet.', noData:'No data for this day',
+    noAnalysis:'Not enough data.\nRecord meals and stools over several days.',
+    errHeure:'⏱️ Please enter a time', errAliment:'🍽️ Select at least one food',
+    errBristol:'🚽 Select a Bristol type',
+    errPlatNom:'📝 Give this meal a name', errPlatIng:'🥘 Add at least one ingredient',
+    scoreLabels:['','Very bad day','Difficult day','Decent day','Decent day','Good day','Good day','Excellent day!','Excellent day!','Excellent day!','Excellent day!'],
+    months:['January','February','March','April','May','June','July','August','September','October','November','December'],
+    weekdays:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+    regleLabel:'🌸 Period', noteLabel:'📝'
   }
 };
 
-function t(key){ return (T[LANG] && T[LANG][key]) ? T[LANG][key] : (T['fr'][key] || key); }
+function t(key){ return (T[LANG] && T[LANG][key] !== undefined) ? T[LANG][key] : (T.fr[key] !== undefined ? T.fr[key] : key); }
 
 function toggleLang(){
-  LANG = LANG==='fr' ? 'en' : 'fr';
+  LANG = LANG === 'fr' ? 'en' : 'fr';
   localStorage.setItem('supercaca_lang', LANG);
   applyLang();
 }
 
 function applyLang(){
-  var L = T[LANG];
-  // Header
   var lb = document.getElementById('langBtn');
-  if(lb) lb.textContent = L.langBtn;
-  var tb = document.getElementById('themeToggleBtn');
-  if(tb){
-    var isDark = document.documentElement.getAttribute('data-theme')==='dark';
-    tb.textContent = isDark ? L.themeDay : L.themeNight;
-  }
-  // Tabs
-  var tabs = document.querySelectorAll('.tab-btn');
+  if(lb) lb.textContent = t('langBtn');
+  // Tab buttons
   var tabKeys = ['tabRepas','tabSelles','tabEtat','tabScore','tabCal','tabAnalyse','tabPlats','tabIO'];
-  tabs.forEach(function(btn,i){ if(tabKeys[i]) btn.textContent = L[tabKeys[i]]; });
-  // État labels
-  var ids = {
-    'labelRegles': 'labelRegles',
-    'labelReglesCb': 'labelReglesCb',
-    'labelNote': 'labelNote',
-    'btnSaveEtat': 'btnSaveEtat',
-    'labelExportTitle': 'labelExportTitle',
-    'labelExportDesc': 'labelExportDesc',
-    'labelSaveDir': 'labelSaveDir',
-    'btnExportCSV': 'btnExportCSV'
-  };
-  Object.keys(ids).forEach(function(id){
-    var el = document.getElementById(id);
-    if(el && L[id]) el.textContent = L[id];
-  });
+  document.querySelectorAll('.tab-btn').forEach(function(btn, i){ if(tabKeys[i]) btn.textContent = t(tabKeys[i]); });
+  // Labelled elements
+  var ids = ['labelRegles','labelNote','btnSaveEtat','labelExportTitle','labelSaveDir','btnExportCSV'];
+  ids.forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent = t(id); });
+  var labelDesc = document.getElementById('labelExportDesc');
+  if(labelDesc) labelDesc.textContent = t('labelExportDesc');
+  var labelCb = document.getElementById('labelReglesCb');
+  if(labelCb) labelCb.textContent = t('labelReglesCb');
   // Select options
-  ['opt_auto','opt_gdrive','opt_custom'].forEach(function(id){
-    var el = document.getElementById(id);
-    if(el && L[id]) el.textContent = L[id];
-  });
+  ['opt_auto','opt_gdrive','opt_custom'].forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent = t(id); });
   // Textarea placeholder
-  var tn = document.getElementById('etatNote');
-  if(tn) tn.placeholder = L.notePlaceholder;
+  var tn = document.getElementById('etatNote'); if(tn) tn.placeholder = t('notePlaceholder');
   // Calendar weekdays
-  var wds = document.querySelectorAll('.cal-wd');
-  wds.forEach(function(el,i){ if(L.weekdays[i]) el.textContent = L.weekdays[i]; });
-  // Refresh current displays
+  document.querySelectorAll('.cal-wd').forEach(function(el,i){ var w=t('weekdays'); if(w[i]) el.textContent = w[i]; });
+  // Theme button
+  var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  var tb = document.getElementById('themeToggleBtn');
+  if(tb) tb.textContent = isDark ? t('themeDay') : t('themeNight');
+  // Date display
   updateDateDisplay();
 }
 
 function onExportDirChange(val){
-  var hints = {
-    auto: t('hint_auto'),
-    gdrive: t('hint_gdrive'),
-    custom: t('hint_custom')
-  };
   var el = document.getElementById('exportDirHint');
-  if(el) el.textContent = hints[val] || '';
+  if(el) el.textContent = t('hint_'+val) || '';
 }
 
 // ========== STATE ==========
-var currentDate=new Date().toISOString().split('T')[0];
-var selectedFoods=[];
-var platSelectedFoods=[];
-var calYear=new Date().getFullYear();
-var calMonth=new Date().getMonth();
-var selectedCalDate=null;
+var currentDate = new Date().toISOString().split('T')[0];
+var selectedFoods = [];
+var platSelectedFoods = [];
+var calYear = new Date().getFullYear();
+var calMonth = new Date().getMonth();
+var selectedCalDate = null;
 
-var BRISTOL_NAMES=['','Très dur','Dur','Normal','Mou','Très mou','Liquide'];
-var BRISTOL_EMOJIS=['','🪨','🌰','🍫','🍌','💩','💦'];
-var HUM_EMOJIS=['','😫','😕','😐','😊','😄'];
-var QTY_LABELS=['','Très peu','Peu','Moyen','Abondant','Très abondant'];
-var QTY_DOTS=['','●','●●','●●●','●●●●','●●●●●'];
+var BRISTOL_NAMES = ['','Très dur','Dur','Normal','Mou','Très mou','Liquide'];
+var BRISTOL_EMOJIS = ['','🪨','🌰','🍫','🍌','💩','💦'];
+var HUM_EMOJIS = ['','😫','😕','😐','😊','😄'];
+var QTY_LABELS = ['','Très peu','Peu','Moyen','Abondant','Très abondant'];
+var QTY_DOTS = ['','●','●●','●●●','●●●●','●●●●●'];
 
-var COMMON_FOODS=[
+var COMMON_FOODS = [
   {em:'🍞',name:'Pain'},{em:'🥛',name:'Lait'},{em:'🧀',name:'Fromage'},{em:'🥚',name:'Oeuf'},
   {em:'🥩',name:'Viande'},{em:'🐟',name:'Poisson'},{em:'🍗',name:'Poulet'},{em:'🥦',name:'Brocoli'},
   {em:'🥕',name:'Carotte'},{em:'🧅',name:'Oignon'},{em:'🧄',name:'Ail'},{em:'🍅',name:'Tomate'},
@@ -973,289 +919,255 @@ var COMMON_FOODS=[
 ];
 
 // ========== STORAGE ==========
-function getData(){try{return JSON.parse(localStorage.getItem('supercaca_data')||'{}');}catch(e){return{};}}
-function saveData(d){localStorage.setItem('supercaca_data',JSON.stringify(d));}
-function getDayData(date){var all=getData();if(!all[date])all[date]={repas:[],selles:[],etat:null};return all[date];}
-function saveDayData(date,day){var all=getData();all[date]=day;saveData(all);}
-function getPlats(){try{return JSON.parse(localStorage.getItem('supercaca_plats')||'[]');}catch(e){return[];}}
-function savePlats(p){localStorage.setItem('supercaca_plats',JSON.stringify(p));}
+function getData(){ try{ return JSON.parse(localStorage.getItem('supercaca_data')||'{}'); }catch(e){ return {}; } }
+function saveData(d){ localStorage.setItem('supercaca_data', JSON.stringify(d)); }
+function getDayData(date){ var all=getData(); if(!all[date]) all[date]={repas:[],selles:[],etat:null}; return all[date]; }
+function saveDayData(date,day){ var all=getData(); all[date]=day; saveData(all); }
+function getPlats(){ try{ return JSON.parse(localStorage.getItem('supercaca_plats')||'[]'); }catch(e){ return []; } }
+function savePlats(p){ localStorage.setItem('supercaca_plats', JSON.stringify(p)); }
 
 // ========== THEME ==========
 function toggleTheme(){
-  var html=document.documentElement;
-  var isDark=html.getAttribute('data-theme')==='dark';
-  var next=isDark?'light':'dark';
-  html.setAttribute('data-theme',next);
-  document.getElementById('themeToggleBtn').textContent=isDark?t('themeNight'):t('themeDay');
-  document.getElementById('themeColorMeta').content=isDark?'#1565C0':'#050D18';
-  localStorage.setItem('supercaca_theme',next);
+  var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  var next = isDark ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  document.getElementById('themeColorMeta').content = isDark ? '#1565C0' : '#050D18';
+  localStorage.setItem('supercaca_theme', next);
+  var tb = document.getElementById('themeToggleBtn');
+  if(tb) tb.textContent = isDark ? t('themeNight') : t('themeDay');
 }
 function initTheme(){
-  var saved=localStorage.getItem('supercaca_theme')||'light';
-  document.documentElement.setAttribute('data-theme',saved);
-  document.getElementById('themeColorMeta').content=saved==='dark'?'#050D18':'#1565C0';
+  var saved = localStorage.getItem('supercaca_theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeColorMeta').content = saved === 'dark' ? '#050D18' : '#1565C0';
 }
 
-// ========== FOOD GRIDS (data-attribute approach, no quote escaping) ==========
-function makeFoodGrid(containerId, foods, onSelectFn) {
+// ========== FOOD GRIDS ==========
+function makeFoodGrid(containerId, foods, targetList) {
   var c = document.getElementById(containerId);
-  var html = '';
-  for (var i=0; i<foods.length; i++) {
-    var f = foods[i];
-    html += '<button class="food-common-btn" data-name="'+f.name+'" data-fn="'+onSelectFn+'">'
-          + '<span class="food-em">'+f.em+'</span>'+f.name+'</button>';
-  }
-  c.innerHTML = html;
-  // Attach click handlers after render
-  var btns = c.querySelectorAll('.food-common-btn');
-  for (var j=0; j<btns.length; j++) {
-    btns[j].addEventListener('click', function(){
-      var name = this.getAttribute('data-name');
-      var fn = this.getAttribute('data-fn');
-      if(fn==='toggleFood') toggleFood(name, this);
-      else if(fn==='togglePlatFood') togglePlatFood(name, this);
-    });
+  if(!c) return;
+  c.innerHTML = '';
+  for(var i=0; i<foods.length; i++){
+    var btn = document.createElement('button');
+    btn.className = 'food-common-btn';
+    btn.setAttribute('data-name', foods[i].name);
+    btn.innerHTML = '<span class="food-em">' + foods[i].em + '</span>' + foods[i].name;
+    (function(name, list, button){
+      button.addEventListener('click', function(){
+        var idx = list.indexOf(name);
+        if(idx >= 0){ list.splice(idx,1); button.classList.remove('sel'); }
+        else { list.push(name); button.classList.add('sel'); }
+        if(list === selectedFoods) renderSelectedFoods();
+        else renderPlatSelectedFoods();
+      });
+    })(foods[i].name, targetList, btn);
+    c.appendChild(btn);
   }
 }
+function initFoodCommon(){ makeFoodGrid('foodCommon', COMMON_FOODS, selectedFoods); }
+function initPlatFoodCommon(){ makeFoodGrid('platFoodCommon', COMMON_FOODS, platSelectedFoods); }
 
-function initFoodCommon(){makeFoodGrid('foodCommon',COMMON_FOODS,'toggleFood');}
-function initPlatFoodCommon(){makeFoodGrid('platFoodCommon',COMMON_FOODS,'togglePlatFood');}
-
-// REPAS foods
-function toggleFood(name,btn){
-  var idx=selectedFoods.indexOf(name);
-  if(idx>=0){selectedFoods.splice(idx,1);btn.classList.remove('sel');}
-  else{selectedFoods.push(name);btn.classList.add('sel');}
-  renderSelectedFoods();
-}
 function addFoodFromInput(){
-  var inp=document.getElementById('repasAlimentInput');
-  var parts=inp.value.split(',').map(function(s){return s.trim();}).filter(function(s){return s.length>0;});
-  parts.forEach(function(v){if(selectedFoods.indexOf(v)<0)selectedFoods.push(v);});
-  if(parts.length)renderSelectedFoods();
-  inp.value='';
-}
-function removeFood(idx){
-  selectedFoods.splice(idx,1);
-  // Deselect matching button
-  var btns=document.querySelectorAll('#foodCommon .food-common-btn');
-  for(var i=0;i<btns.length;i++){
-    if(selectedFoods.indexOf(btns[i].getAttribute('data-name'))<0) btns[i].classList.remove('sel');
-  }
-  renderSelectedFoods();
+  var inp = document.getElementById('repasAlimentInput');
+  inp.value.split(',').map(function(s){ return s.trim(); }).filter(function(s){ return s.length>0; })
+    .forEach(function(v){ if(selectedFoods.indexOf(v)<0) selectedFoods.push(v); });
+  renderSelectedFoods(); inp.value = '';
 }
 function renderSelectedFoods(){
-  var c=document.getElementById('selectedFoodsChips');
-  if(!selectedFoods.length){c.innerHTML='<span style="font-size:12px;color:var(--text3)">Aucun aliment sélectionné</span>';return;}
-  var h='';
-  for(var i=0;i<selectedFoods.length;i++){
-    h+='<span class="food-chip" data-idx="'+i+'">'+selectedFoods[i]+' ✕</span>';
-  }
-  c.innerHTML=h;
-  var chips=c.querySelectorAll('.food-chip');
-  for(var j=0;j<chips.length;j++){
-    chips[j].addEventListener('click',function(){removeFood(parseInt(this.getAttribute('data-idx')));});
-  }
+  var c = document.getElementById('selectedFoodsChips');
+  if(!selectedFoods.length){ c.innerHTML='<span style="font-size:12px;color:var(--text3)">Aucun aliment sélectionné</span>'; return; }
+  c.innerHTML = '';
+  selectedFoods.forEach(function(name, i){
+    var span = document.createElement('span');
+    span.className = 'food-chip';
+    span.textContent = name + ' ✕';
+    span.addEventListener('click', function(){
+      selectedFoods.splice(i, 1);
+      document.querySelectorAll('#foodCommon .food-common-btn').forEach(function(b){
+        if(selectedFoods.indexOf(b.getAttribute('data-name')) < 0) b.classList.remove('sel');
+      });
+      renderSelectedFoods();
+    });
+    c.appendChild(span);
+  });
 }
 
-// PLAT foods
-function togglePlatFood(name,btn){
-  var idx=platSelectedFoods.indexOf(name);
-  if(idx>=0){platSelectedFoods.splice(idx,1);btn.classList.remove('sel');}
-  else{platSelectedFoods.push(name);btn.classList.add('sel');}
-  renderPlatSelectedFoods();
-}
 function addPlatIngredientFromInput(){
-  var inp=document.getElementById('platIngredientInput');
-  var parts=inp.value.split(',').map(function(s){return s.trim();}).filter(function(s){return s.length>0;});
-  parts.forEach(function(v){if(platSelectedFoods.indexOf(v)<0)platSelectedFoods.push(v);});
-  if(parts.length)renderPlatSelectedFoods();
-  inp.value='';
-}
-function removePlatFood(idx){
-  platSelectedFoods.splice(idx,1);
-  var btns=document.querySelectorAll('#platFoodCommon .food-common-btn');
-  for(var i=0;i<btns.length;i++){
-    if(platSelectedFoods.indexOf(btns[i].getAttribute('data-name'))<0) btns[i].classList.remove('sel');
-  }
-  renderPlatSelectedFoods();
+  var inp = document.getElementById('platIngredientInput');
+  inp.value.split(',').map(function(s){ return s.trim(); }).filter(function(s){ return s.length>0; })
+    .forEach(function(v){ if(platSelectedFoods.indexOf(v)<0) platSelectedFoods.push(v); });
+  renderPlatSelectedFoods(); inp.value = '';
 }
 function renderPlatSelectedFoods(){
-  var c=document.getElementById('platSelectedChips');
-  if(!platSelectedFoods.length){c.innerHTML='<span style="font-size:12px;color:var(--text3)">Aucun ingrédient sélectionné</span>';return;}
-  var h='';
-  for(var i=0;i<platSelectedFoods.length;i++){
-    h+='<span class="food-chip" style="background:var(--accent2)" data-idx="'+i+'">'+platSelectedFoods[i]+' ✕</span>';
-  }
-  c.innerHTML=h;
-  var chips=c.querySelectorAll('.food-chip');
-  for(var j=0;j<chips.length;j++){
-    chips[j].addEventListener('click',function(){removePlatFood(parseInt(this.getAttribute('data-idx')));});
-  }
+  var c = document.getElementById('platSelectedChips');
+  if(!platSelectedFoods.length){ c.innerHTML='<span style="font-size:12px;color:var(--text3)">Aucun ingrédient sélectionné</span>'; return; }
+  c.innerHTML = '';
+  platSelectedFoods.forEach(function(name, i){
+    var span = document.createElement('span');
+    span.className = 'food-chip'; span.style.background = 'var(--accent2)';
+    span.textContent = name + ' ✕';
+    span.addEventListener('click', function(){
+      platSelectedFoods.splice(i, 1);
+      document.querySelectorAll('#platFoodCommon .food-common-btn').forEach(function(b){
+        if(platSelectedFoods.indexOf(b.getAttribute('data-name')) < 0) b.classList.remove('sel');
+      });
+      renderPlatSelectedFoods();
+    });
+    c.appendChild(span);
+  });
 }
 
 // ========== PLAT SEARCH ==========
 function onPlatSearch(val){
-  var list=document.getElementById('platSuggestList');
-  if(!val.trim()){list.style.display='none';return;}
-  var matches=getPlats().filter(function(p){return p.nom.toLowerCase().indexOf(val.toLowerCase())>=0;});
-  if(!matches.length){list.style.display='none';return;}
-  list.style.display='block';
-  list.innerHTML='';
-  for(var i=0;i<matches.length;i++){
-    var item=document.createElement('div');
-    item.className='plat-suggest-item';
-    item.innerHTML='🍲 <strong>'+matches[i].nom+'</strong> <span class="plat-suggest-badge">'+matches[i].aliments.length+' ingr.</span>';
-    (function(nom){item.addEventListener('click',function(){applyPlat(nom);});})(matches[i].nom);
+  var list = document.getElementById('platSuggestList');
+  if(!val.trim()){ list.style.display='none'; return; }
+  var matches = getPlats().filter(function(p){ return p.nom.toLowerCase().indexOf(val.toLowerCase())>=0; });
+  if(!matches.length){ list.style.display='none'; return; }
+  list.style.display = 'block'; list.innerHTML = '';
+  matches.forEach(function(p){
+    var item = document.createElement('div'); item.className = 'plat-suggest-item';
+    item.innerHTML = '🍲 <strong>' + p.nom + '</strong> <span class="plat-suggest-badge">' + p.aliments.length + ' ingr.</span>';
+    item.addEventListener('click', function(){ applyPlat(p.nom); });
     list.appendChild(item);
-  }
+  });
 }
 function applyPlat(nom){
-  var plat=getPlats().find(function(p){return p.nom===nom;});
-  if(!plat)return;
-  plat.aliments.forEach(function(a){if(selectedFoods.indexOf(a)<0)selectedFoods.push(a);});
+  var plat = getPlats().find(function(p){ return p.nom===nom; });
+  if(!plat) return;
+  plat.aliments.forEach(function(a){ if(selectedFoods.indexOf(a)<0) selectedFoods.push(a); });
   renderSelectedFoods();
-  // Mark matching buttons
-  var btns=document.querySelectorAll('#foodCommon .food-common-btn');
-  for(var i=0;i<btns.length;i++){
-    if(selectedFoods.indexOf(btns[i].getAttribute('data-name'))>=0) btns[i].classList.add('sel');
-  }
-  document.getElementById('platSearch').value='';
-  document.getElementById('platSuggestList').style.display='none';
-  showToast('🍲 '+nom+' '+t('toastPlatApply'));
+  document.querySelectorAll('#foodCommon .food-common-btn').forEach(function(b){
+    if(selectedFoods.indexOf(b.getAttribute('data-name'))>=0) b.classList.add('sel');
+  });
+  document.getElementById('platSearch').value = '';
+  document.getElementById('platSuggestList').style.display = 'none';
+  showToast('🍲 ' + nom + ' ' + t('toastPlatApply'));
 }
-document.addEventListener('click',function(e){
-  if(!e.target.closest('.plat-suggest'))document.getElementById('platSuggestList').style.display='none';
-});
+document.addEventListener('click', function(e){ if(!e.target.closest('.plat-suggest')) document.getElementById('platSuggestList').style.display='none'; });
 
 // ========== PLATS CRUD ==========
 function savePlat(){
-  var nom=document.getElementById('platNom').value.trim();
-  if(!nom)return showToast(t('errPlatNom'));
-  if(!platSelectedFoods.length)return showToast(t('errPlatIng'));
-  var plats=getPlats();
-  var idx=plats.findIndex(function(p){return p.nom.toLowerCase()===nom.toLowerCase();});
-  if(idx>=0){if(!confirm(t('confirmDelPlat')))return;plats[idx]={nom:nom,aliments:platSelectedFoods.slice(),id:Date.now()};}
-  else{plats.push({nom:nom,aliments:platSelectedFoods.slice(),id:Date.now()});}
+  var nom = document.getElementById('platNom').value.trim();
+  if(!nom) return showToast(t('errPlatNom'));
+  if(!platSelectedFoods.length) return showToast(t('errPlatIng'));
+  var plats = getPlats();
+  var idx = plats.findIndex(function(p){ return p.nom.toLowerCase()===nom.toLowerCase(); });
+  if(idx>=0){ if(!confirm(t('confirmDelPlat'))) return; plats[idx]={nom:nom,aliments:platSelectedFoods.slice(),id:Date.now()}; }
+  else plats.push({nom:nom, aliments:platSelectedFoods.slice(), id:Date.now()});
   savePlats(plats);
-  document.getElementById('platNom').value='';
-  platSelectedFoods=[];renderPlatSelectedFoods();
-  var btns=document.querySelectorAll('#platFoodCommon .food-common-btn');
-  for(var i=0;i<btns.length;i++) btns[i].classList.remove('sel');
-  renderPlatsList();showToast(t('toastPlat'));
+  document.getElementById('platNom').value = '';
+  platSelectedFoods = []; renderPlatSelectedFoods();
+  document.querySelectorAll('#platFoodCommon .food-common-btn').forEach(function(b){ b.classList.remove('sel'); });
+  renderPlatsList(); showToast(t('toastPlat'));
 }
 function renderPlatsList(){
-  var plats=getPlats();var c=document.getElementById('platsList');
-  if(!plats.length){c.innerHTML='<div class="empty-state"><div class="empty-icon">🍲</div><div class="empty-text">Aucun plat type enregistré.</div></div>';return;}
-  c.innerHTML='';
+  var plats = getPlats(); var c = document.getElementById('platsList');
+  if(!plats.length){ c.innerHTML='<div class="empty-state"><div class="empty-icon">🍲</div><div class="empty-text">'+t('noPlats')+'</div></div>'; return; }
+  c.innerHTML = '';
   plats.forEach(function(p){
-    var div=document.createElement('div');div.className='plat-item';
-    var chips=p.aliments.map(function(a){return'<span class="plat-aliment-chip">'+a+'</span>';}).join('');
-    div.innerHTML='<div class="plat-item-header"><div class="plat-name">🍲 '+p.nom+'</div>'
+    var div = document.createElement('div'); div.className = 'plat-item';
+    var chips = p.aliments.map(function(a){ return '<span class="plat-aliment-chip">'+a+'</span>'; }).join('');
+    div.innerHTML = '<div class="plat-item-header"><div class="plat-name">🍲 '+p.nom+'</div>'
       +'<div class="plat-actions">'
       +'<button class="plat-select-btn" data-nom="'+p.nom+'">🍽️ Utiliser</button>'
       +'<button class="entry-delete" data-id="'+p.id+'">🗑</button>'
       +'</div></div><div class="plat-aliments">'+chips+'</div>';
-    div.querySelector('.plat-select-btn').addEventListener('click',function(){applyPlatFromList(this.getAttribute('data-nom'));});
-    div.querySelector('.entry-delete').addEventListener('click',function(){deletePlat(parseInt(this.getAttribute('data-id')));});
+    div.querySelector('.plat-select-btn').addEventListener('click', function(){ applyPlatFromList(this.getAttribute('data-nom')); });
+    div.querySelector('[data-id]').addEventListener('click', function(){ deletePlat(parseInt(this.getAttribute('data-id'))); });
     c.appendChild(div);
   });
 }
 function applyPlatFromList(nom){
   applyPlat(nom);
-  document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('active');});
-  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+  document.querySelectorAll('.tab-content').forEach(function(t){ t.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
   document.getElementById('tab-repas').classList.add('active');
   document.querySelectorAll('.tab-btn')[0].classList.add('active');
 }
 function deletePlat(id){
-  savePlats(getPlats().filter(function(p){return p.id!==id;}));
-  renderPlatsList();showToast(t('toastDelPlat'));
+  savePlats(getPlats().filter(function(p){ return p.id!==id; }));
+  renderPlatsList(); showToast(t('toastDelPlat'));
 }
 
 // ========== REPAS ==========
 function saveRepas(){
-  var h=document.getElementById('repasHeure').value;
-  if(!h)return showToast(t('errHeure'));
-  if(!selectedFoods.length)return showToast(t('errAliment'));
-  var day=getDayData(currentDate);
-  day.repas.push({heure:h,aliments:selectedFoods.slice(),id:Date.now()});
-  saveDayData(currentDate,day);
-  selectedFoods=[];renderSelectedFoods();
-  document.getElementById('repasHeure').value='';
-  document.getElementById('platSearch').value='';
-  var btns=document.querySelectorAll('#foodCommon .food-common-btn');
-  for(var i=0;i<btns.length;i++) btns[i].classList.remove('sel');
-  renderRepasList();showToast(t('toastRepas'));
+  var h = document.getElementById('repasHeure').value;
+  if(!h) return showToast(t('errHeure'));
+  if(!selectedFoods.length) return showToast(t('errAliment'));
+  var day = getDayData(currentDate);
+  day.repas.push({heure:h, aliments:selectedFoods.slice(), id:Date.now()});
+  saveDayData(currentDate, day);
+  selectedFoods = []; renderSelectedFoods();
+  document.getElementById('repasHeure').value = '';
+  document.getElementById('platSearch').value = '';
+  document.querySelectorAll('#foodCommon .food-common-btn').forEach(function(b){ b.classList.remove('sel'); });
+  renderRepasList(); showToast(t('toastRepas'));
 }
 function renderRepasList(){
-  var day=getDayData(currentDate);var c=document.getElementById('repasList');
-  var sorted=day.repas.slice().sort(function(a,b){return a.heure.localeCompare(b.heure);});
-  var cnt=document.getElementById('repasCount');
-  if(cnt)cnt.textContent=sorted.length?'('+sorted.length+')':'';
-  if(!sorted.length){c.innerHTML='<div class="empty-state"><div class="empty-icon">🍽️</div><div class="empty-text">Aucun repas enregistré aujourd\'hui</div></div>';return;}
-  c.innerHTML='';
+  var day = getDayData(currentDate); var c = document.getElementById('repasList');
+  var sorted = day.repas.slice().sort(function(a,b){ return a.heure.localeCompare(b.heure); });
+  var cnt = document.getElementById('repasCount'); if(cnt) cnt.textContent = sorted.length ? '('+sorted.length+')' : '';
+  if(!sorted.length){ c.innerHTML='<div class="empty-state"><div class="empty-icon">🍽️</div><div class="empty-text">'+t('noRepas')+'</div></div>'; return; }
+  c.innerHTML = '';
   sorted.forEach(function(r){
-    var div=document.createElement('div');div.className='entry-item';
-    div.innerHTML='<span class="entry-time">'+r.heure+'</span>'
+    var div = document.createElement('div'); div.className = 'entry-item';
+    div.innerHTML = '<span class="entry-time">'+r.heure+'</span>'
       +'<div class="entry-body"><div class="entry-main">'+r.aliments.join(', ')+'</div></div>'
       +'<button class="entry-delete" data-id="'+r.id+'">🗑</button>';
-    div.querySelector('.entry-delete').addEventListener('click',function(){deleteRepas(parseInt(this.getAttribute('data-id')));});
+    div.querySelector('.entry-delete').addEventListener('click', function(){ deleteRepas(parseInt(this.getAttribute('data-id'))); });
     c.appendChild(div);
   });
 }
-function deleteRepas(id){var day=getDayData(currentDate);day.repas=day.repas.filter(function(r){return r.id!==id;});saveDayData(currentDate,day);renderRepasList();showToast(t('toastDelRepas'));}
+function deleteRepas(id){ var day=getDayData(currentDate); day.repas=day.repas.filter(function(r){return r.id!==id;}); saveDayData(currentDate,day); renderRepasList(); showToast(t('toastDelRepas')); }
 
 // ========== SELLES ==========
 function saveSelle(){
-  var h=document.getElementById('selleHeure').value;
-  if(!h)return showToast(t('errHeure'));
-  var bEl=document.querySelector('input[name="bristol"]:checked');
-  if(!bEl)return showToast(t('errBristol'));
-  var qEl=document.querySelector('input[name="selleQty"]:checked');
-  var day=getDayData(currentDate);
-  day.selles.push({heure:h,bristol:parseInt(bEl.value),quantite:qEl?parseInt(qEl.value):null,
+  var h = document.getElementById('selleHeure').value;
+  if(!h) return showToast(t('errHeure'));
+  var bEl = document.querySelector('input[name="bristol"]:checked');
+  if(!bEl) return showToast(t('errBristol'));
+  var qEl = document.querySelector('input[name="selleQty"]:checked');
+  var day = getDayData(currentDate);
+  day.selles.push({heure:h, bristol:parseInt(bEl.value), quantite:qEl?parseInt(qEl.value):null,
     collante:document.getElementById('sColles').checked,
     douleur:document.getElementById('sDouleur').checked,
-    ballons:document.getElementById('sBallons').checked,id:Date.now()});
-  saveDayData(currentDate,day);
-  document.getElementById('selleHeure').value='';
-  bEl.checked=false;if(qEl)qEl.checked=false;
-  ['sColles','sDouleur','sBallons'].forEach(function(id){document.getElementById(id).checked=false;});
+    ballons:document.getElementById('sBallons').checked, id:Date.now()});
+  saveDayData(currentDate, day);
+  document.getElementById('selleHeure').value = ''; bEl.checked=false; if(qEl) qEl.checked=false;
+  ['sColles','sDouleur','sBallons'].forEach(function(id){ document.getElementById(id).checked=false; });
   ['cbColles','cbDouleur','cbBallons'].forEach(function(id){
-    var el=document.getElementById(id);
-    if(el){el.classList.remove('checked');var v=el.querySelector('.checkbox-visual');
-      if(v){v.style.background='var(--card)';v.style.borderColor='var(--border2)';v.innerHTML='';}}
+    var el=document.getElementById(id); if(!el) return; el.classList.remove('checked');
+    var v=el.querySelector('.checkbox-visual'); if(v){ v.style.background='var(--card)'; v.style.borderColor='var(--border2)'; v.innerHTML=''; }
   });
-  renderSellesList();showToast(t('toastSelle'));
+  renderSellesList(); showToast(t('toastSelle'));
 }
 function renderSellesList(){
-  var day=getDayData(currentDate);var c=document.getElementById('sellesList');
-  if(!day.selles.length){c.innerHTML='<div class="empty-state"><div class="empty-icon">🚽</div><div class="empty-text">Aucune selle enregistrée</div></div>';return;}
-  c.innerHTML='';
+  var day=getDayData(currentDate); var c=document.getElementById('sellesList');
+  if(!day.selles.length){ c.innerHTML='<div class="empty-state"><div class="empty-icon">🚽</div><div class="empty-text">'+t('noSelles')+'</div></div>'; return; }
+  c.innerHTML = '';
   day.selles.forEach(function(s){
-    var tags='';
-    if(s.quantite)tags+='<span class="tag tag-blue">'+QTY_DOTS[s.quantite]+' '+QTY_LABELS[s.quantite]+'</span> ';
-    if(s.collante)tags+='<span class="tag tag-red">🩹 Collante</span> ';
-    if(s.douleur)tags+='<span class="tag tag-red">😣 Douleur</span> ';
-    if(s.ballons)tags+='<span class="tag tag-red">🎈 Ballons</span>';
-    var div=document.createElement('div');div.className='entry-item';
-    div.innerHTML='<span class="entry-time">'+s.heure+'</span>'
+    var tags = '';
+    if(s.quantite) tags += '<span class="tag tag-blue">'+QTY_DOTS[s.quantite]+' '+QTY_LABELS[s.quantite]+'</span> ';
+    if(s.collante) tags += '<span class="tag tag-red">🩹 Collante</span> ';
+    if(s.douleur) tags += '<span class="tag tag-red">😣 Douleur</span> ';
+    if(s.ballons) tags += '<span class="tag tag-red">🎈 Ballons</span>';
+    var div = document.createElement('div'); div.className='entry-item';
+    div.innerHTML = '<span class="entry-time">'+s.heure+'</span>'
       +'<div class="entry-body"><div class="entry-main">'+BRISTOL_EMOJIS[s.bristol]+' '+BRISTOL_NAMES[s.bristol]+'</div>'
       +(tags?'<div class="entry-tags">'+tags+'</div>':'')+'</div>'
       +'<button class="entry-delete" data-id="'+s.id+'">🗑</button>';
-    div.querySelector('.entry-delete').addEventListener('click',function(){deleteSelle(parseInt(this.getAttribute('data-id')));});
+    div.querySelector('.entry-delete').addEventListener('click', function(){ deleteSelle(parseInt(this.getAttribute('data-id'))); });
     c.appendChild(div);
   });
 }
-function deleteSelle(id){var day=getDayData(currentDate);day.selles=day.selles.filter(function(s){return s.id!==id;});saveDayData(currentDate,day);renderSellesList();showToast(t('toastDelRepas'));}
+function deleteSelle(id){ var day=getDayData(currentDate); day.selles=day.selles.filter(function(s){return s.id!==id;}); saveDayData(currentDate,day); renderSellesList(); showToast(t('toastDelSelle')); }
 
 // ========== ÉTAT ==========
 function saveEtat(){
   var hEl=document.querySelector('input[name="humeur"]:checked');
   var hydEl=document.querySelector('input[name="hydration"]:checked');
   var spEl=document.querySelector('input[name="sport"]:checked');
-  var regles=document.getElementById('etatRegles');
+  var reglesEl=document.getElementById('etatRegles');
   var noteEl=document.getElementById('etatNote');
   var day=getDayData(currentDate);
   day.etat={
@@ -1263,90 +1175,91 @@ function saveEtat(){
     hydration:hydEl?hydEl.value:null,
     sport:spEl?spEl.value:'aucun',
     sportDuree:parseInt(document.getElementById('sportDuree').value)||0,
-    regles:regles?regles.checked:false,
+    regles:reglesEl?reglesEl.checked:false,
     note:noteEl?noteEl.value.trim():''
   };
-  saveDayData(currentDate,day);renderEtatDisplay();showToast(t('toastEtat'));
+  saveDayData(currentDate,day); renderEtatDisplay(); showToast(t('toastEtat'));
 }
 function deleteEtat(){
-  if(!confirm(t('confirmDelEtat')))return;
-  var day=getDayData(currentDate);day.etat=null;saveDayData(currentDate,day);
-  renderEtatDisplay();showToast('🗑️ État supprimé');
+  if(!confirm(t('confirmDelEtat'))) return;
+  var day=getDayData(currentDate); day.etat=null; saveDayData(currentDate,day);
+  renderEtatDisplay(); showToast(t('toastDelEtat'));
 }
 function renderEtatDisplay(){
-  var day=getDayData(currentDate);var c=document.getElementById('etatDisplay');
-  if(!day.etat){c.innerHTML='';return;}
+  var day=getDayData(currentDate); var c=document.getElementById('etatDisplay');
+  if(!day.etat){ c.innerHTML=''; return; }
   var e=day.etat;
   var hydI={faible:'🥤',moyen:'💧',bon:'💦'};
   var spI={aucun:'💤',endurance:'🏃',cardio:'🚴',musculation:'🏋️'};
   var tags='';
-  if(e.humeur)tags+='<span class="tag tag-yellow">'+HUM_EMOJIS[e.humeur]+' Humeur '+e.humeur+'/5</span> ';
-  if(e.hydration)tags+='<span class="tag tag-blue">'+(hydI[e.hydration]||'')+' '+e.hydration+'</span> ';
-  if(e.sport)tags+='<span class="tag tag-green">'+(spI[e.sport]||'🏃')+' '+e.sport+(e.sport!=='aucun'&&e.sportDuree?' '+e.sportDuree+'min':'')+'</span>';
-  if(e.regles)tags+='<span class="tag tag-red">'+t('regleLabel')+'</span>';
+  if(e.humeur) tags+='<span class="tag tag-yellow">'+HUM_EMOJIS[e.humeur]+' Humeur '+e.humeur+'/5</span> ';
+  if(e.hydration) tags+='<span class="tag tag-blue">'+(hydI[e.hydration]||'')+' '+e.hydration+'</span> ';
+  if(e.sport) tags+='<span class="tag tag-green">'+(spI[e.sport]||'🏃')+' '+e.sport+(e.sport!=='aucun'&&e.sportDuree?' '+e.sportDuree+'min':'')+'</span> ';
+  if(e.regles) tags+='<span class="tag tag-red">'+t('regleLabel')+'</span>';
   var noteHtml = e.note ? '<div style="margin-top:8px;font-size:12px;color:var(--text2);border-top:1px solid var(--border);padding-top:8px">'+t('noteLabel')+' '+e.note+'</div>' : '';
-  c.innerHTML='<div class="card"><div class="card-title" style="justify-content:space-between">'
+  c.innerHTML = '<div class="card"><div class="card-title" style="justify-content:space-between">'
     +'<span>✅ État enregistré</span>'
-    +'<button class="entry-delete" id="deleteEtatBtn" title="Supprimer">🗑</button>'
+    +'<button class="entry-delete" id="deleteEtatBtn">🗑</button>'
     +'</div><div style="display:flex;gap:7px;flex-wrap:wrap">'+tags+'</div>'+noteHtml+'</div>';
-  document.getElementById('deleteEtatBtn').addEventListener('click',deleteEtat);
+  document.getElementById('deleteEtatBtn').addEventListener('click', deleteEtat);
 }
 
 // ========== SCORE ==========
 function calculateScore(day){
-  if(!day)return null;
+  if(!day) return null;
   var hasSelles=(day.selles&&day.selles.length>0);
   var hasEtat=(day.etat!==null&&day.etat!==undefined);
-  if(!hasSelles&&!hasEtat)return null;
-  var score=5;var details={};
+  if(!hasSelles&&!hasEtat) return null;
+  var score=5; var details={};
   if(hasSelles){
     var s=day.selles[day.selles.length-1];
     var bMap={1:-2,2:-0.5,3:2,4:2,5:-0.5,6:-2};
-    var bs=bMap[s.bristol]||0;score+=bs;
+    var bs=bMap[s.bristol]||0; score+=bs;
     details.bristol={score:bs,name:'Consistance (Bristol)',icon:BRISTOL_EMOJIS[s.bristol],desc:BRISTOL_NAMES[s.bristol]};
-    var sp=0;if(s.collante)sp-=0.5;if(s.douleur)sp-=1;if(s.ballons)sp-=0.5;
-    score+=sp;details.symptomes={score:sp,name:'Symptômes',icon:'😣'};
+    var sp=0; if(s.collante)sp-=0.5; if(s.douleur)sp-=1; if(s.ballons)sp-=0.5;
+    score+=sp; details.symptomes={score:sp,name:'Symptômes',icon:'😣'};
   }
   if(hasEtat){
     var e=day.etat;
-    if(e.humeur){var hs=(e.humeur-3)*0.4;score+=hs;details.humeur={score:hs,name:'Humeur',icon:HUM_EMOJIS[e.humeur],desc:e.humeur+'/5'};}
-    var hydMap={faible:-0.5,moyen:0.25,bon:0.75};var hv=hydMap[e.hydration]||0;
-    if(e.hydration){score+=hv;details.hydration={score:hv,name:'Hydratation',icon:'💧',desc:e.hydration};}
-    var spMap={aucun:0,endurance:0.3,cardio:0.3,musculation:0.2};var sv=spMap[e.sport]||0;
-    if(e.sport&&e.sport!=='aucun'){score+=sv;details.sport={score:sv,name:'Activité',icon:'🏃',desc:e.sport+(e.sportDuree?' '+e.sportDuree+'min':'')};}
+    if(e.humeur){var hs=(e.humeur-3)*0.4; score+=hs; details.humeur={score:hs,name:'Humeur',icon:HUM_EMOJIS[e.humeur],desc:e.humeur+'/5'};}
+    var hydMap={faible:-0.5,moyen:0.25,bon:0.75}; var hv=hydMap[e.hydration]||0;
+    if(e.hydration){score+=hv; details.hydration={score:hv,name:'Hydratation',icon:'💧',desc:e.hydration};}
+    var spMap={aucun:0,endurance:0.3,cardio:0.3,musculation:0.2}; var sv=spMap[e.sport]||0;
+    if(e.sport&&e.sport!=='aucun'){score+=sv; details.sport={score:sv,name:'Activité',icon:'🏃',desc:e.sport+(e.sportDuree?' '+e.sportDuree+'min':'')};}
   }
   score=Math.max(0,Math.min(10,score));
-  return{score:Math.round(score*10)/10,details:details};
+  return{score:Math.round(score*10)/10, details:details};
 }
-function getScoreEmoji(s){return s>=8?'🎉':s>=6?'😊':s>=4?'😐':s>=2?'😕':'😫';}
-function getScoreLabel(s){var labels=t('scoreLabels');return labels[Math.round(Math.min(10,Math.max(0,s)))]||'';}
-function fmtVal(v){var r=Math.round(v*10)/10;return(r>0?'+':'')+r;}
-function valCls(v){return v>0?'sval-pos':v<0?'sval-neg':'sval-neu';}
-function cdprCls(v){return v>0?'cdpr-pos':v<0?'cdpr-neg':'cdpr-neu';}
+function getScoreEmoji(s){ return s>=8?'🎉':s>=6?'😊':s>=4?'😐':s>=2?'😕':'😫'; }
+function getScoreLabel(s){ var labels=t('scoreLabels'); return labels[Math.round(Math.min(10,Math.max(0,s)))]||''; }
+function fmtVal(v){ var r=Math.round(v*10)/10; return(r>0?'+':'')+r; }
+function valCls(v){ return v>0?'sval-pos':v<0?'sval-neg':'sval-neu'; }
+function cdprCls(v){ return v>0?'cdpr-pos':v<0?'cdpr-neg':'cdpr-neu'; }
 
 function populateScoreDateSelect(){
-  var all=getData();var sel=document.getElementById('scoreDateSelect');
+  var all=getData(); var sel=document.getElementById('scoreDateSelect');
   var today=new Date().toISOString().split('T')[0];
   var dates=Object.keys(all).filter(function(d){var dd=all[d];return(dd.selles&&dd.selles.length)||(dd.etat);}).sort().reverse();
-  if(dates.indexOf(today)<0)dates.unshift(today);
-  if(!dates.length)dates=[today];
+  if(dates.indexOf(today)<0) dates.unshift(today);
+  if(!dates.length) dates=[today];
   var cur=sel.value||currentDate;
-  sel.innerHTML=dates.map(function(d){return'<option value="'+d+'"'+(d===cur?' selected':'')+'>'+(d===today?'Aujourd\'hui — ':'')+fmtDateFR(d)+'</option>';}).join('');
-  if(dates.indexOf(cur)<0)sel.innerHTML='<option value="'+cur+'" selected>'+fmtDateFR(cur)+'</option>'+sel.innerHTML;
+  sel.innerHTML=dates.map(function(d){return'<option value="'+d+'"'+(d===cur?' selected':'')+'>'+(d===today?t('today')+' — ':'')+fmtDateFR(d)+'</option>';}).join('');
+  if(dates.indexOf(cur)<0) sel.innerHTML='<option value="'+cur+'" selected>'+fmtDateFR(cur)+'</option>'+sel.innerHTML;
 }
-function onScoreDateChange(date){currentDate=date;updateDateDisplay();renderScore();}
+function onScoreDateChange(date){ currentDate=date; updateDateDisplay(); renderScore(); }
 function renderScore(){
   populateScoreDateSelect();
   var scoreDate=document.getElementById('scoreDateSelect').value||currentDate;
-  var day=getDayData(scoreDate);var result=calculateScore(day);
-  var sd=document.getElementById('scoreDisplay');var sb=document.getElementById('scoreBreakdown');
-  var miss=document.getElementById('scoreMissing');var sf=document.getElementById('scoreFormula');
-  if(!result){miss.style.display='block';sd.innerHTML='';sb.innerHTML='';
+  var day=getDayData(scoreDate); var result=calculateScore(day);
+  var sd=document.getElementById('scoreDisplay'); var sb=document.getElementById('scoreBreakdown');
+  var miss=document.getElementById('scoreMissing'); var sf=document.getElementById('scoreFormula');
+  if(!result){
+    miss.style.display='block'; sd.innerHTML=''; sb.innerHTML='';
     sf.innerHTML='<div class="card"><div class="score-formula"><div class="score-formula-title">📐 Formule</div>'
       +'<div style="font-size:12px;color:var(--text2);line-height:1.8">Base 5 pts · Bristol (si selle) : Très dur/Liquide −2 · Dur/Très mou −0,5 · Normal/Mou +2 · Symptômes : Collante −0,5 · Douleur −1 · Ballons −0,5 · Humeur : (val−3)×0,4 · Hydratation : Faible −0,5 · Moyen +0,25 · Bon +0,75 · Sport +0,2–0,3</div></div></div>';
     return;
   }
-  miss.style.display='none';var s=result.score;
+  miss.style.display='none'; var s=result.score;
   sd.innerHTML='<div class="score-display"><div class="score-emoji">'+getScoreEmoji(s)+'</div>'
     +'<div class="score-num">'+s+'<span class="score-max">/10</span></div>'
     +'<div class="score-label">'+getScoreLabel(s)+'</div></div>';
@@ -1361,16 +1274,16 @@ function renderScore(){
   var det=result.details;
   var fhtml='<div class="card"><div class="score-formula"><div class="score-formula-title">📐 Détail du calcul</div>'
     +'<div class="score-formula-row"><span class="score-formula-left">🎯 Base</span><span class="score-formula-right sval-neu">5,0</span></div>';
-  if(det.bristol)fhtml+='<div class="score-formula-row"><span class="score-formula-left">'+det.bristol.icon+' Bristol : '+det.bristol.desc+'</span><span class="score-formula-right '+valCls(det.bristol.score)+'">'+fmtVal(det.bristol.score)+'</span></div>';
+  if(det.bristol) fhtml+='<div class="score-formula-row"><span class="score-formula-left">'+det.bristol.icon+' Bristol : '+det.bristol.desc+'</span><span class="score-formula-right '+valCls(det.bristol.score)+'">'+fmtVal(det.bristol.score)+'</span></div>';
   else fhtml+='<div class="score-formula-row"><span class="score-formula-left">🚽 Aucune selle</span><span class="score-formula-right sval-neu">0 pt</span></div>';
   if(det.symptomes&&det.symptomes.score!==0){
-    var ss=day.selles[day.selles.length-1];var sd3=[];
-    if(ss.collante)sd3.push('collante');if(ss.douleur)sd3.push('douleur');if(ss.ballons)sd3.push('ballons');
+    var ss=day.selles[day.selles.length-1]; var sd3=[];
+    if(ss.collante)sd3.push('collante'); if(ss.douleur)sd3.push('douleur'); if(ss.ballons)sd3.push('ballons');
     fhtml+='<div class="score-formula-row"><span class="score-formula-left">😣 Symptômes ('+sd3.join(', ')+')</span><span class="score-formula-right '+valCls(det.symptomes.score)+'">'+fmtVal(det.symptomes.score)+'</span></div>';
   }
-  if(det.humeur)fhtml+='<div class="score-formula-row"><span class="score-formula-left">'+det.humeur.icon+' Humeur '+det.humeur.desc+'</span><span class="score-formula-right '+valCls(det.humeur.score)+'">'+fmtVal(det.humeur.score)+'</span></div>';
-  if(det.hydration)fhtml+='<div class="score-formula-row"><span class="score-formula-left">💧 Hydratation : '+det.hydration.desc+'</span><span class="score-formula-right '+valCls(det.hydration.score)+'">'+fmtVal(det.hydration.score)+'</span></div>';
-  if(det.sport)fhtml+='<div class="score-formula-row"><span class="score-formula-left">🏃 '+det.sport.desc+'</span><span class="score-formula-right '+valCls(det.sport.score)+'">'+fmtVal(det.sport.score)+'</span></div>';
+  if(det.humeur) fhtml+='<div class="score-formula-row"><span class="score-formula-left">'+det.humeur.icon+' Humeur '+det.humeur.desc+'</span><span class="score-formula-right '+valCls(det.humeur.score)+'">'+fmtVal(det.humeur.score)+'</span></div>';
+  if(det.hydration) fhtml+='<div class="score-formula-row"><span class="score-formula-left">💧 Hydratation : '+det.hydration.desc+'</span><span class="score-formula-right '+valCls(det.hydration.score)+'">'+fmtVal(det.hydration.score)+'</span></div>';
+  if(det.sport) fhtml+='<div class="score-formula-row"><span class="score-formula-left">🏃 '+det.sport.desc+'</span><span class="score-formula-right '+valCls(det.sport.score)+'">'+fmtVal(det.sport.score)+'</span></div>';
   fhtml+='<div class="score-formula-row" style="font-weight:800;border-top:2px solid var(--border);margin-top:4px;padding-top:8px">'
     +'<span class="score-formula-left" style="color:var(--text)">🏆 Score final</span>'
     +'<span class="score-formula-right" style="color:var(--accent);font-size:17px">'+s+'/10</span></div>'
@@ -1380,55 +1293,54 @@ function renderScore(){
 }
 
 // ========== CALENDAR ==========
-function getBristolEm(day){if(!day||!day.selles||!day.selles.length)return'';return BRISTOL_EMOJIS[day.selles[day.selles.length-1].bristol]||'';}
-function getMoodEm(day){if(!day||!day.etat||!day.etat.humeur)return'';return HUM_EMOJIS[day.etat.humeur]||'';}
+function getBristolEm(day){ if(!day||!day.selles||!day.selles.length)return''; return BRISTOL_EMOJIS[day.selles[day.selles.length-1].bristol]||''; }
+function getMoodEm(day){ if(!day||!day.etat||!day.etat.humeur)return''; return HUM_EMOJIS[day.etat.humeur]||''; }
 function renderCalendar(){
   var mN=t('months');
   document.getElementById('calMonthLabel').textContent=mN[calMonth]+' '+calYear;
-  var first=new Date(calYear,calMonth,1),last=new Date(calYear,calMonth+1,0);
-  var dow=first.getDay();dow=dow===0?6:dow-1;
-  var all=getData(),today=new Date().toISOString().split('T')[0];
-  var grid=document.getElementById('calGrid');
-  grid.innerHTML='';
-  // Padding
+  var first=new Date(calYear,calMonth,1), last=new Date(calYear,calMonth+1,0);
+  var dow=first.getDay(); dow=dow===0?6:dow-1;
+  var all=getData(), today=new Date().toISOString().split('T')[0];
+  var grid=document.getElementById('calGrid'); grid.innerHTML='';
   for(var i=0;i<dow;i++){
     var pd=new Date(calYear,calMonth,1-dow+i);
-    var cell=document.createElement('div');cell.className='cal-day other-month';
+    var cell=document.createElement('div'); cell.className='cal-day other-month';
     cell.innerHTML='<div class="cal-day-num">'+pd.getDate()+'</div>';
     grid.appendChild(cell);
   }
   for(var d=1;d<=last.getDate();d++){
     var ds=calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-    var isT=ds===today,isSel=ds===selectedCalDate,isPast=ds<today;
+    var isT=ds===today, isSel=ds===selectedCalDate, isPast=ds<today;
     var dd=all[ds];
     var cls='cal-day'+(isT?' today':'')+(dd&&(dd.selles&&dd.selles.length||dd.etat)?' has-data':'')+(isSel?' selected':'');
     var inner='<div class="cal-day-num">'+d+'</div>';
     if(dd){
       var res=calculateScore(dd);
-      if(res){var sc=res.score,sCls=sc>=7?'score-great':sc>=4?'score-good':'score-bad';inner+='<div class="cal-day-score '+sCls+'">'+sc+'</div>';}
-      var be=getBristolEm(dd),me=getMoodEm(dd);
-      if(!be&&isPast&&(dd.etat||dd.repas&&dd.repas.length))be='🚫';
-      if(be||me)inner+='<div class="cal-day-icons">'+be+me+'</div>';
+      if(res){var sc=res.score,sCls=sc>=7?'score-great':sc>=4?'score-good':'score-bad'; inner+='<div class="cal-day-score '+sCls+'">'+sc+'</div>';}
+      var be=getBristolEm(dd), me=getMoodEm(dd);
+      if(!be&&isPast&&(dd.etat||dd.repas&&dd.repas.length)) be='🚫';
+      if(be||me) inner+='<div class="cal-day-icons">'+be+me+'</div>';
     }else if(isPast&&!isT){
       inner+='<div class="cal-day-icons" style="opacity:0.3">🚫</div>';
     }
-    var cell=document.createElement('div');cell.className=cls;cell.innerHTML=inner;
-    (function(dateStr){cell.addEventListener('click',function(){selectCalDay(dateStr);});})(ds);
+    var cell=document.createElement('div'); cell.className=cls; cell.innerHTML=inner;
+    (function(dateStr){ cell.addEventListener('click',function(){ selectCalDay(dateStr); }); })(ds);
     grid.appendChild(cell);
   }
-  // Fill last row
-  var tot=dow+last.getDate(),rem=tot%7;
-  if(rem!==0)for(var k=1;k<=7-rem;k++){
-    var cell=document.createElement('div');cell.className='cal-day other-month';
-    cell.innerHTML='<div class="cal-day-num">'+k+'</div>';
-    grid.appendChild(cell);
+  var tot=dow+last.getDate(), rem=tot%7;
+  if(rem!==0) for(var k=1;k<=7-rem;k++){
+    var cell=document.createElement('div'); cell.className='cal-day other-month';
+    cell.innerHTML='<div class="cal-day-num">'+k+'</div>'; grid.appendChild(cell);
   }
+  // Apply weekday translations
+  var wds=document.querySelectorAll('.cal-wd'); var wLabels=t('weekdays');
+  wds.forEach(function(el,i){ if(wLabels[i]) el.textContent=wLabels[i]; });
 }
-function changeMonth(dir){calMonth+=dir;if(calMonth>11){calMonth=0;calYear++;}if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
-function selectCalDay(ds){selectedCalDate=ds;currentDate=ds;updateDateDisplay();renderCalendar();renderCalDayDetail(ds);}
+function changeMonth(dir){ calMonth+=dir; if(calMonth>11){calMonth=0;calYear++;} if(calMonth<0){calMonth=11;calYear--;} renderCalendar(); }
+function selectCalDay(ds){ selectedCalDate=ds; currentDate=ds; updateDateDisplay(); renderCalendar(); renderCalDayDetail(ds); }
 function renderCalDayDetail(ds){
-  var day=getDayData(ds);var c=document.getElementById('calDayDetail');
-  var res=calculateScore(day);var label=fmtDateFR(ds);
+  var day=getDayData(ds); var c=document.getElementById('calDayDetail');
+  var res=calculateScore(day); var label=fmtDateFR(ds);
   var html='<div class="cal-detail-card"><div class="cal-detail-header">'
     +'<div class="cal-detail-date">📅 '+label+'</div>'
     +(res?'<div class="cal-detail-score-badge"><span>'+getScoreEmoji(res.score)+'</span><span class="cal-detail-score-num"> '+res.score+'</span><span style="opacity:0.7;font-size:12px">/10</span></div>':'')
@@ -1436,60 +1348,60 @@ function renderCalDayDetail(ds){
   if(day.repas&&day.repas.length){
     var sorted=day.repas.slice().sort(function(a,b){return a.heure.localeCompare(b.heure);});
     html+='<div class="cal-detail-section"><div class="cal-detail-section-title">🍽️ Repas ('+sorted.length+')</div>';
-    sorted.forEach(function(r){html+='<div class="entry-item" style="margin-bottom:5px"><span class="entry-time">'+r.heure+'</span><div class="entry-body"><div class="entry-main" style="font-size:12px">'+r.aliments.join(', ')+'</div></div></div>';});
+    sorted.forEach(function(r){ html+='<div class="entry-item" style="margin-bottom:5px"><span class="entry-time">'+r.heure+'</span><div class="entry-body"><div class="entry-main" style="font-size:12px">'+r.aliments.join(', ')+'</div></div></div>'; });
     html+='</div>';
   }
   if(day.selles&&day.selles.length){
     html+='<div class="cal-detail-section"><div class="cal-detail-section-title">🚽 Selles ('+day.selles.length+')</div>';
     day.selles.forEach(function(s){
-      var sy=[];if(s.quantite)sy.push(QTY_DOTS[s.quantite]);if(s.collante)sy.push('🩹');if(s.douleur)sy.push('😣');if(s.ballons)sy.push('🎈');
+      var sy=[]; if(s.quantite)sy.push(QTY_DOTS[s.quantite]); if(s.collante)sy.push('🩹'); if(s.douleur)sy.push('😣'); if(s.ballons)sy.push('🎈');
       html+='<div class="entry-item" style="margin-bottom:5px"><span class="entry-time">'+s.heure+'</span><div class="entry-body"><div class="entry-main" style="font-size:12px">'+BRISTOL_EMOJIS[s.bristol]+' '+BRISTOL_NAMES[s.bristol]+(sy.length?' — '+sy.join(' '):'')+'</div></div></div>';
     });
     html+='</div>';
   }
   if(day.etat){
-    var e=day.etat;var hI={faible:'🥤',moyen:'💧',bon:'💦'};var sI={aucun:'💤',endurance:'🏃',cardio:'🚴',musculation:'🏋️'};
+    var e=day.etat; var hI={faible:'🥤',moyen:'💧',bon:'💦'}; var sI={aucun:'💤',endurance:'🏃',cardio:'🚴',musculation:'🏋️'};
     html+='<div class="cal-detail-section"><div class="cal-detail-section-title">🌟 État général</div><div style="display:flex;gap:5px;flex-wrap:wrap">'
       +(e.humeur?'<span class="tag tag-yellow">'+HUM_EMOJIS[e.humeur]+' '+e.humeur+'/5</span>':'')
       +(e.hydration?'<span class="tag tag-blue">'+(hI[e.hydration]||'')+' '+e.hydration+'</span>':'')
       +(e.sport?'<span class="tag tag-green">'+(sI[e.sport]||'🏃')+' '+e.sport+(e.sport!=='aucun'&&e.sportDuree?' '+e.sportDuree+'min':'')+'</span>':'')
       +(e.regles?'<span class="tag tag-red">'+t('regleLabel')+'</span>':'')
-      +(e.note?'<div style="font-size:11px;color:var(--text3);margin-top:4px">'+t('noteLabel')+' '+e.note+'</div>':'')
-      +'</div></div>';
+      +'</div>'+(e.note?'<div style="font-size:11px;color:var(--text3);margin-top:4px">'+t('noteLabel')+' '+e.note+'</div>':'')
+      +'</div>';
   }
   if(res){
     var det=res.details;
     html+='<div class="cal-detail-section"><div class="cal-detail-section-title">📐 Calcul du score</div><div class="cal-detail-points">'
       +'<div class="cal-detail-points-row"><span class="cdpr-label">🎯 Base</span><span class="cdpr-val cdpr-neu">5,0</span></div>';
-    if(det.bristol)html+='<div class="cal-detail-points-row"><span class="cdpr-label">'+det.bristol.icon+' '+det.bristol.desc+'</span><span class="cdpr-val '+cdprCls(det.bristol.score)+'">'+fmtVal(det.bristol.score)+'</span></div>';
-    if(det.symptomes&&det.symptomes.score!==0)html+='<div class="cal-detail-points-row"><span class="cdpr-label">😣 Symptômes</span><span class="cdpr-val '+cdprCls(det.symptomes.score)+'">'+fmtVal(det.symptomes.score)+'</span></div>';
-    if(det.humeur)html+='<div class="cal-detail-points-row"><span class="cdpr-label">'+det.humeur.icon+' Humeur '+det.humeur.desc+'</span><span class="cdpr-val '+cdprCls(det.humeur.score)+'">'+fmtVal(det.humeur.score)+'</span></div>';
-    if(det.hydration)html+='<div class="cal-detail-points-row"><span class="cdpr-label">💧 '+det.hydration.desc+'</span><span class="cdpr-val '+cdprCls(det.hydration.score)+'">'+fmtVal(det.hydration.score)+'</span></div>';
-    if(det.sport)html+='<div class="cal-detail-points-row"><span class="cdpr-label">🏃 '+det.sport.desc+'</span><span class="cdpr-val '+cdprCls(det.sport.score)+'">'+fmtVal(det.sport.score)+'</span></div>';
+    if(det.bristol) html+='<div class="cal-detail-points-row"><span class="cdpr-label">'+det.bristol.icon+' '+det.bristol.desc+'</span><span class="cdpr-val '+cdprCls(det.bristol.score)+'">'+fmtVal(det.bristol.score)+'</span></div>';
+    if(det.symptomes&&det.symptomes.score!==0) html+='<div class="cal-detail-points-row"><span class="cdpr-label">😣 Symptômes</span><span class="cdpr-val '+cdprCls(det.symptomes.score)+'">'+fmtVal(det.symptomes.score)+'</span></div>';
+    if(det.humeur) html+='<div class="cal-detail-points-row"><span class="cdpr-label">'+det.humeur.icon+' Humeur '+det.humeur.desc+'</span><span class="cdpr-val '+cdprCls(det.humeur.score)+'">'+fmtVal(det.humeur.score)+'</span></div>';
+    if(det.hydration) html+='<div class="cal-detail-points-row"><span class="cdpr-label">💧 '+det.hydration.desc+'</span><span class="cdpr-val '+cdprCls(det.hydration.score)+'">'+fmtVal(det.hydration.score)+'</span></div>';
+    if(det.sport) html+='<div class="cal-detail-points-row"><span class="cdpr-label">🏃 '+det.sport.desc+'</span><span class="cdpr-val '+cdprCls(det.sport.score)+'">'+fmtVal(det.sport.score)+'</span></div>';
     html+='<div class="cal-detail-total"><span>🏆 Score final</span><span class="cal-detail-total-val">'+res.score+'/10</span></div></div></div>';
   }
   if(!day.repas.length&&!day.selles.length&&!day.etat)
-    html+='<div class="empty-state" style="padding:16px 0"><div class="empty-icon">📭</div><div class="empty-text">Aucune donnée pour ce jour</div></div>';
+    html+='<div class="empty-state" style="padding:16px 0"><div class="empty-icon">📭</div><div class="empty-text">'+t('noData')+'</div></div>';
   html+='</div>';
-  c.innerHTML=html;c.scrollIntoView({behavior:'smooth',block:'start'});
+  c.innerHTML=html; c.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 // ========== ANALYSIS ==========
 function runAnalysis(){
-  var all=getData();var foodStats={};
+  var all=getData(); var foodStats={};
   Object.keys(all).sort().forEach(function(date){
-    var day=all[date];if(!day.repas||!day.repas.length)return;
+    var day=all[date]; if(!day.repas||!day.repas.length)return;
     day.repas.forEach(function(repas){
       var rt=new Date(date+'T'+repas.heure+':00').getTime();
       repas.aliments.forEach(function(food){
-        if(!foodStats[food])foodStats[food]={events:0,badEvents:0};
+        if(!foodStats[food]) foodStats[food]={events:0,badEvents:0};
         var t1=new Date(new Date(date+'T12:00:00').getTime()+86400000).toISOString().split('T')[0];
         var t2=new Date(new Date(date+'T12:00:00').getTime()+2*86400000).toISOString().split('T')[0];
         [date,t1,t2].forEach(function(cd){
-          var cday=all[cd];if(!cday||!cday.selles)return;
+          var cday=all[cd]; if(!cday||!cday.selles)return;
           cday.selles.forEach(function(s){
             var diff=new Date(cd+'T'+s.heure+':00').getTime()-rt;
-            if(diff>=12*3600000&&diff<=48*3600000){foodStats[food].events++;if(s.bristol>=5||s.douleur||s.ballons||s.collante)foodStats[food].badEvents++;}
+            if(diff>=12*3600000&&diff<=48*3600000){foodStats[food].events++; if(s.bristol>=5||s.douleur||s.ballons||s.collante)foodStats[food].badEvents++;}
           });
         });
       });
@@ -1499,10 +1411,10 @@ function runAnalysis(){
     .map(function(e){return{name:e[0],events:e[1].events,badRate:e[1].badEvents/e[1].events};})
     .sort(function(a,b){return b.badRate-a.badRate;});
   var c=document.getElementById('analysisResults');
-  if(!foods.length){c.innerHTML='<div class="card"><div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">Pas assez de données.<br>Enregistrez repas et selles sur plusieurs jours.</div></div></div>';return;}
+  if(!foods.length){ c.innerHTML='<div class="card"><div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">'+t('noAnalysis')+'</div></div></div>'; return; }
   var prob=foods.filter(function(f){return f.badRate>=0.5;});
   var html='';
-  if(prob.length)html+='<div class="food-warning">⚠️ <strong>'+prob.length+' aliment(s) potentiellement problématique(s)</strong></div>';
+  if(prob.length) html+='<div class="food-warning">⚠️ <strong>'+prob.length+' aliment(s) potentiellement problématique(s)</strong></div>';
   html+='<div class="card"><div class="card-title">📊 Corrélation aliments / troubles</div>';
   foods.forEach(function(f){
     var pct=Math.round(f.badRate*100),rc=pct>=50?'rank-bad':pct>=25?'rank-ok':'rank-good',bc=pct>=50?'bar-red':pct>=25?'bar-yellow':'bar-green';
@@ -1511,50 +1423,54 @@ function runAnalysis(){
       +'<div class="food-occurrences">'+f.events+' selle(s) analysée(s)</div>'
       +'<div class="food-bar-wrap"><div class="food-bar-fill '+bc+'" style="width:'+pct+'%"></div></div></div></div>';
   });
-  html+='</div>';c.innerHTML=html;
+  html+='</div>'; c.innerHTML=html;
 }
 
 // ========== IMPORT/EXPORT ==========
 function exportCSV(){
-  var all=getData();var rows=[['Date','Type','Heure','Données','Détails']];
+  var all=getData(); var rows=[['Date','Type','Heure','Données','Détails']];
   Object.keys(all).sort().forEach(function(date){
     var day=all[date];
-    (day.repas||[]).forEach(function(r){rows.push([date,'Repas',r.heure,r.aliments.join(';'),'']);});
+    (day.repas||[]).forEach(function(r){ rows.push([date,'Repas',r.heure,r.aliments.join(';'),'' ]); });
     (day.selles||[]).forEach(function(s){
       var det=[s.collante?'collante':'',s.douleur?'douleur':'',s.ballons?'ballonnements':''].filter(Boolean).join(';');
       rows.push([date,'Selle',s.heure,'Bristol '+s.bristol+' '+BRISTOL_NAMES[s.bristol]+' Qte:'+(s.quantite||''),det]);
     });
-    if(day.etat){var e=day.etat;rows.push([date,'Etat','','Humeur:'+(e.humeur||'')+' Hydratation:'+(e.hydration||'')+' Sport:'+(e.sport||''),'Duree:'+(e.sportDuree||0)+'min Regles:'+(e.regles?'oui':'non')+' Note:'+(e.note||'')]);}
-    var res=calculateScore(day);if(res)rows.push([date,'Score','',res.score,'']);
+    if(day.etat){
+      var e=day.etat;
+      rows.push([date,'Etat','','Humeur:'+(e.humeur||'')+' Hydratation:'+(e.hydration||'')+' Sport:'+(e.sport||''),
+        'Duree:'+(e.sportDuree||0)+'min Regles:'+(e.regles?'oui':'non')+' Note:'+(e.note||'')]);
+    }
+    var res=calculateScore(day); if(res) rows.push([date,'Score','',res.score,'']);
   });
   var csv=rows.map(function(r){return r.map(function(c){return'"'+String(c).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
   var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
-  var url=URL.createObjectURL(blob);var a=document.createElement('a');
-  a.href=url;a.download='supercaca_'+new Date().toISOString().split('T')[0]+'.csv';a.click();
+  var url=URL.createObjectURL(blob); var a=document.createElement('a');
+  a.href=url; a.download='supercaca_'+new Date().toISOString().split('T')[0]+'.csv'; a.click();
   showToast(t('toastExport'));
 }
 function importCSV(input){
-  var file=input.files[0];if(!file)return;
+  var file=input.files[0]; if(!file)return;
   var reader=new FileReader();
   reader.onload=function(e){
     var text=e.target.result.replace(/^\uFEFF/,'');
     var lines=text.split('\n').slice(1).filter(function(l){return l.trim();});
-    var all=getData();var count=0;
+    var all=getData(); var count=0;
     lines.forEach(function(line){
-      var parts=parseCSVLine(line);if(parts.length<4)return;
+      var parts=parseCSVLine(line); if(parts.length<4)return;
       var date=parts[0],type=parts[1],heure=parts[2],data=parts[3],details=parts[4]||'';
       if(!date||!type)return;
-      if(!all[date])all[date]={repas:[],selles:[],etat:null};
+      if(!all[date]) all[date]={repas:[],selles:[],etat:null};
       if(type==='Repas'&&heure&&data){all[date].repas.push({heure:heure,aliments:data.split(';'),id:Date.now()+Math.random()});count++;}
       else if(type==='Selle'&&heure){var bm=data.match(/Bristol (\d)/);if(bm){all[date].selles.push({heure:heure,bristol:parseInt(bm[1]),collante:details.indexOf('collante')>=0,douleur:details.indexOf('douleur')>=0,ballons:details.indexOf('ballonnements')>=0,id:Date.now()+Math.random()});count++;}}
       else if(type==='Etat'){var hm=data.match(/Humeur:(\d)/),hy=data.match(/Hydratation:(\w+)/),sp=data.match(/Sport:(\w+)/),du=details.match(/Duree:(\d+)/);all[date].etat={humeur:hm?parseInt(hm[1]):null,hydration:hy?hy[1]:null,sport:sp?sp[1]:'aucun',sportDuree:du?parseInt(du[1]):0};count++;}
     });
-    saveData(all);input.value='';refreshAll();showToast('✅ '+count+' entrées importées !');
+    saveData(all); input.value=''; refreshAll(); showToast('✅ '+count+t('toastImport'));
   };
   reader.readAsText(file);
 }
-function parseCSVLine(line){var res=[],cur='',inQ=false;for(var i=0;i<line.length;i++){var c=line[i];if(c==='"'){inQ=!inQ;continue;}if(c===','&&!inQ){res.push(cur);cur='';continue;}cur+=c;}res.push(cur);return res;}
-function resetAllData(){if(!confirm(t('confirmReset')))return;localStorage.removeItem('supercaca_data');selectedCalDate=null;document.getElementById('calDayDetail').innerHTML='';refreshAll();showToast(t('toastReset'));}
+function parseCSVLine(line){ var res=[],cur='',inQ=false; for(var i=0;i<line.length;i++){var c=line[i];if(c==='"'){inQ=!inQ;continue;}if(c===','&&!inQ){res.push(cur);cur='';continue;}cur+=c;} res.push(cur); return res; }
+function resetAllData(){ if(!confirm(t('confirmReset')))return; localStorage.removeItem('supercaca_data'); selectedCalDate=null; document.getElementById('calDayDetail').innerHTML=''; refreshAll(); showToast(t('toastReset')); }
 
 // ========== PWA & NOTIFICATIONS ==========
 var IS_HTTPS=location.protocol==='https:';
@@ -1564,63 +1480,52 @@ var deferredInstallPrompt=null;
 
 window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferredInstallPrompt=e;document.getElementById('pwaBanner').classList.add('show');refreshIOTab();});
 window.addEventListener('appinstalled',function(){document.getElementById('pwaBanner').classList.remove('show');deferredInstallPrompt=null;showToast('🎉 SuperCaca installé !');refreshIOTab();});
-function dismissBanner(){document.getElementById('pwaBanner').classList.remove('show');}
-
-function refreshIOTab(){renderPwaCard();renderNotifCard();renderStorageInfo();}
+function dismissBanner(){ document.getElementById('pwaBanner').classList.remove('show'); }
+function refreshIOTab(){ renderPwaCard(); renderNotifCard(); renderStorageInfo(); }
 
 function renderPwaCard(){
-  var desc=document.getElementById('pwaDesc');var actions=document.getElementById('pwaActions');
-  if(!desc||!actions)return;
+  var desc=document.getElementById('pwaDesc'); var actions=document.getElementById('pwaActions');
+  if(!desc||!actions) return;
   if(IS_STANDALONE){desc.innerHTML='✅ <strong>SuperCaca est installé</strong> en mode application.';actions.innerHTML='';return;}
-  if(IS_LOCAL_FILE){
-    desc.innerHTML='<strong>⚠️ Installation impossible depuis un fichier local.</strong><br><br>Hébergez le fichier sur GitHub Pages ou Netlify, puis ouvrez l\'URL HTTPS sur votre téléphone.';
-    actions.innerHTML='';return;
-  }
+  if(IS_LOCAL_FILE){desc.innerHTML='<strong>⚠️ Installation impossible depuis un fichier local.</strong><br>Hébergez le fichier sur GitHub Pages ou Netlify (HTTPS).';actions.innerHTML='';return;}
   if(deferredInstallPrompt){
     desc.innerHTML='Installez SuperCaca sur votre écran d\'accueil.';
     actions.innerHTML='<button class="btn btn-primary btn-full" id="doInstallBtn">📲 Installer SuperCaca</button>';
-    document.getElementById('doInstallBtn').addEventListener('click',doInstall);return;
+    document.getElementById('doInstallBtn').addEventListener('click',doInstall); return;
   }
   var isSamsung=/SamsungBrowser/.test(navigator.userAgent);
   var isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
-  if(isIOS)desc.innerHTML='Sur iPhone/iPad : <strong>↑ Partager</strong> → <strong>Sur l\'écran d\'accueil</strong>';
-  else if(isSamsung)desc.innerHTML='Samsung Internet : menu <strong>☰</strong> → <strong>Ajouter page à</strong> → <strong>Écran d\'accueil</strong>';
+  if(isIOS) desc.innerHTML='Sur iPhone/iPad : <strong>↑ Partager</strong> → <strong>Sur l\'écran d\'accueil</strong>';
+  else if(isSamsung) desc.innerHTML='Samsung Internet : menu <strong>☰</strong> → <strong>Ajouter page à</strong> → <strong>Écran d\'accueil</strong>';
   else desc.innerHTML='Chrome : menu <strong>⋮</strong> → <strong>Ajouter à l\'écran d\'accueil</strong>';
   actions.innerHTML='';
 }
-function doInstall(){if(!deferredInstallPrompt)return;deferredInstallPrompt.prompt();deferredInstallPrompt.userChoice.then(function(r){deferredInstallPrompt=null;dismissBanner();refreshIOTab();if(r.outcome==='accepted')showToast('✅ Installation en cours…');});}
+function doInstall(){ if(!deferredInstallPrompt)return; deferredInstallPrompt.prompt(); deferredInstallPrompt.userChoice.then(function(r){deferredInstallPrompt=null;dismissBanner();refreshIOTab();if(r.outcome==='accepted')showToast('✅ Installation en cours…');}); }
 
 function renderNotifCard(){
-  var desc=document.getElementById('notifDesc');var actions=document.getElementById('notifActions');
-  if(!desc||!actions)return;
-  if(!('Notification' in window)){desc.innerHTML='❌ Notifications non supportées sur ce navigateur.';actions.innerHTML='';return;}
+  var desc=document.getElementById('notifDesc'); var actions=document.getElementById('notifActions');
+  if(!desc||!actions) return;
+  if(!('Notification' in window)){desc.innerHTML='❌ Notifications non supportées.';actions.innerHTML='';return;}
   if(IS_LOCAL_FILE){desc.innerHTML='<strong>⚠️ Notifications bloquées</strong> en fichier local. Hébergez en HTTPS pour activer.';actions.innerHTML='';return;}
   var perm=Notification.permission;
   if(perm==='granted'){
     desc.innerHTML='✅ <strong>Rappel activé.</strong> Notification à 21h si aucune saisie.';
     actions.innerHTML='<button class="btn btn-secondary btn-sm" id="testNotifBtn">🔔 Tester</button>';
-    document.getElementById('testNotifBtn').addEventListener('click',testNotif);return;
+    document.getElementById('testNotifBtn').addEventListener('click',testNotif); return;
   }
   if(perm==='denied'){desc.innerHTML='🚫 Notifications bloquées. Réactivez dans Paramètres → Applications → Navigateur → Autorisations.';actions.innerHTML='';return;}
   desc.innerHTML='Rappel à <strong>21h chaque jour</strong> si aucune donnée saisie.';
   actions.innerHTML='<button class="btn btn-primary btn-full" id="askNotifBtn">🔔 Activer le rappel 21h</button>';
   document.getElementById('askNotifBtn').addEventListener('click',askNotifPermission);
 }
-function askNotifPermission(){
-  Notification.requestPermission().then(function(perm){
-    if(perm==='granted'){showToast('✅ Rappel activé à 21h !');scheduleNightlyReminder();localStorage.setItem('sc_notif','granted');}
-    else showToast('⚠️ Permission refusée. Activez dans les paramètres.');
-    renderNotifCard();
-  });
-}
-function testNotif(){try{new Notification('💩 SuperCaca — Test',{body:'Rappels 21h fonctionnels !',tag:'sc-test'});showToast('🔔 Notification envoyée !');}catch(e){showToast('❌ '+e.message);}}
-
-function hasDataToday(){var today=new Date().toISOString().split('T')[0];var day=getDayData(today);return(day.repas&&day.repas.length>0)||(day.selles&&day.selles.length>0)||day.etat!==null;}
+function askNotifPermission(){ Notification.requestPermission().then(function(perm){if(perm==='granted'){showToast('✅ Rappel activé à 21h !');scheduleNightlyReminder();localStorage.setItem('sc_notif','granted');}else showToast('⚠️ Permission refusée. Activez dans les paramètres.');renderNotifCard();}); }
+function testNotif(){ try{new Notification('💩 SuperCaca — Test',{body:'Rappels 21h fonctionnels !',tag:'sc-test'});showToast('🔔 Notification envoyée !');}catch(e){showToast('❌ '+e.message);} }
+function hasDataToday(){ var today=new Date().toISOString().split('T')[0]; var day=getDayData(today); return(day.repas&&day.repas.length>0)||(day.selles&&day.selles.length>0)||day.etat!==null; }
 function scheduleNightlyReminder(){
   if(!('Notification' in window)||Notification.permission!=='granted')return;
-  if(window._scTimer)clearTimeout(window._scTimer);
-  var now=new Date();var next21=new Date(now.getFullYear(),now.getMonth(),now.getDate(),21,0,0,0);
-  if(now>=next21)next21=new Date(next21.getTime()+86400000);
+  if(window._scTimer) clearTimeout(window._scTimer);
+  var now=new Date(); var next21=new Date(now.getFullYear(),now.getMonth(),now.getDate(),21,0,0,0);
+  if(now>=next21) next21=new Date(next21.getTime()+86400000);
   window._scTimer=setTimeout(function(){
     if(!hasDataToday()){try{new Notification('💩 SuperCaca — Rappel',{body:'Rien saisi aujourd\'hui. Pensez à enregistrer !',tag:'sc-nightly'});}catch(e){}}
     scheduleNightlyReminder();
@@ -1628,18 +1533,14 @@ function scheduleNightlyReminder(){
 }
 
 function renderStorageInfo(){
-  var el=document.getElementById('storageLocationDesc');if(!el)return;
-  var all=getData();var plats=getPlats();
+  var el=document.getElementById('storageLocationDesc'); if(!el)return;
+  var all=getData(); var plats=getPlats();
   var nbDays=Object.keys(all).length,nbRepas=0,nbSelles=0,nbEtat=0;
   Object.values(all).forEach(function(d){nbRepas+=(d.repas||[]).length;nbSelles+=(d.selles||[]).length;if(d.etat)nbEtat++;});
   var kb=Math.round((JSON.stringify(all)+JSON.stringify(plats)).length/1024*10)/10;
   var isSamsung=/SamsungBrowser/.test(navigator.userAgent);
   var browser=isSamsung?'Samsung Internet':'Chrome';
-  var path=/Android/.test(navigator.userAgent)
-    ?'Paramètres Android → Applications → <strong>'+browser+'</strong> → Stockage'
-    :/iPhone|iPad/.test(navigator.userAgent)
-    ?'Réglages → Safari → Avancé → Données du site web'
-    :'F12 → Application → LocalStorage';
+  var path=/Android/.test(navigator.userAgent)?'Paramètres Android → Applications → <strong>'+browser+'</strong> → Stockage':/iPhone|iPad/.test(navigator.userAgent)?'Réglages → Safari → Avancé → Données du site web':'F12 → Application → LocalStorage';
   el.innerHTML='Données stockées <strong>localement</strong> sur votre appareil (localStorage). Jamais envoyées sur internet.<br><br>'
     +'📍 <strong>Emplacement :</strong> '+path+'<br><br>'
     +'📊 <strong>Contenu :</strong> '+nbDays+' jour(s) · '+nbRepas+' repas · '+nbSelles+' selle(s) · '+nbEtat+' état(s) · '+plats.length+' plat(s)<br>'
@@ -1648,42 +1549,44 @@ function renderStorageInfo(){
 }
 
 // ========== UTILS ==========
-function fmtDateFR(ds){var d=new Date(ds+'T12:00:00');return d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
-function setNow(id){var n=new Date();document.getElementById(id).value=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');}
+function fmtDateFR(ds){ var locale=LANG==='en'?'en-GB':'fr-FR'; var d=new Date(ds+'T12:00:00'); return d.toLocaleDateString(locale,{weekday:'long',day:'numeric',month:'long',year:'numeric'}); }
+function setNow(id){ var n=new Date(); document.getElementById(id).value=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0'); }
 function toggleCheckbox(labelEl){
-  var cb=labelEl.querySelector('input[type="checkbox"]');if(!cb)return;
+  var cb=labelEl.querySelector('input[type="checkbox"]'); if(!cb)return;
   cb.checked=!cb.checked;
   var v=labelEl.querySelector('.checkbox-visual');
   if(cb.checked){labelEl.classList.add('checked');if(v){v.style.background='var(--accent)';v.style.borderColor='var(--accent)';v.innerHTML='<span style="font-size:13px;font-weight:900;color:white">✓</span>';}}
   else{labelEl.classList.remove('checked');if(v){v.style.background='var(--card)';v.style.borderColor='var(--border2)';v.innerHTML='';}}
 }
-function showToast(msg){var c=document.getElementById('toastContainer');var t=document.createElement('div');t.className='toast';t.textContent=msg;c.appendChild(t);setTimeout(function(){t.remove();},2500);}
-function openDatePicker(){document.getElementById('datePicker').value=currentDate;document.getElementById('dateModal').classList.add('open');}
-function confirmDate(){var v=document.getElementById('datePicker').value;if(v){currentDate=v;updateDateDisplay();refreshAll();}closeModal('dateModal');}
-function closeModal(id){document.getElementById(id).classList.remove('open');}
+function showToast(msg){ var c=document.getElementById('toastContainer'); var t=document.createElement('div'); t.className='toast'; t.textContent=msg; c.appendChild(t); setTimeout(function(){t.remove();},2500); }
+function openDatePicker(){ document.getElementById('datePicker').value=currentDate; document.getElementById('dateModal').classList.add('open'); }
+function confirmDate(){ var v=document.getElementById('datePicker').value; if(v){currentDate=v;updateDateDisplay();refreshAll();} closeModal('dateModal'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 function updateDateDisplay(){
-  var today=new Date().toISOString().split('T')[0];var d=new Date(currentDate+'T12:00:00');
-  var locale=LANG==='en'?'en-GB':'fr-FR';document.getElementById('currentDateDisplay').textContent=currentDate===today?t('today'):d.toLocaleDateString(locale,{day:'numeric',month:'short'});
+  var today=new Date().toISOString().split('T')[0];
+  var locale=LANG==='en'?'en-GB':'fr-FR';
+  var d=new Date(currentDate+'T12:00:00');
+  document.getElementById('currentDateDisplay').textContent=currentDate===today?t('today'):d.toLocaleDateString(locale,{day:'numeric',month:'short'});
 }
 function switchTab(name,btn){
-  document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('active');});
-  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
-  document.getElementById('tab-'+name).classList.add('active');btn.classList.add('active');
-  if(name==='repas')renderRepasList();
-  if(name==='selles')renderSellesList();
-  if(name==='etat')renderEtatDisplay();
+  document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});
+  document.querySelectorAll('.tab-btn').forEach(function(el){el.classList.remove('active');});
+  document.getElementById('tab-'+name).classList.add('active'); btn.classList.add('active');
+  if(name==='repas') renderRepasList();
+  if(name==='selles') renderSellesList();
+  if(name==='etat') renderEtatDisplay();
   if(name==='score'){populateScoreDateSelect();renderScore();}
-  if(name==='calendrier')renderCalendar();
-  if(name==='plats')renderPlatsList();
-  if(name==='io')refreshIOTab();
+  if(name==='calendrier') renderCalendar();
+  if(name==='plats') renderPlatsList();
+  if(name==='io') refreshIOTab();
 }
-function refreshAll(){renderRepasList();renderSellesList();renderEtatDisplay();renderScore();renderCalendar();}
+function refreshAll(){ renderRepasList();renderSellesList();renderEtatDisplay();renderScore();renderCalendar(); }
 
 // ========== EVENT LISTENERS ==========
 document.querySelectorAll('input[name="sport"]').forEach(function(el){
-  el.addEventListener('change',function(){document.getElementById('sportDureeGroup').style.display=el.value!=='aucun'?'block':'none';});
+  el.addEventListener('change',function(){ document.getElementById('sportDureeGroup').style.display=el.value!=='aucun'?'block':'none'; });
 });
-document.querySelectorAll('.checkbox-item').forEach(function(el){el.addEventListener('click',function(){toggleCheckbox(this);});});
+document.querySelectorAll('.checkbox-item').forEach(function(el){ el.addEventListener('click',function(){ toggleCheckbox(this); }); });
 document.getElementById('dateModal').addEventListener('click',function(e){if(e.target===this)closeModal('dateModal');});
 document.getElementById('repasAlimentInput').addEventListener('keydown',function(e){if(e.key==='Enter')addFoodFromInput();});
 document.getElementById('platIngredientInput').addEventListener('keydown',function(e){if(e.key==='Enter')addPlatIngredientFromInput();});
@@ -1691,15 +1594,15 @@ document.getElementById('platIngredientInput').addEventListener('keydown',functi
 // ========== INIT ==========
 initTheme();
 applyLang();
-setNow('repasHeure');setNow('selleHeure');
-initFoodCommon();initPlatFoodCommon();
+setNow('repasHeure'); setNow('selleHeure');
+initFoodCommon(); initPlatFoodCommon();
 updateDateDisplay();
-renderRepasList();renderSellesList();renderEtatDisplay();renderPlatsList();
+renderRepasList(); renderSellesList(); renderEtatDisplay(); renderPlatsList();
 populateScoreDateSelect();
-if(!IS_LOCAL_FILE&&typeof Notification!=='undefined'&&Notification.permission==='granted'){
+if(!IS_LOCAL_FILE && typeof Notification!=='undefined' && Notification.permission==='granted'){
   scheduleNightlyReminder();
 }
-renderPwaCard();renderNotifCard();renderStorageInfo();
+renderPwaCard(); renderNotifCard(); renderStorageInfo();
 
 </script>
 </body>
