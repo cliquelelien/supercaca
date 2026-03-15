@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SuperCaca">
-<link rel="manifest" id="pwaManifest">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%231565C0'/><text y='.9em' font-size='80' x='10'>💩</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* ============================================================
@@ -746,6 +746,34 @@ var IS_HTTPS = location.protocol === 'https:';
 var IS_LOCAL_FILE = location.protocol === 'file:';
 var IS_STANDALONE = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 
+// Inject manifest safely via data URI (no blob: URL navigation side-effect)
+(function(){
+  try {
+    var manifest = {
+      name: 'SuperCaca',
+      short_name: 'SuperCaca',
+      description: 'Suivi digestif quotidien',
+      start_url: './',
+      display: 'standalone',
+      orientation: 'portrait',
+      theme_color: '#1565C0',
+      background_color: '#FFFFFF',
+      icons: [{
+        src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%231565C0'/%3E%3Ctext y='.9em' font-size='80' x='10'%3E%F0%9F%92%A9%3C/text%3E%3C/svg%3E",
+        sizes: '192x192',
+        type: 'image/svg+xml',
+        purpose: 'any maskable'
+      }]
+    };
+    var json = JSON.stringify(manifest);
+    var b64 = btoa(unescape(encodeURIComponent(json)));
+    var link = document.createElement('link');
+    link.rel = 'manifest';
+    link.href = 'data:application/json;base64,' + b64;
+    document.head.appendChild(link);
+  } catch(e) {}
+})();
+
 var deferredInstallPrompt = null;
 
 // Listen for native install prompt (only works on HTTPS)
@@ -956,7 +984,7 @@ function initTheme(){
 }
 
 // FOODS
-function makeFoodGrid(cid,arr,fn){var c=document.getElementById(cid);c.innerHTML=arr.map(function(f){return'<button class="food-common-btn" onclick="'+fn+'(\''+f.name+'\',this)"><span class="food-em">'+f.em+'</span>'+f.name+'</button>';}).join('');}
+function makeFoodGrid(cid,arr,fn){var c=document.getElementById(cid);c.innerHTML=arr.map(function(f){var safe=f.name.replace(/'/g,"\\'");return'<button class="food-common-btn" onclick="'+fn+'(\''+safe+'\',this)"><span class="food-em">'+f.em+'</span>'+f.name+'</button>';}).join('');}
 function initFoodCommon(){makeFoodGrid('foodCommon',COMMON_FOODS,'toggleFood');}
 function toggleFood(name,btn){var idx=selectedFoods.indexOf(name);if(idx>=0){selectedFoods.splice(idx,1);btn.classList.remove('sel');}else{selectedFoods.push(name);btn.classList.add('sel');}renderSelectedFoods();}
 function addFoodFromInput(){var inp=document.getElementById('repasAlimentInput');inp.value.split(',').map(function(s){return s.trim();}).filter(function(s){return s.length>0;}).forEach(function(v){if(selectedFoods.indexOf(v)<0)selectedFoods.push(v);});renderSelectedFoods();inp.value='';}
@@ -1071,7 +1099,7 @@ function openDatePicker(){document.getElementById('datePicker').value=currentDat
 function confirmDate(){var v=document.getElementById('datePicker').value;if(v){currentDate=v;updateDateDisplay();refreshAll();}closeModal('dateModal');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 function updateDateDisplay(){var today=new Date().toISOString().split('T')[0];var d=new Date(currentDate+'T12:00:00');document.getElementById('currentDateDisplay').textContent=currentDate===today?"Aujourd'hui":d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});}
-function switchTab(name,btn){document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('active');});document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});document.getElementById('tab-'+name).classList.add('active');btn.classList.add('active');if(name==='score'){populateScoreDateSelect();renderScore();}if(name==='calendrier')renderCalendar();if(name==='etat')renderEtatDisplay();if(name==='plats')renderPlatsList();if(name==='io'){refreshIOTab();}}
+function switchTab(name,btn){document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('active');});document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});document.getElementById('tab-'+name).classList.add('active');btn.classList.add('active');if(name==='repas')renderRepasList();if(name==='selles')renderSellesList();if(name==='etat')renderEtatDisplay();if(name==='score'){populateScoreDateSelect();renderScore();}if(name==='calendrier')renderCalendar();if(name==='plats')renderPlatsList();if(name==='io'){refreshIOTab();}}
 function refreshAll(){renderRepasList();renderSellesList();renderEtatDisplay();renderScore();renderCalendar();}
 
 // EVENTS
