@@ -698,6 +698,14 @@ main{position:relative;z-index:1;}
 
   <!-- RESET -->
   <div class="card">
+    <div class="card-title">📂 Où sont stockées vos données ?</div>
+    <div class="io-section">
+      <div class="io-icon">💾</div>
+      <div class="io-desc" id="storageLocationDesc"></div>
+    </div>
+  </div>
+
+  <div class="card">
     <div class="card-title" style="color:var(--red)">⚠️ Réinitialiser</div>
     <div class="io-section"><div class="io-desc" style="color:var(--red)">Efface toutes les données. Action irréversible.</div><button class="btn btn-danger btn-full" onclick="resetAllData()">🗑️ Effacer toutes les données</button></div>
   </div>
@@ -760,6 +768,7 @@ function dismissBanner(){document.getElementById('pwaBanner').classList.remove('
 function refreshIOTab(){
   renderPwaCard();
   renderNotifCard();
+  renderStorageInfo();
 }
 
 /* ---- PWA CARD ---- */
@@ -982,8 +991,9 @@ function deleteSelle(id){var day=getDayData(currentDate);day.selles=day.selles.f
 
 // ÉTAT
 function saveEtat(){var hEl=document.querySelector('input[name="humeur"]:checked');var hydEl=document.querySelector('input[name="hydration"]:checked');var spEl=document.querySelector('input[name="sport"]:checked');var day=getDayData(currentDate);day.etat={humeur:hEl?parseInt(hEl.value):null,hydration:hydEl?hydEl.value:null,sport:spEl?spEl.value:'aucun',sportDuree:parseInt(document.getElementById('sportDuree').value)||0};saveDayData(currentDate,day);renderEtatDisplay();showToast('✅ État enregistré !');}
-function renderEtatDisplay(){var day=getDayData(currentDate);var c=document.getElementById('etatDisplay');if(!day.etat){c.innerHTML='';return;}var e=day.etat;var hydI={faible:'🥤',moyen:'💧',bon:'💦'};var spI={aucun:'💤',endurance:'🏃',cardio:'🚴',musculation:'🏋️'};c.innerHTML='<div class="card"><div class="card-title">✅ État enregistré</div><div style="display:flex;gap:7px;flex-wrap:wrap">'+(e.humeur?'<span class="tag tag-yellow">'+HUM_EMOJIS[e.humeur]+' Humeur '+e.humeur+'/5</span>':'')+(e.hydration?'<span class="tag tag-blue">'+(hydI[e.hydration]||'')+' '+e.hydration+'</span>':'')+'<span class="tag tag-green">'+(spI[e.sport]||'🏃')+' '+e.sport+(e.sport!=='aucun'&&e.sportDuree?' '+e.sportDuree+'min':'')+'</span></div></div>';}
+function renderEtatDisplay(){var day=getDayData(currentDate);var c=document.getElementById('etatDisplay');if(!day.etat){c.innerHTML='';return;}var e=day.etat;var hydI={faible:'🥤',moyen:'💧',bon:'💦'};var spI={aucun:'💤',endurance:'🏃',cardio:'🚴',musculation:'🏋️'};c.innerHTML='<div class="card"><div class="card-title" style="justify-content:space-between"><span>✅ État enregistré</span><button class="entry-delete" onclick="deleteEtat()" title="Supprimer l\'état général">🗑</button></div><div style="display:flex;gap:7px;flex-wrap:wrap">'+(e.humeur?'<span class="tag tag-yellow">'+HUM_EMOJIS[e.humeur]+' Humeur '+e.humeur+'/5</span>':'')+(e.hydration?'<span class="tag tag-blue">'+(hydI[e.hydration]||'')+' '+e.hydration+'</span>':'')+'<span class="tag tag-green">'+(spI[e.sport]||'🏃')+' '+e.sport+(e.sport!=='aucun'&&e.sportDuree?' '+e.sportDuree+'min':'')+'</span></div></div>';}
 
+function deleteEtat(){if(!confirm('Supprimer l\'état général de cette journée ?'))return;var day=getDayData(currentDate);day.etat=null;saveDayData(currentDate,day);renderEtatDisplay();showToast('🗑️ État général supprimé');}
 // SCORE
 function calculateScore(day){if(!day)return null;var hasSelles=(day.selles&&day.selles.length>0);var hasEtat=(day.etat!==null&&day.etat!==undefined);if(!hasSelles&&!hasEtat)return null;var score=5;var details={};if(hasSelles){var s=day.selles[day.selles.length-1];var bMap={1:-2,2:-0.5,3:2,4:2,5:-0.5,6:-2};var bs=bMap[s.bristol]||0;score+=bs;details.bristol={score:bs,name:'Consistance (Bristol)',icon:BRISTOL_EMOJIS[s.bristol],desc:BRISTOL_NAMES[s.bristol]};var sp=0;if(s.collante)sp-=0.5;if(s.douleur)sp-=1;if(s.ballons)sp-=0.5;score+=sp;details.symptomes={score:sp,name:'Symptômes',icon:'😣',desc:sp<0?'Pénalité':' '};}if(hasEtat){var e=day.etat;if(e.humeur){var hs=(e.humeur-3)*0.4;score+=hs;details.humeur={score:hs,name:'Humeur',icon:HUM_EMOJIS[e.humeur],desc:e.humeur+'/5'};}var hydMap={faible:-0.5,moyen:0.25,bon:0.75};var hv=hydMap[e.hydration]||0;if(e.hydration){score+=hv;details.hydration={score:hv,name:'Hydratation',icon:'💧',desc:e.hydration};}var spMap={aucun:0,endurance:0.3,cardio:0.3,musculation:0.2};var sv=spMap[e.sport]||0;if(e.sport&&e.sport!=='aucun'){score+=sv;details.sport={score:sv,name:'Activité',icon:'🏃',desc:e.sport+(e.sportDuree?' '+e.sportDuree+'min':'')};}}score=Math.max(0,Math.min(10,score));return{score:Math.round(score*10)/10,details:details};}
 function getScoreEmoji(s){return s>=8?'🎉':s>=6?'😊':s>=4?'😐':s>=2?'😕':'😫';}
@@ -999,7 +1009,7 @@ function renderScore(){populateScoreDateSelect();var scoreDate=document.getEleme
 // CALENDAR
 function getBristolEm(day){if(!day||!day.selles||!day.selles.length)return'';return BRISTOL_EMOJIS[day.selles[day.selles.length-1].bristol]||'';}
 function getMoodEm(day){if(!day||!day.etat||!day.etat.humeur)return'';return HUM_EMOJIS[day.etat.humeur]||'';}
-function renderCalendar(){var mN=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];document.getElementById('calMonthLabel').textContent=mN[calMonth]+' '+calYear;var first=new Date(calYear,calMonth,1),last=new Date(calYear,calMonth+1,0);var dow=first.getDay();dow=dow===0?6:dow-1;var all=getData(),today=new Date().toISOString().split('T')[0],html='';for(var i=0;i<dow;i++){var pd=new Date(calYear,calMonth,1-dow+i);html+='<div class="cal-day other-month"><div class="cal-day-num">'+pd.getDate()+'</div></div>';}for(var d=1;d<=last.getDate();d++){var ds=calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');var isT=ds===today,isSel=ds===selectedCalDate,dd=all[ds];var cls='cal-day'+(isT?' today':'')+(dd&&(dd.selles&&dd.selles.length||dd.etat)?' has-data':'')+(isSel?' selected':'');var inner='<div class="cal-day-num">'+d+'</div>';if(dd){var res=calculateScore(dd);if(res){var sc=res.score,sCls=sc>=7?'score-great':sc>=4?'score-good':'score-bad';inner+='<div class="cal-day-score '+sCls+'">'+sc+'</div>';}var be=getBristolEm(dd),me=getMoodEm(dd);if(be||me)inner+='<div class="cal-day-icons">'+be+me+'</div>';}html+='<div class="'+cls+'" onclick="selectCalDay(\''+ds+'\')">'+inner+'</div>';}var tot=dow+last.getDate(),rem=tot%7;if(rem!==0)for(var k=1;k<=7-rem;k++)html+='<div class="cal-day other-month"><div class="cal-day-num">'+k+'</div></div>';document.getElementById('calGrid').innerHTML=html;}
+function renderCalendar(){var mN=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];document.getElementById('calMonthLabel').textContent=mN[calMonth]+' '+calYear;var first=new Date(calYear,calMonth,1),last=new Date(calYear,calMonth+1,0);var dow=first.getDay();dow=dow===0?6:dow-1;var all=getData(),today=new Date().toISOString().split('T')[0],html='';for(var i=0;i<dow;i++){var pd=new Date(calYear,calMonth,1-dow+i);html+='<div class="cal-day other-month"><div class="cal-day-num">'+pd.getDate()+'</div></div>';}for(var d=1;d<=last.getDate();d++){var ds=calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');var isT=ds===today,isSel=ds===selectedCalDate,dd=all[ds];var cls='cal-day'+(isT?' today':'')+(dd&&(dd.selles&&dd.selles.length||dd.etat)?' has-data':'')+(isSel?' selected':'');var inner='<div class="cal-day-num">'+d+'</div>';var isPast=ds<today;if(dd){var res=calculateScore(dd);if(res){var sc=res.score,sCls=sc>=7?'score-great':sc>=4?'score-good':'score-bad';inner+='<div class="cal-day-score '+sCls+'">'+sc+'</div>';}var be=getBristolEm(dd),me=getMoodEm(dd);if(!be&&isPast&&(dd.etat||dd.repas&&dd.repas.length))be='🚫';if(be||me)inner+='<div class="cal-day-icons">'+be+me+'</div>';}else if(isPast&&!isT){inner+='<div class="cal-day-icons" style="opacity:0.3">🚫</div>';}html+='<div class="'+cls+'" onclick="selectCalDay(\''+ds+'\')">'+inner+'</div>';}var tot=dow+last.getDate(),rem=tot%7;if(rem!==0)for(var k=1;k<=7-rem;k++)html+='<div class="cal-day other-month"><div class="cal-day-num">'+k+'</div></div>';document.getElementById('calGrid').innerHTML=html;}
 function changeMonth(dir){calMonth+=dir;if(calMonth>11){calMonth=0;calYear++;}if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
 function selectCalDay(ds){selectedCalDate=ds;currentDate=ds;updateDateDisplay();renderCalendar();renderCalDayDetail(ds);}
 function renderCalDayDetail(ds){var day=getDayData(ds);var c=document.getElementById('calDayDetail');var res=calculateScore(day);var label=fmtDateFR(ds);var html='<div class="cal-detail-card"><div class="cal-detail-header"><div class="cal-detail-date">📅 '+label+'</div>'+(res?'<div class="cal-detail-score-badge"><span>'+getScoreEmoji(res.score)+'</span><span class="cal-detail-score-num"> '+res.score+'</span><span style="opacity:0.7;font-size:12px">/10</span></div>':'')+'</div>';if(day.repas&&day.repas.length){var sorted=day.repas.slice().sort(function(a,b){return a.heure.localeCompare(b.heure);});html+='<div class="cal-detail-section"><div class="cal-detail-section-title">🍽️ Repas ('+sorted.length+')</div>';sorted.forEach(function(r){html+='<div class="entry-item" style="margin-bottom:5px"><span class="entry-time">'+r.heure+'</span><div class="entry-body"><div class="entry-main" style="font-size:12px">'+r.aliments.join(', ')+'</div></div></div>';});html+='</div>';}if(day.selles&&day.selles.length){html+='<div class="cal-detail-section"><div class="cal-detail-section-title">🚽 Selles ('+day.selles.length+')</div>';day.selles.forEach(function(s){var sy=[];if(s.quantite)sy.push(QTY_DOTS[s.quantite]);if(s.collante)sy.push('🩹');if(s.douleur)sy.push('😣');if(s.ballons)sy.push('🎈');html+='<div class="entry-item" style="margin-bottom:5px"><span class="entry-time">'+s.heure+'</span><div class="entry-body"><div class="entry-main" style="font-size:12px">'+BRISTOL_EMOJIS[s.bristol]+' '+BRISTOL_NAMES[s.bristol]+(sy.length?' — '+sy.join(' '):'')+'</div></div></div>';});html+='</div>';}if(day.etat){var e=day.etat;var hI={faible:'🥤',moyen:'💧',bon:'💦'};var sI={aucun:'💤',endurance:'🏃',cardio:'🚴',musculation:'🏋️'};html+='<div class="cal-detail-section"><div class="cal-detail-section-title">🌟 État général</div><div style="display:flex;gap:5px;flex-wrap:wrap">'+(e.humeur?'<span class="tag tag-yellow">'+HUM_EMOJIS[e.humeur]+' '+e.humeur+'/5</span>':'')+(e.hydration?'<span class="tag tag-blue">'+(hI[e.hydration]||'')+' '+e.hydration+'</span>':'')+(e.sport?'<span class="tag tag-green">'+(sI[e.sport]||'🏃')+' '+e.sport+(e.sport!=='aucun'&&e.sportDuree?' '+e.sportDuree+'min':'')+'</span>':'')+'</div></div>';}if(res){var det=res.details;html+='<div class="cal-detail-section"><div class="cal-detail-section-title">📐 Calcul du score</div><div class="cal-detail-points"><div class="cal-detail-points-row"><span class="cdpr-label">🎯 Base</span><span class="cdpr-val cdpr-neu">5,0</span></div>';if(det.bristol)html+='<div class="cal-detail-points-row"><span class="cdpr-label">'+det.bristol.icon+' '+det.bristol.desc+'</span><span class="cdpr-val '+cdprCls(det.bristol.score)+'">'+fmtVal(det.bristol.score)+'</span></div>';if(det.symptomes&&det.symptomes.score!==0)html+='<div class="cal-detail-points-row"><span class="cdpr-label">😣 Symptômes</span><span class="cdpr-val '+cdprCls(det.symptomes.score)+'">'+fmtVal(det.symptomes.score)+'</span></div>';if(det.humeur)html+='<div class="cal-detail-points-row"><span class="cdpr-label">'+det.humeur.icon+' Humeur '+det.humeur.desc+'</span><span class="cdpr-val '+cdprCls(det.humeur.score)+'">'+fmtVal(det.humeur.score)+'</span></div>';if(det.hydration)html+='<div class="cal-detail-points-row"><span class="cdpr-label">💧 '+det.hydration.desc+'</span><span class="cdpr-val '+cdprCls(det.hydration.score)+'">'+fmtVal(det.hydration.score)+'</span></div>';if(det.sport)html+='<div class="cal-detail-points-row"><span class="cdpr-label">🏃 '+det.sport.desc+'</span><span class="cdpr-val '+cdprCls(det.sport.score)+'">'+fmtVal(det.sport.score)+'</span></div>';html+='<div class="cal-detail-total"><span>🏆 Score final</span><span class="cal-detail-total-val">'+res.score+'/10</span></div></div></div>';}if(!day.repas.length&&!day.selles.length&&!day.etat)html+='<div class="empty-state" style="padding:16px 0"><div class="empty-icon">📭</div><div class="empty-text">Aucune donnée pour ce jour</div></div>';html+='</div>';c.innerHTML=html;c.scrollIntoView({behavior:'smooth',block:'start'});}
@@ -1012,6 +1022,44 @@ function exportCSV(){var all=getData();var rows=[['Date','Type','Heure','Donnée
 function importCSV(input){var file=input.files[0];if(!file)return;var reader=new FileReader();reader.onload=function(e){var text=e.target.result.replace(/^\uFEFF/,'');var lines=text.split('\n').slice(1).filter(function(l){return l.trim();});var all=getData();var count=0;lines.forEach(function(line){var parts=parseCSVLine(line);if(parts.length<4)return;var date=parts[0],type=parts[1],heure=parts[2],data=parts[3],details=parts[4]||'';if(!date||!type)return;if(!all[date])all[date]={repas:[],selles:[],etat:null};if(type==='Repas'&&heure&&data){all[date].repas.push({heure:heure,aliments:data.split(';'),id:Date.now()+Math.random()});count++;}else if(type==='Selle'&&heure){var bm=data.match(/Bristol (\d)/);if(bm){all[date].selles.push({heure:heure,bristol:parseInt(bm[1]),collante:details.indexOf('collante')>=0,douleur:details.indexOf('douleur')>=0,ballons:details.indexOf('ballonnements')>=0,id:Date.now()+Math.random()});count++;}}else if(type==='Etat'){var hm=data.match(/Humeur:(\d)/),hy=data.match(/Hydratation:(\w+)/),sp=data.match(/Sport:(\w+)/),du=details.match(/Durée:(\d+)/);all[date].etat={humeur:hm?parseInt(hm[1]):null,hydration:hy?hy[1]:null,sport:sp?sp[1]:'aucun',sportDuree:du?parseInt(du[1]):0};count++;}});saveData(all);input.value='';refreshAll();showToast('✅ '+count+' entrées importées !');};reader.readAsText(file);}
 function parseCSVLine(line){var res=[],cur='',inQ=false;for(var i=0;i<line.length;i++){var c=line[i];if(c==='"'){inQ=!inQ;continue;}if(c===','&&!inQ){res.push(cur);cur='';continue;}cur+=c;}res.push(cur);return res;}
 function resetAllData(){if(!confirm('Effacer toutes les données ? Action irréversible.'))return;localStorage.removeItem('supercaca_data');selectedCalDate=null;document.getElementById('calDayDetail').innerHTML='';refreshAll();showToast('🗑️ Données effacées');}
+
+// STORAGE INFO
+function renderStorageInfo(){
+  var el=document.getElementById('storageLocationDesc');
+  if(!el)return;
+  var all=getData();
+  var plats=getPlats();
+  var nbDays=Object.keys(all).length;
+  var nbRepas=0,nbSelles=0,nbEtat=0;
+  Object.values(all).forEach(function(d){
+    nbRepas+=(d.repas||[]).length;
+    nbSelles+=(d.selles||[]).length;
+    if(d.etat)nbEtat++;
+  });
+  // Estimate size
+  var raw=JSON.stringify(all)+JSON.stringify(plats);
+  var kb=Math.round(raw.length/1024*10)/10;
+  var isSamsung=/SamsungBrowser/.test(navigator.userAgent);
+  var isChrome=/Chrome/.test(navigator.userAgent)&&!/Edg|OPR/.test(navigator.userAgent);
+  var browser=isSamsung?'Samsung Internet':isChrome?'Chrome':'votre navigateur';
+  var path='';
+  if(/Android/.test(navigator.userAgent)){
+    if(isSamsung){
+      path='Android → Paramètres → Applications → <strong>Samsung Internet</strong> → Stockage<br>Données de l'application : localStorage de SuperCaca';
+    } else {
+      path='Android → Paramètres → Applications → <strong>Chrome</strong> → Stockage<br>Données de l'application : localStorage de SuperCaca';
+    }
+  } else if(/iPhone|iPad/.test(navigator.userAgent)){
+    path='iOS → Réglages → Safari → Avancé → Données du site web → SuperCaca';
+  } else {
+    path='PC : Outils développeur (F12) → Application → LocalStorage → '+location.hostname;
+  }
+  el.innerHTML='Vos données sont stockées <strong>localement</strong> dans le navigateur <strong>'+browser+'</strong> de votre appareil, via le mécanisme <em>localStorage</em>. Elles ne sont <strong>jamais envoyées sur internet</strong>.<br><br>'
+    +'📍 <strong>Emplacement :</strong><br>'+path+'<br><br>'
+    +'📊 <strong>Contenu actuel :</strong> '+nbDays+' jour(s) · '+nbRepas+' repas · '+nbSelles+' selle(s) · '+nbEtat+' état(s) · '+plats.length+' plat(s) type<br>'
+    +'💾 <strong>Taille estimée :</strong> '+kb+' Ko<br><br>'
+    +'⚠️ <strong>Important :</strong> si vous effacez les données du navigateur ou désinstallez l'application, toutes les données sont perdues. Pensez à exporter régulièrement votre CSV.';
+}
 
 // UTILS
 function escQ(s){return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'");}
