@@ -1054,6 +1054,15 @@ function toggleLang(){
   applyLang();
   initFoodCommon();initPlatFoodCommon();renderTop10();
   renderRepasList();renderSellesList();renderEtatDisplay();renderPlatsList();
+  // Re-render all tabs that have language-dependent dynamic content
+  renderScore();
+  renderCalendar();
+  if(selectedCalDate){renderCalDayDetail(selectedCalDate);}
+  // Force score re-render after a tick in case tab is currently active
+  setTimeout(function(){
+    var scoreTab=document.getElementById('tab-score');
+    if(scoreTab&&scoreTab.classList.contains('active')){renderScore();}
+  },50);
 }
 function applyLang(){
   function s(id,k){var el=document.getElementById(id);if(el)el.textContent=t(k);}
