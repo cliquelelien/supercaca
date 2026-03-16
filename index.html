@@ -457,24 +457,29 @@ main{position:relative;z-index:1;}
 .sync-indicator.syncing{color:var(--accent);}
 .sync-indicator.error{color:var(--red);}
 
+
+/* ===== TOP 10 PERSO ===== */
+.top10-section{margin-bottom:10px;}
+.top10-label{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;padding:0 2px;}
+.food-common-divider{height:1px;background:var(--border);margin:8px 0;}
+
 </style>
 </head>
 <body>
-
 <!-- AUTH OVERLAY -->
 <div class="auth-overlay" id="authOverlay">
   <div class="auth-logo">💩</div>
   <div class="auth-title">SuperCaca</div>
-  <div class="auth-subtitle">Connectez-vous pour accéder à vos données<br>depuis tous vos appareils</div>
+  <div class="auth-subtitle" id="authSubtitle">Connectez-vous pour accéder à vos données depuis tous vos appareils</div>
   <div class="auth-card">
     <div class="auth-error" id="authError"></div>
     <div id="authLoading" class="auth-loading" style="display:none">⏳ Connexion en cours...</div>
     <div id="authForms">
       <button class="auth-btn-google" onclick="signInWithGoogle()">
         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
-        Continuer avec Google
+        <span id="authGoogleLabel">Continuer avec Google</span>
       </button>
-      <div class="auth-divider">— ou avec email —</div>
+      <div class="auth-divider" id="authDivider">— ou avec email —</div>
       <input type="email" class="auth-input" id="authEmail" placeholder="Email">
       <input type="password" class="auth-input" id="authPassword" placeholder="Mot de passe">
       <button class="auth-btn-email" id="authMainBtn" onclick="signInEmail()">Se connecter</button>
@@ -482,10 +487,8 @@ main{position:relative;z-index:1;}
     </div>
   </div>
 </div>
-
-<!-- MAIN APP (hidden until auth) -->
+<!-- MAIN APP -->
 <div id="appContent" style="display:none">
-
 <header class="header">
   <div class="header-inner">
     <div class="logo">
@@ -499,7 +502,6 @@ main{position:relative;z-index:1;}
     </div>
   </div>
 </header>
-
 <div class="tabs-wrapper">
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('repas',this)" id="tb_repas">🍽️ Repas</button>
@@ -512,9 +514,7 @@ main{position:relative;z-index:1;}
     <button class="tab-btn" onclick="switchTab('io',this)" id="tb_io">💾 Import/Export</button>
   </div>
 </div>
-
 <div class="sync-indicator" id="syncIndicator"></div>
-
 <main>
 <!-- REPAS -->
 <div id="tab-repas" class="tab-content active">
@@ -534,6 +534,12 @@ main{position:relative;z-index:1;}
     </div>
     <div class="form-group">
       <label class="form-label" id="L_aliments_courants">Aliments courants</label>
+      <!-- Top 10 section (hidden if empty) -->
+      <div id="top10Section" style="display:none">
+        <div class="top10-label" id="L_top10_label">⭐ Mes aliments fréquents</div>
+        <div class="food-common top10-section" id="foodTop10"></div>
+        <div class="food-common-divider"></div>
+      </div>
       <div class="food-common" id="foodCommon"></div>
     </div>
     <div class="form-group">
@@ -773,7 +779,6 @@ main{position:relative;z-index:1;}
   </div>
 </div>
 </main>
-
 <div class="pwa-banner" id="pwaBanner">
   <span style="font-size:32px">💩</span>
   <div class="pwa-banner-text">
@@ -797,37 +802,27 @@ main{position:relative;z-index:1;}
     </div>
   </div>
 </div>
-
 </div><!-- end appContent -->
 
 <script>
-// ===== FIREBASE CONFIG =====
-var FIREBASE_CONFIG = {
-  apiKey: "AIzaSyDr4hzkX78G2BfuFF1stKdeYATiDKLkQ5Y",
-  authDomain: "supercaca-47497.firebaseapp.com",
-  projectId: "supercaca-47497",
-  storageBucket: "supercaca-47497.firebasestorage.app",
-  messagingSenderId: "218710879445",
-  appId: "1:218710879445:web:67529aad2edef8e968065c"
-};
-
-// Firebase SDK loaded via CDN in <head>
-var db, auth, currentUser = null;
-var AUTH_MODE = 'login'; // 'login' or 'register'
+// ===== FIREBASE =====
+var FIREBASE_CONFIG={apiKey:"AIzaSyDr4hzkX78G2BfuFF1stKdeYATiDKLkQ5Y",authDomain:"supercaca-47497.firebaseapp.com",projectId:"supercaca-47497",storageBucket:"supercaca-47497.firebasestorage.app",messagingSenderId:"218710879445",appId:"1:218710879445:web:67529aad2edef8e968065c"};
+var db,auth,currentUser=null,AUTH_MODE='login',syncTimer=null;
+var localData={},localPlats=[];
 
 // ===== LANGUAGE =====
-var LANG = localStorage.getItem('sc_lang') || 'fr';
-var FOODS_FR = ['Pain','Lait','Fromage','Oeuf','Viande','Poisson','Poulet','Brocoli','Carotte','Oignon','Ail','Tomate','Salade','Riz','Pates','Legumineuses','Fruit','Cafe','Alcool','Soda','Chocolat','Gluten','Noix','Sucre','Huile','Sel','Epices','Pomme de terre'];
-var FOODS_EN = ['Bread','Milk','Cheese','Egg','Meat','Fish','Chicken','Broccoli','Carrot','Onion','Garlic','Tomato','Salad','Rice','Pasta','Legumes','Fruit','Coffee','Alcohol','Soda','Chocolate','Gluten','Nuts','Sugar','Oil','Salt','Spices','Potato'];
-var FOODS_EM = ['🍞','🥛','🧀','🥚','🥩','🐟','🍗','🥦','🥕','🧅','🧄','🍅','🥬','🍚','🍝','🫘','🍎','☕','🍺','🥤','🍫','🌾','🥜','🧁','🫒','🧂','🌶','🥔'];
-var BRISTOL_FR = ['','Très dur','Dur','Normal','Mou','Très mou','Liquide'];
-var BRISTOL_EN = ['','Very hard','Hard','Normal','Soft','Very soft','Liquid'];
-var BRISTOL_EM = ['','🪨','🌰','🍫','🍌','💩','💦'];
-var HUM_EM = ['','😫','😕','😐','😊','😄'];
-var SOM_EM = ['','😩','😪','😐','🙂','😴'];
-var QTY_DOTS = ['','●','●●','●●●','●●●●','●●●●●'];
+var LANG=localStorage.getItem('sc_lang')||'fr';
+var FOODS_FR=['Pain','Lait','Fromage','Oeuf','Viande','Poisson','Poulet','Brocoli','Carotte','Oignon','Ail','Tomate','Salade','Riz','Pates','Legumineuses','Fruit','Cafe','Alcool','Soda','Chocolat','Gluten','Noix','Sucre','Huile','Sel','Epices','Pomme de terre'];
+var FOODS_EN=['Bread','Milk','Cheese','Egg','Meat','Fish','Chicken','Broccoli','Carrot','Onion','Garlic','Tomato','Salad','Rice','Pasta','Legumes','Fruit','Coffee','Alcohol','Soda','Chocolate','Gluten','Nuts','Sugar','Oil','Salt','Spices','Potato'];
+var FOODS_EM=['🍞','🥛','🧀','🥚','🥩','🐟','🍗','🥦','🥕','🧅','🧄','🍅','🥬','🍚','🍝','🫘','🍎','☕','🍺','🥤','🍫','🌾','🥜','🧁','🫒','🧂','🌶','🥔'];
+var BRISTOL_FR=['','Très dur','Dur','Normal','Mou','Très mou','Liquide'];
+var BRISTOL_EN=['','Very hard','Hard','Normal','Soft','Very soft','Liquid'];
+var BRISTOL_EM=['','🪨','🌰','🍫','🍌','💩','💦'];
+var HUM_EM=['','😫','😕','😐','😊','😄'];
+var SOM_EM=['','😩','😪','😐','🙂','😴'];
+var QTY_DOTS=['','●','●●','●●●','●●●●','●●●●●'];
 
-var FR = {
+var FR={
   langBtn:'🇬🇧 EN',themeNight:'🌙 Nuit',themeDay:'☀️ Jour',
   tb_repas:'🍽️ Repas',tb_selles:'🚽 Selles',tb_etat:'🌟 État',tb_score:'📊 Score',
   tb_cal:'🗓️ Calendrier',tb_analyse:'🔍 Analyse',tb_plats:'🍲 Aliments types',tb_io:'💾 Import/Export',
@@ -837,6 +832,7 @@ var FR = {
   L_plat_search:'Chercher un plat type',ph_plat_search:'Ex: Biryani...',
   L_aliments_courants:'Aliments courants',L_selectionnes:'Sélectionnés',
   aucun_aliment:'Aucun aliment sélectionné',
+  L_top10_label:'⭐ Mes aliments fréquents',
   L_texte_libre:'Texte libre (virgules pour séparer)',ph_texte_libre:'Ex: Quinoa, fromage...',
   L_ajouter:'+ Ajouter',L_save_repas:'💾 Enregistrer le repas',
   L_repas_jour:'📋 Repas du jour',noRepas:'Aucun repas enregistré',
@@ -852,8 +848,7 @@ var FR = {
   L_humeur_title:'😊 Humeur',
   L_sommeil_title:'😴 Qualité du sommeil (nuit passée)',
   L_so1:'Très mauvais',L_so2:'Mauvais',L_so3:'Moyen',L_so4:'Bon',L_so5:'Excellent',
-  L_hydration_title:'💧 Hydratation',
-  L_hyd_faible:'Faible',L_hyd_moyen:'Moyen',L_hyd_bon:'Bon',
+  L_hydration_title:'💧 Hydratation',L_hyd_faible:'Faible',L_hyd_moyen:'Moyen',L_hyd_bon:'Bon',
   L_sport_title:'🏃 Activité physique',
   L_sport_aucune:'Aucune',L_sport_endurance:'Endurance',L_sport_cardio:'Cardio',L_sport_muscu:'Muscu',
   L_duree:'Durée (minutes)',ph_duree:'Ex: 45',
@@ -888,12 +883,9 @@ var FR = {
   L_plats_enregistres:'📚 Plats enregistrés',noPlats:'Aucun plat type enregistré.',plat_use:'🍽️ Utiliser',
   L_account_title:'👤 Mon compte',L_signout_btn:'🚪 Se déconnecter',
   L_notif_title:'🔔 Rappel quotidien 21h',
-  L_export_title:'📤 Exporter les données',
-  L_export_desc:'Génère un fichier CSV de sauvegarde de toutes vos données.',
-  L_export_btn:'📥 Télécharger CSV',
-  L_import_title:'📥 Importer des données',
-  L_import_desc:'Importez un fichier CSV précédemment exporté.',
-  L_import_btn:'📂 Choisir un fichier CSV',
+  L_export_title:'📤 Exporter les données',L_export_desc:'Génère un fichier CSV de sauvegarde.',
+  L_export_btn:'📥 Télécharger CSV',L_import_title:'📥 Importer des données',
+  L_import_desc:'Importez un fichier CSV précédemment exporté.',L_import_btn:'📂 Choisir un fichier CSV',
   L_reset_title:'⚠️ Réinitialiser',L_reset_desc:'Efface toutes vos données. Action irréversible.',
   L_reset_btn:'🗑️ Effacer toutes les données',
   L_banner_title:'Installer SuperCaca',L_banner_desc:"Accédez-y depuis votre écran d'accueil",
@@ -905,23 +897,17 @@ var FR = {
   tReset:'🗑️ Données effacées',tPlatApply:'pré-rempli !',
   confirmDelEtat:"Supprimer l'état général de cette journée ?",
   confirmDelPlat:'Remplacer ce plat ?',confirmReset:'Effacer toutes les données ? Action irréversible.',
-  errHeure:"⏱️ Indiquez l'heure",errAliment:'🍽️ Sélectionnez un aliment',
-  errBristol:'🚽 Sélectionnez un type Bristol',
+  errHeure:"⏱️ Indiquez l'heure",errAliment:'🍽️ Sélectionnez un aliment',errBristol:'🚽 Sélectionnez un type Bristol',
   errPlatNom:'📝 Donnez un nom au plat',errPlatIng:'🥘 Ajoutez au moins un ingrédient',
   notifTestTitle:'💩 SuperCaca — Test',notifTestBody:'Rappels 21h fonctionnels !',
   notifTitle:'💩 SuperCaca — Rappel',notifBody:"Rien saisi aujourd'hui. Pensez à enregistrer !",
   sync_ok:'☁️ Synchronisé',sync_ing:'⏳ Synchronisation...',sync_err:'⚠️ Erreur de sync',
-  auth_google:'Continuer avec Google',auth_or:'— ou avec email —',
-  auth_login:'Se connecter',auth_register:"S'inscrire",
-  auth_switch_register:"Pas encore de compte ? S'inscrire",
-  auth_switch_login:'Déjà un compte ? Se connecter',
-  auth_subtitle:'Connectez-vous pour accéder à vos données depuis tous vos appareils',
   notif_ok:'✅ <strong>Rappel activé.</strong> Notification à 21h si aucune saisie.',
   notif_test:'🔔 Tester',notif_denied:'🚫 Notifications bloquées.',
   notif_none:'❌ Notifications non supportées.',notif_ask:'Rappel à <strong>21h chaque jour</strong>.',
   notif_btn:'🔔 Activer le rappel 21h'
 };
-var EN = {
+var EN={
   langBtn:'🇫🇷 FR',themeNight:'🌙 Night',themeDay:'☀️ Day',
   tb_repas:'🍽️ Meals',tb_selles:'🚽 Stools',tb_etat:'🌟 Status',tb_score:'📊 Score',
   tb_cal:'🗓️ Calendar',tb_analyse:'🔍 Analysis',tb_plats:'🍲 Meal types',tb_io:'💾 Import/Export',
@@ -931,6 +917,7 @@ var EN = {
   L_plat_search:'Search a meal type',ph_plat_search:'E.g. Biryani...',
   L_aliments_courants:'Common foods',L_selectionnes:'Selected',
   aucun_aliment:'No food selected',
+  L_top10_label:'⭐ My frequent foods',
   L_texte_libre:'Free text (commas)',ph_texte_libre:'E.g. Quinoa, cheese...',
   L_ajouter:'+ Add',L_save_repas:'💾 Save meal',
   L_repas_jour:'📋 Today meals',noRepas:'No meals recorded today',
@@ -946,8 +933,7 @@ var EN = {
   L_humeur_title:'😊 Mood',
   L_sommeil_title:'😴 Sleep quality (last night)',
   L_so1:'Very poor',L_so2:'Poor',L_so3:'Fair',L_so4:'Good',L_so5:'Excellent',
-  L_hydration_title:'💧 Hydration',
-  L_hyd_faible:'Low',L_hyd_moyen:'Medium',L_hyd_bon:'Good',
+  L_hydration_title:'💧 Hydration',L_hyd_faible:'Low',L_hyd_moyen:'Medium',L_hyd_bon:'Good',
   L_sport_title:'🏃 Physical activity',
   L_sport_aucune:'None',L_sport_endurance:'Endurance',L_sport_cardio:'Cardio',L_sport_muscu:'Strength',
   L_duree:'Duration (minutes)',ph_duree:'E.g. 45',
@@ -982,12 +968,9 @@ var EN = {
   L_plats_enregistres:'📚 Saved meal types',noPlats:'No meal types yet.',plat_use:'🍽️ Use',
   L_account_title:'👤 My account',L_signout_btn:'🚪 Sign out',
   L_notif_title:'🔔 Daily reminder 9pm',
-  L_export_title:'📤 Export data',
-  L_export_desc:'Generates a CSV backup of all your data.',
-  L_export_btn:'📥 Download CSV',
-  L_import_title:'📥 Import data',
-  L_import_desc:'Import a previously exported CSV file. Data will be merged.',
-  L_import_btn:'📂 Choose a CSV file',
+  L_export_title:'📤 Export data',L_export_desc:'Generates a CSV backup of all your data.',
+  L_export_btn:'📥 Download CSV',L_import_title:'📥 Import data',
+  L_import_desc:'Import a previously exported CSV file.',L_import_btn:'📂 Choose a CSV file',
   L_reset_title:'⚠️ Reset',L_reset_desc:'Deletes all your data. This cannot be undone.',
   L_reset_btn:'🗑️ Delete all data',
   L_banner_title:'Install SuperCaca',L_banner_desc:'Access it from your home screen',
@@ -999,17 +982,11 @@ var EN = {
   tReset:'🗑️ Data cleared',tPlatApply:'pre-filled!',
   confirmDelEtat:"Delete today's status?",
   confirmDelPlat:'Replace this meal?',confirmReset:'Delete all data? This cannot be undone.',
-  errHeure:'⏱️ Please enter a time',errAliment:'🍽️ Select at least one food',
-  errBristol:'🚽 Select a Bristol type',
+  errHeure:'⏱️ Please enter a time',errAliment:'🍽️ Select at least one food',errBristol:'🚽 Select a Bristol type',
   errPlatNom:'📝 Give this meal a name',errPlatIng:'🥘 Add at least one ingredient',
   notifTestTitle:'💩 SuperCaca — Test',notifTestBody:'Daily reminders are working!',
   notifTitle:'💩 SuperCaca — Reminder',notifBody:'Nothing recorded today. Remember to log your data!',
   sync_ok:'☁️ Synced',sync_ing:'⏳ Syncing...',sync_err:'⚠️ Sync error',
-  auth_google:'Continue with Google',auth_or:'— or with email —',
-  auth_login:'Sign in',auth_register:'Create account',
-  auth_switch_register:"No account yet? Sign up",
-  auth_switch_login:'Already have an account? Sign in',
-  auth_subtitle:'Sign in to access your data from all your devices',
   notif_ok:'✅ <strong>Reminder active.</strong> Notification at 9pm if no data entered.',
   notif_test:'🔔 Test',notif_denied:'🚫 Notifications blocked.',
   notif_none:'❌ Notifications not supported.',notif_ask:'Reminder at <strong>9pm every day</strong>.',
@@ -1020,181 +997,54 @@ function t(k){var d=LANG==='en'?EN:FR;return d[k]!==undefined?d[k]:(FR[k]!==unde
 function getFoods(){return(LANG==='en'?FOODS_EN:FOODS_FR).map(function(n,i){return{em:FOODS_EM[i],name:n};});}
 function getBN(){return LANG==='en'?BRISTOL_EN:BRISTOL_FR;}
 
-// ===== FIREBASE INIT =====
-function initFirebase(){
-  try{
-    firebase.initializeApp(FIREBASE_CONFIG);
-    db = firebase.firestore();
-    auth = firebase.auth();
-    // Persist auth across sessions
-    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-    // Listen for auth state
-    auth.onAuthStateChanged(function(user){
-      if(user){
-        currentUser = user;
-        document.getElementById('authOverlay').style.display = 'none';
-        document.getElementById('appContent').style.display = 'block';
-        updateAccountInfo();
-        loadDataFromFirestore();
-        initApp();
-      } else {
-        currentUser = null;
-        document.getElementById('authOverlay').style.display = 'flex';
-        document.getElementById('appContent').style.display = 'none';
-        renderAuthUI();
-      }
+// ===== TOP 10 PERSO =====
+// Returns up to 10 food names most consumed by this user
+// that are NOT already in the standard food list
+function getTop10Foods(){
+  var all=getData();
+  var counts={};
+  var standardNames=(FOODS_FR.concat(FOODS_EN)).map(function(n){return n.toLowerCase();});
+  Object.values(all).forEach(function(day){
+    (day.repas||[]).forEach(function(r){
+      (r.aliments||[]).forEach(function(a){
+        var key=a.trim();
+        if(!key)return;
+        // Exclude if it matches a standard food (FR or EN)
+        if(standardNames.indexOf(key.toLowerCase())>=0)return;
+        counts[key]=(counts[key]||0)+1;
+      });
     });
-  } catch(e){
-    console.error('Firebase init error:', e);
-    showAuthError('Erreur de connexion au serveur. Vérifiez votre connexion internet.');
-  }
-}
-
-// ===== AUTH UI =====
-function renderAuthUI(){
-  var subtitle = document.getElementById('authOverlay').querySelector('.auth-subtitle');
-  if(subtitle) subtitle.textContent = t('auth_subtitle');
-  var googleBtn = document.querySelector('.auth-btn-google span') || document.querySelector('.auth-btn-google');
-  var mainBtn = document.getElementById('authMainBtn');
-  var toggleLink = document.getElementById('authToggleLink');
-  if(mainBtn) mainBtn.textContent = AUTH_MODE==='login' ? t('auth_login') : t('auth_register');
-  if(toggleLink) toggleLink.textContent = AUTH_MODE==='login' ? t('auth_switch_register') : t('auth_switch_login');
-}
-function toggleAuthMode(){
-  AUTH_MODE = AUTH_MODE==='login' ? 'register' : 'login';
-  renderAuthUI();
-  hideAuthError();
-}
-function showAuthError(msg){
-  var el = document.getElementById('authError');
-  if(el){el.textContent=msg;el.style.display='block';}
-}
-function hideAuthError(){
-  var el = document.getElementById('authError');
-  if(el) el.style.display='none';
-}
-function setAuthLoading(on){
-  document.getElementById('authLoading').style.display = on?'block':'none';
-  document.getElementById('authForms').style.display = on?'none':'block';
-}
-
-function signInWithGoogle(){
-  hideAuthError();setAuthLoading(true);
-  var provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider).catch(function(e){
-    setAuthLoading(false);
-    showAuthError(e.message);
   });
-}
-function signInEmail(){
-  hideAuthError();
-  var email = document.getElementById('authEmail').value.trim();
-  var pwd = document.getElementById('authPassword').value;
-  if(!email||!pwd){showAuthError('Veuillez renseigner email et mot de passe.');return;}
-  setAuthLoading(true);
-  var promise = AUTH_MODE==='login'
-    ? auth.signInWithEmailAndPassword(email, pwd)
-    : auth.createUserWithEmailAndPassword(email, pwd);
-  promise.catch(function(e){
-    setAuthLoading(false);
-    var msg = e.code==='auth/wrong-password'?'Mot de passe incorrect.'
-      :e.code==='auth/user-not-found'?'Aucun compte avec cet email.'
-      :e.code==='auth/email-already-in-use'?'Cet email est déjà utilisé.'
-      :e.code==='auth/weak-password'?'Mot de passe trop faible (6 caractères minimum).'
-      :e.message;
-    showAuthError(msg);
-  });
-}
-function signOut(){
-  if(!confirm('Se déconnecter ?')) return;
-  auth.signOut();
+  return Object.entries(counts)
+    .sort(function(a,b){return b[1]-a[1];})
+    .slice(0,10)
+    .map(function(e){return e[0];});
 }
 
-function updateAccountInfo(){
-  var el = document.getElementById('accountInfo');
-  if(!el||!currentUser) return;
-  var name = currentUser.displayName || currentUser.email;
-  var photo = currentUser.photoURL;
-  el.innerHTML = '<div class="user-badge">'
-    +(photo?'<img src="'+photo+'" alt="">':'')
-    +'<span>'+name+'</span></div>'
-    +'<div style="font-size:12px;color:var(--text3);margin-top:6px">'+currentUser.email+'</div>';
-}
-
-// ===== FIRESTORE DATA =====
-var localData = {};  // in-memory cache
-var localPlats = [];
-var syncTimer = null;
-
-function getUserDoc(){
-  return db.collection('users').doc(currentUser.uid);
-}
-function setSyncStatus(status){
-  var el = document.getElementById('syncIndicator');
-  if(!el) return;
-  el.textContent = t('sync_'+status);
-  el.className = 'sync-indicator' + (status!=='ok'?' '+status:'');
-  if(status==='ok') setTimeout(function(){el.textContent='';},3000);
-}
-
-function loadDataFromFirestore(){
-  setSyncStatus('ing');
-  getUserDoc().get().then(function(doc){
-    if(doc.exists){
-      var d = doc.data();
-      localData = d.data || {};
-      localPlats = d.plats || [];
-    } else {
-      localData = {};
-      localPlats = [];
-    }
-    setSyncStatus('ok');
-    refreshAll();
-  }).catch(function(e){
-    setSyncStatus('err');
-    console.error('Load error:', e);
-  });
-}
-
-function saveToFirestore(){
-  if(!currentUser) return;
-  clearTimeout(syncTimer);
-  setSyncStatus('ing');
-  syncTimer = setTimeout(function(){
-    getUserDoc().set({
-      data: localData,
-      plats: localPlats,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(function(){
-      setSyncStatus('ok');
-    }).catch(function(e){
-      setSyncStatus('err');
-      console.error('Save error:', e);
+function renderTop10(){
+  var top10=getTop10Foods();
+  var section=document.getElementById('top10Section');
+  var container=document.getElementById('foodTop10');
+  var label=document.getElementById('L_top10_label');
+  if(!section||!container)return;
+  if(!top10.length){section.style.display='none';return;}
+  section.style.display='block';
+  if(label)label.textContent=t('L_top10_label');
+  container.innerHTML='';
+  top10.forEach(function(name){
+    var btn=document.createElement('button');
+    btn.className='food-common-btn';
+    btn.setAttribute('data-name',name);
+    btn.innerHTML='⭐ '+name;
+    if(selectedFoods.indexOf(name)>=0)btn.classList.add('sel');
+    btn.addEventListener('click',function(){
+      var idx=selectedFoods.indexOf(name);
+      if(idx>=0){selectedFoods.splice(idx,1);btn.classList.remove('sel');}
+      else{selectedFoods.push(name);btn.classList.add('sel');}
+      renderSelectedFoods();
     });
-  }, 800); // debounce 800ms
-}
-
-// ===== DATA ACCESS (replaces localStorage) =====
-function getData(){ return localData; }
-function saveData(d){ localData = d; saveToFirestore(); }
-function getDayData(date){ if(!localData[date]) localData[date]={repas:[],selles:[],etat:null}; return localData[date]; }
-function saveDayData(date,day){ localData[date]=day; saveToFirestore(); }
-function getPlats(){ return localPlats; }
-function savePlats(p){ localPlats=p; saveToFirestore(); }
-
-// ===== THEME =====
-function toggleTheme(){
-  var dark=document.documentElement.getAttribute('data-theme')==='dark';
-  var next=dark?'light':'dark';
-  document.documentElement.setAttribute('data-theme',next);
-  document.getElementById('themeColorMeta').content=dark?'#1565C0':'#050D18';
-  localStorage.setItem('supercaca_theme',next);
-  document.getElementById('themeToggleBtn').textContent=dark?t('themeNight'):t('themeDay');
-}
-function initTheme(){
-  var saved=localStorage.getItem('supercaca_theme')||'light';
-  document.documentElement.setAttribute('data-theme',saved);
-  document.getElementById('themeColorMeta').content=saved==='dark'?'#050D18':'#1565C0';
+    container.appendChild(btn);
+  });
 }
 
 // ===== LANG =====
@@ -1202,7 +1052,7 @@ function toggleLang(){
   LANG=LANG==='fr'?'en':'fr';
   localStorage.setItem('sc_lang',LANG);
   applyLang();
-  initFoodCommon();initPlatFoodCommon();
+  initFoodCommon();initPlatFoodCommon();renderTop10();
   renderRepasList();renderSellesList();renderEtatDisplay();renderPlatsList();
 }
 function applyLang(){
@@ -1216,6 +1066,7 @@ function applyLang(){
   s('L_repas_title','L_repas_title');s('L_repas_heure','L_repas_heure');
   s('L_now_repas','L_now_repas');s('L_plat_search','L_plat_search');p('platSearch','ph_plat_search');
   s('L_aliments_courants','L_aliments_courants');s('L_selectionnes','L_selectionnes');
+  s('L_top10_label','L_top10_label');
   s('L_texte_libre','L_texte_libre');p('repasAlimentInput','ph_texte_libre');
   s('L_ajouter','L_ajouter');s('L_save_repas','L_save_repas');s('L_repas_jour','L_repas_jour');
   s('L_selle_title','L_selle_title');s('L_heure_selle','L_heure_selle');s('L_now_selle','L_now_selle');
@@ -1227,8 +1078,7 @@ function applyLang(){
   s('L_save_selle','L_save_selle');s('L_selles_jour','L_selles_jour');
   s('L_humeur_title','L_humeur_title');s('L_sommeil_title','L_sommeil_title');
   s('L_so1','L_so1');s('L_so2','L_so2');s('L_so3','L_so3');s('L_so4','L_so4');s('L_so5','L_so5');
-  s('L_hydration_title','L_hydration_title');
-  s('L_hyd_faible','L_hyd_faible');s('L_hyd_moyen','L_hyd_moyen');s('L_hyd_bon','L_hyd_bon');
+  s('L_hydration_title','L_hydration_title');s('L_hyd_faible','L_hyd_faible');s('L_hyd_moyen','L_hyd_moyen');s('L_hyd_bon','L_hyd_bon');
   s('L_sport_title','L_sport_title');s('L_sport_aucune','L_sport_aucune');
   s('L_sport_endurance','L_sport_endurance');s('L_sport_cardio','L_sport_cardio');s('L_sport_muscu','L_sport_muscu');
   s('L_duree','L_duree');p('sportDuree','ph_duree');
@@ -1251,6 +1101,107 @@ function applyLang(){
   s('L_date_title','L_date_title');s('L_confirmer','L_confirmer');s('L_annuler','L_annuler');
   for(var i=0;i<7;i++){var el=document.getElementById('wd'+i);if(el)el.textContent=t('weekdays')[i];}
   updateDateDisplay();renderNotifCard();
+}
+
+// ===== FIREBASE INIT =====
+function initFirebase(){
+  try{
+    firebase.initializeApp(FIREBASE_CONFIG);
+    db=firebase.firestore();auth=firebase.auth();
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+    auth.onAuthStateChanged(function(user){
+      if(user){
+        currentUser=user;
+        document.getElementById('authOverlay').style.display='none';
+        document.getElementById('appContent').style.display='block';
+        updateAccountInfo();loadDataFromFirestore();
+      }else{
+        currentUser=null;
+        document.getElementById('authOverlay').style.display='flex';
+        document.getElementById('appContent').style.display='none';
+        renderAuthUI();
+      }
+    });
+  }catch(e){showAuthError('Erreur de connexion. Vérifiez votre connexion internet.');}
+}
+
+// ===== AUTH =====
+function renderAuthUI(){
+  var mainBtn=document.getElementById('authMainBtn');
+  var toggleLink=document.getElementById('authToggleLink');
+  if(mainBtn)mainBtn.textContent=AUTH_MODE==='login'?'Se connecter':"S'inscrire";
+  if(toggleLink)toggleLink.textContent=AUTH_MODE==='login'?"Pas encore de compte ? S'inscrire":'Déjà un compte ? Se connecter';
+}
+function toggleAuthMode(){AUTH_MODE=AUTH_MODE==='login'?'register':'login';renderAuthUI();hideAuthError();}
+function showAuthError(msg){var el=document.getElementById('authError');if(el){el.textContent=msg;el.style.display='block';}}
+function hideAuthError(){var el=document.getElementById('authError');if(el)el.style.display='none';}
+function setAuthLoading(on){document.getElementById('authLoading').style.display=on?'block':'none';document.getElementById('authForms').style.display=on?'none':'block';}
+function signInWithGoogle(){hideAuthError();setAuthLoading(true);var provider=new firebase.auth.GoogleAuthProvider();auth.signInWithPopup(provider).catch(function(e){setAuthLoading(false);showAuthError(e.message);});}
+function signInEmail(){
+  hideAuthError();
+  var email=document.getElementById('authEmail').value.trim();
+  var pwd=document.getElementById('authPassword').value;
+  if(!email||!pwd){showAuthError('Veuillez renseigner email et mot de passe.');return;}
+  setAuthLoading(true);
+  var promise=AUTH_MODE==='login'?auth.signInWithEmailAndPassword(email,pwd):auth.createUserWithEmailAndPassword(email,pwd);
+  promise.catch(function(e){setAuthLoading(false);var msg=e.code==='auth/wrong-password'?'Mot de passe incorrect.':e.code==='auth/user-not-found'?'Aucun compte avec cet email.':e.code==='auth/email-already-in-use'?'Cet email est déjà utilisé.':e.code==='auth/weak-password'?'Mot de passe trop faible (6 caractères minimum).':e.message;showAuthError(msg);});
+}
+function signOut(){if(!confirm('Se déconnecter ?'))return;auth.signOut();}
+function updateAccountInfo(){
+  var el=document.getElementById('accountInfo');if(!el||!currentUser)return;
+  var name=currentUser.displayName||currentUser.email;var photo=currentUser.photoURL;
+  el.innerHTML='<div class="user-badge">'+(photo?'<img src="'+photo+'" alt="">':'')+'<span>'+name+'</span></div>'
+    +'<div style="font-size:12px;color:var(--text3);margin-top:6px">'+currentUser.email+'</div>';
+}
+
+// ===== FIRESTORE =====
+function getUserDoc(){return db.collection('users').doc(currentUser.uid);}
+function setSyncStatus(status){
+  var el=document.getElementById('syncIndicator');if(!el)return;
+  el.textContent=t('sync_'+status);
+  el.className='sync-indicator'+(status!=='ok'?' '+status:'');
+  if(status==='ok')setTimeout(function(){el.textContent='';},3000);
+}
+function loadDataFromFirestore(){
+  setSyncStatus('ing');
+  getUserDoc().get().then(function(doc){
+    if(doc.exists){var d=doc.data();localData=d.data||{};localPlats=d.plats||[];}
+    else{localData={};localPlats=[];}
+    setSyncStatus('ok');
+    initApp();
+  }).catch(function(e){setSyncStatus('err');console.error(e);});
+}
+function saveToFirestore(){
+  if(!currentUser)return;
+  clearTimeout(syncTimer);setSyncStatus('ing');
+  syncTimer=setTimeout(function(){
+    getUserDoc().set({data:localData,plats:localPlats,updatedAt:firebase.firestore.FieldValue.serverTimestamp()})
+      .then(function(){setSyncStatus('ok');})
+      .catch(function(e){setSyncStatus('err');console.error(e);});
+  },800);
+}
+
+// ===== DATA ACCESS =====
+function getData(){return localData;}
+function saveData(d){localData=d;saveToFirestore();}
+function getDayData(date){if(!localData[date])localData[date]={repas:[],selles:[],etat:null};return localData[date];}
+function saveDayData(date,day){localData[date]=day;saveToFirestore();}
+function getPlats(){return localPlats;}
+function savePlats(p){localPlats=p;saveToFirestore();}
+
+// ===== THEME =====
+function toggleTheme(){
+  var dark=document.documentElement.getAttribute('data-theme')==='dark';
+  var next=dark?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  document.getElementById('themeColorMeta').content=dark?'#1565C0':'#050D18';
+  localStorage.setItem('supercaca_theme',next);
+  document.getElementById('themeToggleBtn').textContent=dark?t('themeNight'):t('themeDay');
+}
+function initTheme(){
+  var saved=localStorage.getItem('supercaca_theme')||'light';
+  document.documentElement.setAttribute('data-theme',saved);
+  document.getElementById('themeColorMeta').content=saved==='dark'?'#050D18':'#1565C0';
 }
 
 // ===== FOOD GRIDS =====
@@ -1284,7 +1235,7 @@ function renderSelectedFoods(){
   c.innerHTML='';
   selectedFoods.forEach(function(name,i){
     var span=document.createElement('span');span.className='food-chip';span.textContent=name+' ✕';
-    span.addEventListener('click',function(){selectedFoods.splice(i,1);document.querySelectorAll('#foodCommon .food-common-btn').forEach(function(b){if(selectedFoods.indexOf(b.getAttribute('data-name'))<0)b.classList.remove('sel');});renderSelectedFoods();});
+    span.addEventListener('click',function(){selectedFoods.splice(i,1);document.querySelectorAll('#foodCommon .food-common-btn,#foodTop10 .food-common-btn').forEach(function(b){if(selectedFoods.indexOf(b.getAttribute('data-name'))<0)b.classList.remove('sel');});renderSelectedFoods();});
     c.appendChild(span);
   });
 }
@@ -1382,8 +1333,11 @@ function saveRepas(){
   day.repas.push({heure:h,aliments:selectedFoods.slice(),id:Date.now()});
   saveDayData(currentDate,day);selectedFoods=[];renderSelectedFoods();
   document.getElementById('repasHeure').value='';document.getElementById('platSearch').value='';
-  document.querySelectorAll('#foodCommon .food-common-btn').forEach(function(b){b.classList.remove('sel');});
-  renderRepasList();showToast(t('tRepas'));
+  document.querySelectorAll('#foodCommon .food-common-btn,#foodTop10 .food-common-btn').forEach(function(b){b.classList.remove('sel');});
+  renderRepasList();
+  // Refresh top10 after saving (new food might enter top10)
+  renderTop10();
+  showToast(t('tRepas'));
 }
 function renderRepasList(){
   var day=getDayData(currentDate);var c=document.getElementById('repasList');
@@ -1414,15 +1368,11 @@ function saveSelle(){
   saveDayData(currentDate,day);
   document.getElementById('selleHeure').value='';bEl.checked=false;if(qEl)qEl.checked=false;
   ['sColles','sSang'].forEach(function(id){document.getElementById(id).checked=false;});
-  ['cbColles','cbSang'].forEach(function(id){
-    var el=document.getElementById(id);if(!el)return;el.classList.remove('checked');
-    var v=el.querySelector('.checkbox-visual');if(v){v.style.background='var(--card)';v.style.borderColor='var(--border2)';v.innerHTML='';}
-  });
+  ['cbColles','cbSang'].forEach(function(id){var el=document.getElementById(id);if(!el)return;el.classList.remove('checked');var v=el.querySelector('.checkbox-visual');if(v){v.style.background='var(--card)';v.style.borderColor='var(--border2)';v.innerHTML='';}});
   renderSellesList();showToast(t('tSelle'));
 }
 function renderSellesList(){
-  var day=getDayData(currentDate);var c=document.getElementById('sellesList');
-  var BN=getBN();
+  var day=getDayData(currentDate);var c=document.getElementById('sellesList');var BN=getBN();
   if(!day.selles.length){c.innerHTML='<div class="empty-state"><div class="empty-icon">🚽</div><div class="empty-text">'+t('noSelles')+'</div></div>';return;}
   c.innerHTML='';
   day.selles.forEach(function(s){
@@ -1446,17 +1396,13 @@ function saveEtat(){
   var hydEl=document.querySelector('input[name="hydration"]:checked');
   var spEl=document.querySelector('input[name="sport"]:checked');
   var day=getDayData(currentDate);
-  day.etat={
-    humeur:hEl?parseInt(hEl.value):null,
-    sommeil:soEl?parseInt(soEl.value):null,
-    hydration:hydEl?hydEl.value:null,
-    sport:spEl?spEl.value:'aucun',
+  day.etat={humeur:hEl?parseInt(hEl.value):null,sommeil:soEl?parseInt(soEl.value):null,
+    hydration:hydEl?hydEl.value:null,sport:spEl?spEl.value:'aucun',
     sportDuree:parseInt(document.getElementById('sportDuree').value)||0,
     douleur:document.getElementById('eDouleur').checked,
     ballons:document.getElementById('eBallons').checked,
     regles:document.getElementById('etatRegles').checked,
-    note:document.getElementById('etatNote').value.trim()
-  };
+    note:document.getElementById('etatNote').value.trim()};
   saveDayData(currentDate,day);renderEtatDisplay();showToast(t('tEtat'));
 }
 function deleteEtat(){
@@ -1467,9 +1413,7 @@ function deleteEtat(){
 function renderEtatDisplay(){
   var day=getDayData(currentDate);var c=document.getElementById('etatDisplay');
   if(!day.etat){c.innerHTML='';return;}
-  var e=day.etat;
-  var hydI={faible:'🥤',moyen:'💧',bon:'💦'};
-  var spI={aucun:'💤',endurance:'🏃',cardio:'🚴',musculation:'🏋️'};
+  var e=day.etat;var hydI={faible:'🥤',moyen:'💧',bon:'💦'};var spI={aucun:'💤',endurance:'🏃',cardio:'🚴',musculation:'🏋️'};
   var tags='';
   if(e.humeur)tags+='<span class="tag tag-yellow">'+HUM_EM[e.humeur]+' '+t('s_humeur')+' '+e.humeur+'/5</span> ';
   if(e.sommeil)tags+='<span class="tag tag-blue">'+SOM_EM[e.sommeil]+' '+t('s_sommeil')+' '+e.sommeil+'/5</span> ';
@@ -1492,9 +1436,7 @@ function calculateScore(day){
   var score=5;var details={};
   if(hasSelles){
     var s=day.selles[day.selles.length-1];
-    var bMap={1:-2,2:-0.5,3:2,4:2,5:-0.5,6:-2};
-    var bs=bMap[s.bristol]||0;score+=bs;
-    var BN=getBN();
+    var bMap={1:-2,2:-0.5,3:2,4:2,5:-0.5,6:-2};var bs=bMap[s.bristol]||0;score+=bs;var BN=getBN();
     details.bristol={score:bs,name:t('s_bristol'),icon:BRISTOL_EM[s.bristol],desc:BN[s.bristol]};
     var sp=0;if(s.collante)sp-=0.5;if(s.sang)sp-=3;
     if(sp!==0){score+=sp;details.symp_selle={score:sp,name:t('s_symp_selle'),icon:'🩹',collante:s.collante,sang:s.sang};}
@@ -1531,6 +1473,7 @@ function populateScoreDateSelect(){
 function onScoreDateChange(date){currentDate=date;updateDateDisplay();renderScore();}
 function buildScoreRows(det){
   var rows='';
+  // All labels use t() so they switch with language
   if(det.bristol)rows+='<div class="score-formula-row"><span class="score-formula-left">'+det.bristol.icon+' Bristol : '+det.bristol.desc+'</span><span class="score-formula-right '+vCls(det.bristol.score)+'">'+fmtV(det.bristol.score)+'</span></div>';
   else rows+='<div class="score-formula-row"><span class="score-formula-left">'+t('s_no_selle')+'</span><span class="score-formula-right sval-neu">0</span></div>';
   if(det.symp_selle&&det.symp_selle.score!==0){var sl=[];if(det.symp_selle.sang)sl.push(t('tag_sang'));if(det.symp_selle.collante)sl.push(t('tag_collante'));rows+='<div class="score-formula-row"><span class="score-formula-left">🩹 '+t('s_symp_selle')+' ('+sl.join(', ')+')</span><span class="score-formula-right '+vCls(det.symp_selle.score)+'">'+fmtV(det.symp_selle.score)+'</span></div>';}
@@ -1615,19 +1558,17 @@ function exportCSV(){
 }
 function importCSV(input){
   var file=input.files[0];if(!file)return;var reader=new FileReader();
-  reader.onload=function(e){var text=e.target.result.replace(/^\uFEFF/,'');var lines=text.split('\n').slice(1).filter(function(l){return l.trim();});var all=getData();var count=0;lines.forEach(function(line){var parts=parseCSVLine(line);if(parts.length<4)return;var date=parts[0],type=parts[1],heure=parts[2],data=parts[3],details=parts[4]||'';if(!date||!type)return;if(!all[date])all[date]={repas:[],selles:[],etat:null};if(type==='Repas'&&heure&&data){all[date].repas.push({heure:heure,aliments:data.split(';'),id:Date.now()+Math.random()});count++;}else if(type==='Selle'&&heure){var bm=data.match(/Bristol (\d)/);if(bm){all[date].selles.push({heure:heure,bristol:parseInt(bm[1]),collante:details.indexOf('collante')>=0,sang:details.indexOf('sang')>=0,id:Date.now()+Math.random()});count++;}}else if(type==='Etat'){var hm=data.match(/Humeur:(\d)/),som=data.match(/Sommeil:(\d)/),hy=data.match(/Hydratation:(\w+)/),sp=data.match(/Sport:(\w+)/),du=details.match(/Duree:(\d+)/);all[date].etat={humeur:hm?parseInt(hm[1]):null,sommeil:som?parseInt(som[1]):null,hydration:hy?hy[1]:null,sport:sp?sp[1]:'aucun',sportDuree:du?parseInt(du[1]):0,douleur:details.indexOf('Douleur:oui')>=0,ballons:details.indexOf('Ballons:oui')>=0,regles:details.indexOf('Regles:oui')>=0,note:''};count++;}});saveData(all);input.value='';refreshAll();showToast('✅ '+count+t('tImport'));};reader.readAsText(file);
+  reader.onload=function(e){var text=e.target.result.replace(/^\uFEFF/,'');var lines=text.split('\n').slice(1).filter(function(l){return l.trim();});var all=getData();var count=0;lines.forEach(function(line){var parts=parseCSVLine(line);if(parts.length<4)return;var date=parts[0],type=parts[1],heure=parts[2],data=parts[3],details=parts[4]||'';if(!date||!type)return;if(!all[date])all[date]={repas:[],selles:[],etat:null};if(type==='Repas'&&heure&&data){all[date].repas.push({heure:heure,aliments:data.split(';'),id:Date.now()+Math.random()});count++;}else if(type==='Selle'&&heure){var bm=data.match(/Bristol (\d)/);if(bm){all[date].selles.push({heure:heure,bristol:parseInt(bm[1]),collante:details.indexOf('collante')>=0,sang:details.indexOf('sang')>=0,id:Date.now()+Math.random()});count++;}}else if(type==='Etat'){var hm=data.match(/Humeur:(\d)/),som=data.match(/Sommeil:(\d)/),hy=data.match(/Hydratation:(\w+)/),sp=data.match(/Sport:(\w+)/),du=details.match(/Duree:(\d+)/);all[date].etat={humeur:hm?parseInt(hm[1]):null,sommeil:som?parseInt(som[1]):null,hydration:hy?hy[1]:null,sport:sp?sp[1]:'aucun',sportDuree:du?parseInt(du[1]):0,douleur:details.indexOf('Douleur:oui')>=0,ballons:details.indexOf('Ballons:oui')>=0,regles:details.indexOf('Regles:oui')>=0,note:''};count++;}});saveData(all);input.value='';refreshAll();renderTop10();showToast('✅ '+count+t('tImport'));};reader.readAsText(file);
 }
 function parseCSVLine(line){var res=[],cur='',inQ=false;for(var i=0;i<line.length;i++){var c=line[i];if(c==='"'){inQ=!inQ;continue;}if(c===','&&!inQ){res.push(cur);cur='';continue;}cur+=c;}res.push(cur);return res;}
-function resetAllData(){if(!confirm(t('confirmReset')))return;localData={};localPlats=[];saveToFirestore();selectedCalDate=null;document.getElementById('calDayDetail').innerHTML='';refreshAll();showToast(t('tReset'));}
+function resetAllData(){if(!confirm(t('confirmReset')))return;localData={};localPlats=[];saveToFirestore();selectedCalDate=null;document.getElementById('calDayDetail').innerHTML='';refreshAll();renderTop10();showToast(t('tReset'));}
 
 // ===== NOTIF =====
-var IS_LOCAL_FILE=location.protocol==='file:';
 var deferredInstallPrompt=null;
 window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferredInstallPrompt=e;document.getElementById('pwaBanner').classList.add('show');});
 window.addEventListener('appinstalled',function(){document.getElementById('pwaBanner').classList.remove('show');deferredInstallPrompt=null;});
 function dismissBanner(){document.getElementById('pwaBanner').classList.remove('show');}
 function doInstall(){if(!deferredInstallPrompt)return;deferredInstallPrompt.prompt();deferredInstallPrompt.userChoice.then(function(){deferredInstallPrompt=null;dismissBanner();});}
-
 function renderNotifCard(){
   var desc=document.getElementById('notifDesc');var actions=document.getElementById('notifActions');if(!desc||!actions)return;
   if(!('Notification' in window)){desc.innerHTML=t('notif_none');actions.innerHTML='';return;}
@@ -1656,8 +1597,8 @@ function openDatePicker(){document.getElementById('datePicker').value=currentDat
 function confirmDate(){var v=document.getElementById('datePicker').value;if(v){currentDate=v;updateDateDisplay();refreshAll();}closeModal('dateModal');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 function updateDateDisplay(){var today=new Date().toISOString().split('T')[0];var locale=LANG==='en'?'en-GB':'fr-FR';var d=new Date(currentDate+'T12:00:00');document.getElementById('currentDateDisplay').textContent=currentDate===today?t('today'):d.toLocaleDateString(locale,{day:'numeric',month:'short'});}
-function switchTab(name,btn){document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});document.querySelectorAll('.tab-btn').forEach(function(el){el.classList.remove('active');});document.getElementById('tab-'+name).classList.add('active');btn.classList.add('active');if(name==='repas')renderRepasList();if(name==='selles')renderSellesList();if(name==='etat')renderEtatDisplay();if(name==='score'){populateScoreDateSelect();renderScore();}if(name==='calendrier')renderCalendar();if(name==='plats')renderPlatsList();if(name==='io')renderNotifCard();}
-function refreshAll(){renderRepasList();renderSellesList();renderEtatDisplay();renderScore();renderCalendar();}
+function switchTab(name,btn){document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});document.querySelectorAll('.tab-btn').forEach(function(el){el.classList.remove('active');});document.getElementById('tab-'+name).classList.add('active');btn.classList.add('active');if(name==='repas'){renderRepasList();renderTop10();}if(name==='selles')renderSellesList();if(name==='etat')renderEtatDisplay();if(name==='score'){populateScoreDateSelect();renderScore();}if(name==='calendrier')renderCalendar();if(name==='plats')renderPlatsList();if(name==='io')renderNotifCard();}
+function refreshAll(){renderRepasList();renderSellesList();renderEtatDisplay();renderScore();renderCalendar();renderTop10();}
 
 // ===== EVENT LISTENERS =====
 document.querySelectorAll('input[name="sport"]').forEach(function(el){el.addEventListener('change',function(){document.getElementById('sportDureeGroup').style.display=el.value!=='aucun'?'block':'none';});});
@@ -1666,22 +1607,21 @@ document.getElementById('dateModal').addEventListener('click',function(e){if(e.t
 document.getElementById('repasAlimentInput').addEventListener('keydown',function(e){if(e.key==='Enter')addFoodFromInput();});
 document.getElementById('platIngredientInput').addEventListener('keydown',function(e){if(e.key==='Enter')addPlatIngredientFromInput();});
 
-// ===== INIT APP (called after auth) =====
+// ===== INIT APP (called after Firestore load) =====
 function initApp(){
-  initTheme();applyLang();
+  applyLang();
   setNow('repasHeure');setNow('selleHeure');
   initFoodCommon();initPlatFoodCommon();
   updateDateDisplay();
   renderRepasList();renderSellesList();renderEtatDisplay();renderPlatsList();
+  renderTop10();
   populateScoreDateSelect();renderCalendar();
-  renderNotifCard();
+  renderNotifCard();updateAccountInfo();
   if(typeof Notification!=='undefined'&&Notification.permission==='granted'){scheduleNightlyReminder();}
 }
 
 // ===== STARTUP =====
-initTheme();
-applyLang();
-initFirebase();
+initTheme();applyLang();initFirebase();
 
 </script>
 </body>
