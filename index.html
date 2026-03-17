@@ -463,6 +463,15 @@ main{position:relative;z-index:1;}
 .top10-label{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;padding:0 2px;}
 .food-common-divider{height:1px;background:var(--border);margin:8px 0;}
 
+
+/* ===== EDIT BUTTON ===== */
+.entry-edit{background:var(--primary-pale);border:none;border-radius:8px;padding:6px 9px;font-size:15px;cursor:pointer;color:var(--primary);transition:background 0.15s;flex-shrink:0;}
+.entry-edit:hover{background:var(--primary-soft);}
+.edit-modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:1000;display:flex;align-items:flex-end;justify-content:center;}
+.edit-modal{background:var(--card);border-radius:20px 20px 0 0;padding:20px 18px 32px;width:100%;max-width:480px;box-shadow:0 -4px 24px var(--shadow2);}
+.edit-modal-title{font-family:'Nunito',sans-serif;font-size:17px;font-weight:800;color:var(--text);margin-bottom:16px;text-align:center;}
+.edit-modal-handle{width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px;}
+
 </style>
 </head>
 <body>
@@ -802,6 +811,15 @@ main{position:relative;z-index:1;}
     </div>
   </div>
 </div>
+
+<div class="edit-modal-overlay" id="editModal" style="display:none" onclick="closeEditModal(event)">
+  <div class="edit-modal">
+    <div class="edit-modal-handle"></div>
+    <div class="edit-modal-title" id="editModalTitle">✏️ Modifier</div>
+    <div id="editModalBody"></div>
+  </div>
+</div>
+
 </div><!-- end appContent -->
 
 <script>
@@ -1311,10 +1329,12 @@ function renderPlatsList(){
     var chips=p.aliments.map(function(a){return'<span class="plat-aliment-chip">'+a+'</span>';}).join('');
     div.innerHTML='<div class="plat-item-header"><div class="plat-name">🍲 '+p.nom+'</div>'
       +'<div class="plat-actions"><button class="plat-select-btn" data-nom="'+p.nom+'">'+t('plat_use')+'</button>'
+      +'<button class="plat-edit-btn entry-edit" data-id="'+p.id+'">✏️</button>'
       +'<button class="entry-delete" data-id="'+p.id+'">🗑</button></div></div>'
       +'<div class="plat-aliments">'+chips+'</div>';
     div.querySelector('.plat-select-btn').addEventListener('click',function(){applyPlatFromList(this.getAttribute('data-nom'));});
-    div.querySelector('[data-id]').addEventListener('click',function(){deletePlat(parseInt(this.getAttribute('data-id')));});
+    div.querySelector('.plat-edit-btn').addEventListener('click',function(){openEditPlat(parseInt(this.getAttribute('data-id')));});
+    div.querySelector('[data-id].entry-delete').addEventListener('click',function(){deletePlat(parseInt(this.getAttribute('data-id')));});
     c.appendChild(div);
   });
 }
@@ -1356,7 +1376,12 @@ function renderRepasList(){
   c.innerHTML='';
   sorted.forEach(function(r){
     var div=document.createElement('div');div.className='entry-item';
-    div.innerHTML='<span class="entry-time">'+r.heure+'</span><div class="entry-body"><div class="entry-main">'+r.aliments.join(', ')+'</div></div><button class="entry-delete" data-id="'+r.id+'">🗑</button>';
+    div.innerHTML='<span class="entry-time">'+r.heure+'</span><div class="entry-body"><div class="entry-main">'+r.aliments.join(', ')+'</div></div>'
+      +'<div style="display:flex;gap:5px">'
+      +'<button class="entry-edit" data-id="'+r.id+'">✏️</button>'
+      +'<button class="entry-delete" data-id="'+r.id+'">🗑</button>'
+      +'</div>';
+    div.querySelector('.entry-edit').addEventListener('click',function(){openEditRepas(parseInt(this.getAttribute('data-id')));});
     div.querySelector('.entry-delete').addEventListener('click',function(){deleteRepas(parseInt(this.getAttribute('data-id')));});
     c.appendChild(div);
   });
@@ -1391,7 +1416,12 @@ function renderSellesList(){
     if(s.sang)tags+='<span class="tag tag-red" style="font-weight:900">'+t('tag_sang')+'</span>';
     var div=document.createElement('div');div.className='entry-item';
     if(s.sang)div.style.borderColor='var(--red)';
-    div.innerHTML='<span class="entry-time">'+s.heure+'</span><div class="entry-body"><div class="entry-main">'+BRISTOL_EM[s.bristol]+' '+BN[s.bristol]+'</div>'+(tags?'<div class="entry-tags">'+tags+'</div>':'')+'</div><button class="entry-delete" data-id="'+s.id+'">🗑</button>';
+    div.innerHTML='<span class="entry-time">'+s.heure+'</span><div class="entry-body"><div class="entry-main">'+BRISTOL_EM[s.bristol]+' '+BN[s.bristol]+'</div>'+(tags?'<div class="entry-tags">'+tags+'</div>':'')+'</div>'
+      +'<div style="display:flex;gap:5px">'
+      +'<button class="entry-edit" data-id="'+s.id+'">✏️</button>'
+      +'<button class="entry-delete" data-id="'+s.id+'">🗑</button>'
+      +'</div>';
+    div.querySelector('.entry-edit').addEventListener('click',function(){openEditSelle(parseInt(this.getAttribute('data-id')));});
     div.querySelector('.entry-delete').addEventListener('click',function(){deleteSelle(parseInt(this.getAttribute('data-id')));});
     c.appendChild(div);
   });
@@ -1571,6 +1601,125 @@ function importCSV(input){
 }
 function parseCSVLine(line){var res=[],cur='',inQ=false;for(var i=0;i<line.length;i++){var c=line[i];if(c==='"'){inQ=!inQ;continue;}if(c===','&&!inQ){res.push(cur);cur='';continue;}cur+=c;}res.push(cur);return res;}
 function resetAllData(){if(!confirm(t('confirmReset')))return;localData={};localPlats=[];saveToFirestore();selectedCalDate=null;document.getElementById('calDayDetail').innerHTML='';refreshAll();renderTop10();showToast(t('tReset'));}
+
+
+// ===== EDIT FUNCTIONS =====
+function closeEditModal(e){
+  if(e&&e.target!==document.getElementById('editModal'))return;
+  document.getElementById('editModal').style.display='none';
+  document.getElementById('editModalBody').innerHTML='';
+}
+function openEditModal(title,bodyHtml){
+  document.getElementById('editModalTitle').textContent=title;
+  document.getElementById('editModalBody').innerHTML=bodyHtml;
+  document.getElementById('editModal').style.display='flex';
+}
+
+// ── EDIT REPAS ──
+function openEditRepas(id){
+  var day=getDayData(currentDate);
+  var r=day.repas.find(function(x){return x.id===id;});
+  if(!r)return;
+  var body='<div class="form-group">'
+    +'<label class="form-label">'+t('L_repas_heure')+'</label>'
+    +'<input type="time" id="editRepasHeure" class="form-input" value="'+r.heure+'">'
+    +'</div>'
+    +'<div class="form-group">'
+    +'<label class="form-label">'+t('L_texte_libre')+'</label>'
+    +'<input type="text" id="editRepasAliments" class="form-input" value="'+r.aliments.join(', ')+'">'
+    +'</div>'
+    +'<button class="btn btn-primary btn-full" onclick="saveEditRepas('+id+')">💾 '+t('L_confirmer')+'</button>';
+  openEditModal('✏️ '+t('L_repas_title'), body);
+}
+function saveEditRepas(id){
+  var h=document.getElementById('editRepasHeure').value;
+  if(!h)return showToast(t('errHeure'));
+  var raw=document.getElementById('editRepasAliments').value;
+  var aliments=raw.split(',').map(function(s){return s.trim();}).filter(function(s){return s.length>0;});
+  if(!aliments.length)return showToast(t('errAliment'));
+  var day=getDayData(currentDate);
+  day.repas=day.repas.map(function(r){return r.id===id?{heure:h,aliments:aliments,id:id}:r;});
+  saveDayData(currentDate,day);
+  document.getElementById('editModal').style.display='none';
+  renderRepasList();renderTop10();showToast('✅ '+t('L_repas_title'));
+}
+
+// ── EDIT SELLE ──
+function openEditSelle(id){
+  var day=getDayData(currentDate);
+  var s=day.selles.find(function(x){return x.id===id;});
+  if(!s)return;
+  var BN=getBN();
+  var bristolOpts=BRISTOL_EM.slice(1).map(function(em,i){
+    var val=i+1;
+    return'<div class="bristol-option"><input type="radio" name="editBristol" id="eb'+val+'" value="'+val+'"'+(s.bristol===val?' checked':'')+'>'
+      +'<label class="bristol-label" for="eb'+val+'"><span class="bristol-emoji">'+em+'</span>'
+      +'<span class="bristol-name">'+BN[val]+'</span><span class="bristol-num">Type '+(val<=2?val:val<=4?'3-4':val<=5?5:val<=6?6:7)+'</span></label></div>';
+  }).join('');
+  var qtyOpts=[t('L_qty1'),t('L_qty2'),t('L_qty3'),t('L_qty4'),t('L_qty5')].map(function(lbl,i){
+    var val=i+1;
+    return'<div class="qty-option"><input type="radio" name="editQty" id="eq'+val+'" value="'+val+'"'+(s.quantite===val?' checked':'')+'>'
+      +'<label class="qty-label" for="eq'+val+'"><span class="qty-dots">'+QTY_DOTS[val]+'</span><span>'+lbl+'</span></label></div>';
+  }).join('');
+  var body='<div class="form-group">'
+    +'<label class="form-label">'+t('L_heure_selle')+'</label>'
+    +'<input type="time" id="editSelleHeure" class="form-input" value="'+s.heure+'">'
+    +'</div>'
+    +'<div class="form-group"><label class="form-label">'+t('L_quantite')+'</label>'
+    +'<div class="qty-scale">'+qtyOpts+'</div></div>'
+    +'<div class="form-group"><label class="form-label">'+t('L_bristol_title')+'</label>'
+    +'<div class="bristol-grid">'+bristolOpts+'</div></div>'
+    +'<div class="form-group"><label class="form-label">'+t('L_symp_selle')+'</label>'
+    +'<div style="display:flex;flex-direction:column;gap:8px">'
+    +'<label style="display:flex;align-items:center;gap:8px;font-size:14px"><input type="checkbox" id="editColles"'+(s.collante?' checked':'')+'> 🩹 '+t('L_collante')+'</label>'
+    +'<label style="display:flex;align-items:center;gap:8px;font-size:14px"><input type="checkbox" id="editSang"'+(s.sang?' checked':'')+'> 🩸 '+t('L_sang')+'</label>'
+    +'</div></div>'
+    +'<button class="btn btn-primary btn-full" onclick="saveEditSelle('+id+')">💾 '+t('L_confirmer')+'</button>';
+  openEditModal('✏️ '+t('L_selle_title'), body);
+}
+function saveEditSelle(id){
+  var h=document.getElementById('editSelleHeure').value;
+  if(!h)return showToast(t('errHeure'));
+  var bEl=document.querySelector('input[name="editBristol"]:checked');
+  if(!bEl)return showToast(t('errBristol'));
+  var qEl=document.querySelector('input[name="editQty"]:checked');
+  var day=getDayData(currentDate);
+  day.selles=day.selles.map(function(s){
+    return s.id===id?{heure:h,bristol:parseInt(bEl.value),quantite:qEl?parseInt(qEl.value):null,
+      collante:document.getElementById('editColles').checked,
+      sang:document.getElementById('editSang').checked,id:id}:s;
+  });
+  saveDayData(currentDate,day);
+  document.getElementById('editModal').style.display='none';
+  renderSellesList();showToast('✅ '+t('L_selle_title'));
+}
+
+// ── EDIT PLAT ──
+function openEditPlat(id){
+  var plat=getPlats().find(function(p){return p.id===id;});
+  if(!plat)return;
+  var body='<div class="form-group">'
+    +'<label class="form-label">'+t('L_plat_nom')+'</label>'
+    +'<input type="text" id="editPlatNom" class="form-input" value="'+plat.nom+'">'
+    +'</div>'
+    +'<div class="form-group">'
+    +'<label class="form-label">'+t('L_plat_selectionnes')+'</label>'
+    +'<input type="text" id="editPlatAliments" class="form-input" value="'+plat.aliments.join(', ')+'">'
+    +'</div>'
+    +'<button class="btn btn-primary btn-full" onclick="saveEditPlat('+id+')">💾 '+t('L_confirmer')+'</button>';
+  openEditModal('✏️ '+t('L_plat_create'), body);
+}
+function saveEditPlat(id){
+  var nom=document.getElementById('editPlatNom').value.trim();
+  if(!nom)return showToast(t('errPlatNom'));
+  var raw=document.getElementById('editPlatAliments').value;
+  var aliments=raw.split(',').map(function(s){return s.trim();}).filter(function(s){return s.length>0;});
+  if(!aliments.length)return showToast(t('errPlatIng'));
+  var plats=getPlats().map(function(p){return p.id===id?{nom:nom,aliments:aliments,id:id}:p;});
+  savePlats(plats);
+  document.getElementById('editModal').style.display='none';
+  renderPlatsList();showToast('✅ '+t('tPlat'));
+}
 
 // ===== NOTIF =====
 var deferredInstallPrompt=null;
