@@ -502,6 +502,29 @@ main{position:relative;z-index:1;}
 .fodmap-warn{background:#FFF3E0;color:#E65100;border-radius:10px;padding:8px 12px;font-size:12px;margin-bottom:8px;}
 .fodmap-ok{background:#E8F5E9;color:#2E7D32;border-radius:10px;padding:8px 12px;font-size:12px;margin-bottom:8px;}
 
+
+/* ===== FODMAP MATRIX TABLE ===== */
+.fodmap-matrix-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:12px;}
+.fodmap-matrix{border-collapse:collapse;min-width:100%;font-size:12px;}
+.fodmap-matrix th,.fodmap-matrix td{border:1px solid var(--border);padding:6px 8px;white-space:nowrap;vertical-align:top;}
+.fodmap-matrix thead th{background:var(--primary-pale);color:var(--primary2);font-weight:800;text-align:center;position:sticky;top:0;z-index:2;}
+.fodmap-matrix thead th:first-child{position:sticky;left:0;z-index:3;background:var(--primary-pale);}
+.fodmap-matrix tbody th{background:var(--card);font-weight:700;text-align:left;position:sticky;left:0;z-index:1;min-width:130px;max-width:160px;white-space:normal;}
+.fodmap-matrix tbody td{text-align:center;background:var(--card);}
+.fm-row-bristol th{background:var(--primary-soft)!important;}
+.fm-row-symp th{background:#FFF3E0!important;}
+.fm-row-fodmap th{background:var(--bg2)!important;}
+.fm-row-fodmap th .fm-foods{font-size:10px;font-weight:400;color:var(--text3);white-space:normal;display:block;margin-top:2px;font-style:italic;}
+.fm-cell-bristol{font-size:16px;}
+.fm-cell-symp-yes{color:var(--red);font-weight:900;}
+.fm-cell-symp-no{color:var(--text3);}
+.fm-cell-load-0{color:var(--text3);font-size:11px;}
+.fm-cell-load-low{background:#E8F5E9!important;color:#2E7D32;font-weight:700;}
+.fm-cell-load-med{background:#FFF3E0!important;color:#E65100;font-weight:700;}
+.fm-cell-load-high{background:#FFEBEE!important;color:#C62828;font-weight:800;}
+.fm-today{background:var(--primary-pale)!important;font-weight:800;}
+.fm-section-sep{background:var(--border)!important;height:2px;padding:0!important;}
+
 </style>
 </head>
 
@@ -1697,82 +1720,175 @@ function runAnalysis(){
   html+='</div>';c.innerHTML=html;
 }
 
-// ===== FODMAP WEIGHTED ANALYSIS =====
+// ===== FODMAP MATRIX ANALYSIS =====
 function runFodmapAnalysis(){
-  var all=getData();var el=document.getElementById('fodmapAnalysis');
+  var all=getData();
+  var el=document.getElementById('fodmapAnalysis');
+  var allDates=Object.keys(all).sort();
+
+  // ── Collect all dates that have at least one stool ───────────────────
+  var stoolDays=allDates.filter(function(d){return all[d].selles&&all[d].selles.length>0;});
+  if(!stoolDays.length){
+    el.innerHTML='<div class="card"><div class="empty-state"><div class="empty-icon">🧬</div><div class="empty-text">'+(LANG==='en'?'Not enough data.':'Pas assez de données.')+'</div></div></div>';
+    return;
+  }
+
   var cats=FODMAP_CATS.concat(['Gluten']);
   var catsDisplay=(LANG==='en'?FODMAP_CATS_EN:FODMAP_CATS).concat(['Gluten']);
   var colors=FODMAP_COLORS.concat(['ft-gluten']);
+  var BN=getBN();
+  var today=new Date().toISOString().split('T')[0];
 
-  // For each stool, compute weighted FODMAP load and check if stool is "bad"
-  var catData={};cats.forEach(function(c){catData[c]=[];});
-
-  Object.keys(all).sort().forEach(function(date){
+  // ── For each stool day, compute per-category weighted load + foods ───
+  // dayInfo[date] = { selles:[{bristol,collante,sang}], loads:{Fructanes:{score,foods:[]},...} }
+  var dayInfo={};
+  stoolDays.forEach(function(date){
     var day=all[date];
-    if(!day.selles||!day.selles.length)return;
+    var sellesSummary=day.selles.map(function(s){return{bristol:s.bristol,collante:s.collante,sang:s.sang};});
+
+    // For each category accumulate weighted score and list of foods
+    var loads={};
+    cats.forEach(function(c){loads[c]={score:0,foods:[]};});
+
+    // For each stool in this day, compute load then merge
     day.selles.forEach(function(s){
-      var loads=computeFodmapLoad(date,s.heure,all);
-      var isBad=s.bristol>=5||s.bristol<=2||s.collante||s.sang;
-      cats.forEach(function(cat){
-        var load=loads[cat]||0;
-        if(load>0)catData[cat].push({load:load,bad:isBad});
+      var selleTs=new Date(date+'T'+s.heure+':00').getTime();
+      var windowEnd=selleTs-(4*3600000);
+      var windowStart=selleTs-(48*3600000);
+
+      // Find previous stool
+      var prevTs=windowStart;
+      var foundPrev=false;
+      allDates.slice().reverse().forEach(function(d){
+        if(foundPrev)return;
+        var dd=all[d];if(!dd.selles)return;
+        dd.selles.slice().reverse().forEach(function(ps){
+          if(foundPrev)return;
+          var psTs=new Date(d+'T'+ps.heure+':00').getTime();
+          if(psTs<selleTs&&psTs>windowStart){prevTs=psTs;foundPrev=true;}
+        });
+      });
+
+      // Sum meals in [prevTs, windowEnd]
+      allDates.forEach(function(d){
+        var dd=all[d];if(!dd.repas)return;
+        dd.repas.forEach(function(r){
+          var rTs=new Date(d+'T'+r.heure+':00').getTime();
+          if(rTs<prevTs||rTs>windowEnd)return;
+          var hoursAgo=(selleTs-rTs)/3600000;
+          var w=transitWeight(hoursAgo);
+          if(w===0)return;
+          (r.aliments||[]).forEach(function(name){
+            var fd=getFodmapData(name);
+            if(!fd)return;
+            for(var i=0;i<5;i++){
+              if(fd[i]===1){
+                loads[FODMAP_CATS[i]].score+=w;
+                if(loads[FODMAP_CATS[i]].foods.indexOf(name)<0)
+                  loads[FODMAP_CATS[i]].foods.push(name);
+              }
+            }
+            if(fd[6]===1){
+              loads['Gluten'].score+=w;
+              if(loads['Gluten'].foods.indexOf(name)<0)
+                loads['Gluten'].foods.push(name);
+            }
+          });
+        });
       });
     });
+
+    dayInfo[date]={selles:sellesSummary,loads:loads};
   });
 
-  var rows=cats.map(function(cat,ci){
-    var data=catData[cat];if(!data.length)return null;
-    var badCount=data.filter(function(d){return d.bad;}).length;
-    var avgLoad=data.reduce(function(s,d){return s+d.load;},0)/data.length;
-    var pct=Math.round(badCount/data.length*100);
-    return{name:catsDisplay[ci],cat:cat,pct:pct,n:data.length,avg:Math.round(avgLoad*100)/100,color:colors[ci]};
-  }).filter(Boolean).sort(function(a,b){return b.pct-a.pct;});
+  // ── Build HTML table ─────────────────────────────────────────────────
+  var title=LANG==='en'?'🧬 FODMAP × Stools — Day-by-day matrix':'🧬 FODMAP × Selles — Matrice par jour';
+  var legend=LANG==='en'
+    ?'Transit weights: 0–4h: 0% · 4–12h: 30% · 12–24h: 40% · 24–48h: 30%'
+    :'Poids transit : 0–4h : 0% · 4–12h : 30% · 12–24h : 40% · 24–48h : 30%';
 
-  if(!rows.length){el.innerHTML='<div class="card"><div class="empty-state"><div class="empty-icon">🧬</div><div class="empty-text">'+t('fodmap_no_data')+'</div></div></div>';return;}
+  var html='<div class="card"><div class="card-title">'+title+'</div>'
+    +'<div style="font-size:11px;color:var(--text3);margin-bottom:10px">'+legend+'</div>'
+    +'<div class="fodmap-matrix-wrapper"><table class="fodmap-matrix"><thead><tr>'
+    +'<th>'+(LANG==='en'?'Indicator':'Indicateur')+'</th>';
 
-  var html='<div class="fodmap-corr-card">'
-    +'<div class="fodmap-corr-title">'+t('fodmap_corr_title')+'</div>'
-    +'<div style="font-size:11px;color:var(--text3);margin-bottom:8px">'
-    +'<strong>'+(LANG==='en'?'Transit weights:':'Poids transit :')+'</strong> '
-    +t('fodmap_legend_0')+' · '+t('fodmap_legend_1')+' · '+t('fodmap_legend_2')+' · '+t('fodmap_legend_3')
-    +'</div>';
-
-  rows.forEach(function(r){
-    var pctColor=r.pct>=60?'#C62828':r.pct>=40?'#E65100':'#2E7D32';
-    var bgColor=r.pct>=60?'#FFEBEE':r.pct>=40?'#FFF3E0':'#E8F5E9';
-    html+='<div class="fodmap-corr-row">'
-      +'<span class="fodmap-corr-name fodmap-tag '+r.color+'">'+r.name+'</span>'
-      +'<span style="font-size:11px;color:var(--text3)">n='+r.n+' · ø'+r.avg+'</span>'
-      +'<span class="fodmap-corr-pct" style="background:'+bgColor+';color:'+pctColor+'">'+r.pct+'%</span>'
-      +'</div>';
+  stoolDays.forEach(function(d){
+    var isToday=d===today;
+    var label=fmtDateShort(d);
+    html+='<th class="'+(isToday?'fm-today':'')+'">'+label+'</th>';
   });
+  html+='</tr></thead><tbody>';
 
-  if(rows[0].pct>=40){
-    html+='<div class="fodmap-warn" style="margin-top:10px">⚠️ '
-      +(LANG==='en'?'<strong>'+rows[0].name+'</strong> has the strongest correlation with disturbed stools ('+rows[0].pct+'%).':'<strong>'+rows[0].name+'</strong> présente la plus forte corrélation avec les selles perturbées ('+rows[0].pct+'%).')+'</div>';
-  }else{
-    html+='<div class="fodmap-ok" style="margin-top:10px">✅ '+(LANG==='en'?'No FODMAP category shows a strong correlation.':'Aucune catégorie FODMAP ne montre de forte corrélation.')+'</div>';
-  }
-
-  // Gas/bloating section
-  var nowTs=new Date().getTime();
-  var gasLoads=computeGasLoad(nowTs,all);
-  var gasTotal=Object.values(gasLoads).reduce(function(s,v){return s+v;},0);
-  if(gasTotal>0){
-    html+='<div style="margin-top:14px;font-weight:700;color:var(--text);font-size:13px">'+t('fodmap_gas_title')+'</div>';
-    html+='<div style="font-size:11px;color:var(--text3);margin-bottom:8px">'+(LANG==='en'?'FODMAP consumed in the last 4h (most likely responsible for current gas/bloating):':'FODMAP consommés ces 4 dernières heures (probablement responsables des gaz/ballonnements actuels) :')+'</div>';
-    var gasCats=(LANG==='en'?FODMAP_CATS_EN:FODMAP_CATS).concat(['Gluten']);
-    cats.forEach(function(cat,ci){
-      var v=Math.round((gasLoads[cat]||0)*100)/100;
-      if(v>0){
-        html+='<div class="fodmap-bar-row"><span class="fodmap-bar-label fodmap-tag '+colors[ci]+'">'+gasCats[ci]+'</span>'
-          +'<div class="fodmap-bar-track"><div class="fodmap-bar-fill" style="width:'+Math.min(100,v*40)+'%;height:100%;border-radius:4px;background:currentColor;opacity:0.5"></div></div>'
-          +'<span class="fodmap-bar-count">'+v+'</span></div>';
-      }
+  // ── BRISTOL ROW ───────────────────────────────────────────────────────
+  html+='<tr class="fm-row-bristol"><th>'+BRISTOL_EM[0]||''+'🚽 Bristol</th>';
+  stoolDays.forEach(function(d){
+    var info=dayInfo[d];
+    var cell='';
+    info.selles.forEach(function(s,i){
+      cell+=BRISTOL_EM[s.bristol]+'<span style="font-size:10px"> '+BN[s.bristol]+'</span>';
+      if(i<info.selles.length-1)cell+='<br>';
     });
-  }
+    html+='<td class="fm-cell-bristol">'+cell+'</td>';
+  });
+  html+='</tr>';
 
-  html+='</div>';el.innerHTML=html;el.scrollIntoView({behavior:'smooth',block:'start'});
+  // ── SYMPTOM ROWS ──────────────────────────────────────────────────────
+  var sympDefs=[
+    {key:'collante',icon:'🩹',label:LANG==='en'?'Sticky':'Collante'},
+    {key:'sang',icon:'🩸',label:LANG==='en'?'Blood':'Sang'}
+  ];
+  sympDefs.forEach(function(symp){
+    html+='<tr class="fm-row-symp"><th>'+symp.icon+' '+symp.label+'</th>';
+    stoolDays.forEach(function(d){
+      var info=dayInfo[d];
+      var hasIt=info.selles.some(function(s){return s[symp.key];});
+      html+='<td class="'+(hasIt?'fm-cell-symp-yes':'fm-cell-symp-no')+'">'+(hasIt?'●':'–')+'</td>';
+    });
+    html+='</tr>';
+  });
+
+  // ── SEPARATOR ─────────────────────────────────────────────────────────
+  html+='<tr><td class="fm-section-sep" colspan="'+(stoolDays.length+1)+'"></td></tr>';
+
+  // ── FODMAP ROWS ───────────────────────────────────────────────────────
+  cats.forEach(function(cat,ci){
+    html+='<tr class="fm-row-fodmap"><th>'
+      +'<span class="fodmap-tag '+colors[ci]+'">'+catsDisplay[ci]+'</span>';
+
+    // Show foods for this category across all days (union)
+    var allFoods=[];
+    stoolDays.forEach(function(d){(dayInfo[d].loads[cat].foods||[]).forEach(function(f){if(allFoods.indexOf(f)<0)allFoods.push(f);});});
+
+    // Per-day food lists inline in the row header? No — we show per-cell below.
+    html+='</th>';
+
+    stoolDays.forEach(function(d){
+      var loadObj=dayInfo[d].loads[cat];
+      var score=Math.round(loadObj.score*100)/100;
+      var foods=loadObj.foods;
+      var cls='fm-cell-load-0';
+      if(score>0&&score<=1)cls='fm-cell-load-low';
+      else if(score>1&&score<=2)cls='fm-cell-load-med';
+      else if(score>2)cls='fm-cell-load-high';
+      var cell=score>0
+        ?'<strong>'+score+'</strong>'+(foods.length?'<div style="font-size:9px;color:var(--text3);white-space:normal;max-width:80px">'+foods.join(', ')+'</div>':'')
+        :'<span style="color:var(--text3);font-size:10px">–</span>';
+      html+='<td class="'+cls+'">'+cell+'</td>';
+    });
+
+    html+='</tr>';
+  });
+
+  html+='</tbody></table></div></div>';
+  el.innerHTML=html;
+  el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// Short date formatter for table header
+function fmtDateShort(ds){
+  var locale=LANG==='en'?'en-GB':'fr-FR';
+  var d=new Date(ds+'T12:00:00');
+  return d.toLocaleDateString(locale,{day:'numeric',month:'short'});
 }
 
 // ===== IMPORT/EXPORT =====
