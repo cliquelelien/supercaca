@@ -474,6 +474,34 @@ main{position:relative;z-index:1;}
 .edit-modal-title{font-family:'Nunito',sans-serif;font-size:17px;font-weight:800;color:var(--text);margin-bottom:16px;text-align:center;}
 .edit-modal-handle{width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px;}
 
+
+/* ===== FODMAP ===== */
+.fodmap-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;}
+.fodmap-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;letter-spacing:0.3px;}
+.ft-fructanes{background:#FFF3E0;color:#E65100;}
+.ft-gos{background:#F3E5F5;color:#6A1B9A;}
+.ft-lactose{background:#E3F2FD;color:#0D47A1;}
+.ft-fructose{background:#FCE4EC;color:#880E4F;}
+.ft-polyols{background:#E8F5E9;color:#1B5E20;}
+.ft-gluten{background:#FFFDE7;color:#F57F17;}
+.ft-safe{background:#E8F5E9;color:#2E7D32;}
+.food-common-btn .fodmap-dots{font-size:8px;margin-left:3px;opacity:0.7;}
+.fodmap-summary{background:var(--card);border-radius:14px;padding:12px 14px;margin-bottom:10px;border:1px solid var(--border);}
+.fodmap-summary-title{font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px;}
+.fodmap-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
+.fodmap-bar-label{font-size:11px;font-weight:700;width:70px;flex-shrink:0;}
+.fodmap-bar-track{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden;}
+.fodmap-bar-fill{height:100%;border-radius:4px;transition:width 0.4s;}
+.fodmap-bar-count{font-size:11px;color:var(--text3);width:20px;text-align:right;flex-shrink:0;}
+.fodmap-corr-card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:10px;border:1px solid var(--border);}
+.fodmap-corr-title{font-size:14px;font-weight:800;color:var(--text);margin-bottom:10px;}
+.fodmap-corr-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.fodmap-corr-row:last-child{border-bottom:none;}
+.fodmap-corr-name{font-weight:600;color:var(--text2);}
+.fodmap-corr-pct{font-weight:800;padding:2px 10px;border-radius:8px;font-size:12px;}
+.fodmap-warn{background:#FFF3E0;color:#E65100;border-radius:10px;padding:8px 12px;font-size:12px;margin-bottom:8px;}
+.fodmap-ok{background:#E8F5E9;color:#2E7D32;border-radius:10px;padding:8px 12px;font-size:12px;margin-bottom:8px;}
+
 </style>
 </head>
 <body>
@@ -556,6 +584,7 @@ main{position:relative;z-index:1;}
       <label class="form-label" id="L_selectionnes">Sélectionnés</label>
       <div class="food-chips" id="selectedFoodsChips"></div>
     </div>
+    <div id="fodmapIndicator" style="display:none;margin-bottom:10px"></div>
     <div class="form-group">
       <label class="form-label" id="L_texte_libre">Texte libre (virgules pour séparer)</label>
       <div class="input-with-btn">
@@ -717,8 +746,10 @@ main{position:relative;z-index:1;}
     <div class="card-title" id="L_analyse_title">🔍 Analyse alimentaire</div>
     <p id="L_analyse_desc" style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6">Analyse la corrélation entre les aliments et la qualité des selles <strong>12–48h après</strong>.</p>
     <button class="btn btn-primary btn-full" onclick="runAnalysis()" id="L_run_analyse">🔍 Lancer l'analyse</button>
+    <button class="btn btn-secondary btn-full" onclick="runFodmapAnalysis()" id="L_run_fodmap" style="margin-top:8px">🧬 Analyse FODMAP</button>
   </div>
   <div id="analysisResults"></div>
+  <div id="fodmapAnalysis"></div>
 </div>
 <!-- PLATS -->
 <div id="tab-plats" class="tab-content">
@@ -884,7 +915,7 @@ var FR={
   tag_collante:'🩹 Collante',tag_sang:'🩸 Sang',tag_douleur:'😣 Douleur',tag_ballons:'🎈 Ballons',
   L_analyse_title:'🔍 Analyse alimentaire',
   L_analyse_desc:'Analyse la corrélation entre les aliments et la qualité des selles <strong>12–48h après</strong>.',
-  L_run_analyse:"🔍 Lancer l'analyse",noAnalysis:'Pas assez de données.',
+  L_run_analyse:"🔍 Lancer l'analyse",L_run_fodmap:'🧬 Analyse FODMAP',noAnalysis:'Pas assez de données.',
   analyse_corr:'📊 Corrélation aliments / troubles',analyse_warn:'aliment(s) potentiellement problématique(s)',analyse_selles:' selle(s) analysée(s)',
   L_plat_create:'🍲 Créer un plat type',L_plat_nom:'Nom du plat',ph_plat_nom:'Ex: Biryani...',
   L_plat_aliments:'Aliments courants',L_plat_selectionnes:'Ingrédients sélectionnés',
@@ -956,7 +987,7 @@ var EN={
   tag_collante:'🩹 Sticky',tag_sang:'🩸 Blood',tag_douleur:'😣 Pain',tag_ballons:'🎈 Bloating',
   L_analyse_title:'🔍 Food analysis',
   L_analyse_desc:'Analyses the correlation between foods and stool quality <strong>12–48h later</strong>.',
-  L_run_analyse:'🔍 Run analysis',noAnalysis:'Not enough data.',
+  L_run_analyse:'🔍 Run analysis',L_run_fodmap:'🧬 FODMAP Analysis',noAnalysis:'Not enough data.',
   analyse_corr:'📊 Food / trouble correlation',analyse_warn:'potentially problematic food(s)',analyse_selles:' stool(s) analysed',
   L_plat_create:'🍲 Create a meal type',L_plat_nom:'Meal name',ph_plat_nom:'E.g. Biryani...',
   L_plat_aliments:'Common foods',L_plat_selectionnes:'Selected ingredients',aucun_ingredient:'No ingredient selected',
@@ -1178,7 +1209,7 @@ function applyLang(){
   s('L_regles_title','L_regles_title');s('L_regles_cb','L_regles_cb');
   s('L_note_title','L_note_title');p('etatNote','ph_note');
   s('L_save_etat','L_save_etat');s('L_score_missing','L_score_missing');
-  s('L_analyse_title','L_analyse_title');h('L_analyse_desc','L_analyse_desc');s('L_run_analyse','L_run_analyse');
+  s('L_analyse_title','L_analyse_title');h('L_analyse_desc','L_analyse_desc');s('L_run_analyse','L_run_analyse');s('L_run_fodmap','L_run_fodmap');
   s('L_plat_create','L_plat_create');s('L_plat_nom','L_plat_nom');p('platNom','ph_plat_nom');
   s('L_plat_aliments','L_plat_aliments');s('L_plat_selectionnes','L_plat_selectionnes');
   s('L_plat_texte_libre','L_plat_texte_libre');p('platIngredientInput','ph_plat_input');
@@ -1238,7 +1269,8 @@ function makeFoodGrid(cid,foods,list){
   foods.forEach(function(f){
     var btn=document.createElement('button');btn.className='food-common-btn';
     btn.setAttribute('data-name',f.name);
-    btn.innerHTML='<span class="food-em">'+f.em+'</span>'+f.name;
+    var ftags=getFodmapTagsHtml(f.name);var fdots=getFodmapData(f.name)&&getFodmapData(f.name).slice(0,5).some(function(v){return v===1;})?'<span class="fodmap-dots">●</span>':'';
+    btn.innerHTML='<span class="food-em">'+f.em+'</span>'+f.name+fdots;
     if(list.indexOf(f.name)>=0)btn.classList.add('sel');
     btn.addEventListener('click',function(){
       var idx=list.indexOf(f.name);
@@ -1259,8 +1291,9 @@ function addFoodFromInput(){
 }
 function renderSelectedFoods(){
   var c=document.getElementById('selectedFoodsChips');
-  if(!selectedFoods.length){c.innerHTML='<span style="font-size:12px;color:var(--text3)">'+t('aucun_aliment')+'</span>';return;}
+  if(!selectedFoods.length){c.innerHTML='<span style="font-size:12px;color:var(--text3)">'+t('aucun_aliment')+'</span>';renderFodmapIndicator();return;}
   c.innerHTML='';
+  renderFodmapIndicator();
   selectedFoods.forEach(function(name,i){
     var span=document.createElement('span');span.className='food-chip';span.textContent=name+' ✕';
     span.addEventListener('click',function(){
@@ -1678,6 +1711,230 @@ function saveEditPlat(id){
   savePlats(getPlats().map(function(p){return p.id===id?{nom:nom,aliments:aliments,id:id}:p;}));
   document.getElementById('editModal').style.display='none';
   renderPlatsList();showToast('✅ '+t('tPlat'));
+}
+
+
+// ===== FODMAP DATABASE =====
+// Columns: Fructanes, GOS, Lactose, Fructose, Polyols, HorsFODMAP, Gluten
+// 1 = contains this category
+var FODMAP_DB = {
+  'Boeuf':      [0,0,0,0,0,1,0], 'Poulet':     [0,0,0,0,0,1,0], 'Dinde':      [0,0,0,0,0,1,0],
+  'Porc':       [0,0,0,0,0,1,0], 'Agneau':     [0,0,0,0,0,1,0], 'Saumon':     [0,0,0,0,0,1,0],
+  'Thon':       [0,0,0,0,0,1,0], 'Cabillaud':  [0,0,0,0,0,1,0], 'Sardine':    [0,0,0,0,0,1,0],
+  'Oeufs':      [0,0,0,0,0,1,0], 'Pain blanc': [1,0,0,0,0,0,1], 'Pain complet':[1,0,0,0,0,0,1],
+  'Pates':      [1,0,0,0,0,0,1], 'Semoule':    [1,0,0,0,0,0,1], 'Orge':       [1,0,0,0,0,0,1],
+  'Seigle':     [1,0,0,0,0,0,1], 'Riz':        [0,0,0,0,0,1,0], 'Quinoa':     [0,0,0,0,0,1,0],
+  'Sarrasin':   [0,0,0,0,0,1,0], 'Mais':       [0,0,0,0,0,1,0], 'Pomme de terre':[0,0,0,0,0,1,0],
+  'Oignon':     [1,0,0,0,0,0,0], 'Ail':        [1,0,0,0,0,0,0], 'Echalote':   [1,0,0,0,0,0,0],
+  'Poireau':    [1,0,0,0,0,0,0], 'Asperge':    [1,0,0,0,0,0,0], 'Artichaut':  [1,0,0,0,0,0,0],
+  'Carotte':    [0,0,0,0,0,1,0], 'Courgette':  [0,0,0,0,0,1,0], 'Concombre':  [0,0,0,0,0,1,0],
+  'Tomate':     [0,0,0,0,0,1,0], 'Aubergine':  [0,0,0,0,0,1,0], 'Epinards':   [0,0,0,0,0,1,0],
+  'Lentilles':  [0,1,0,0,0,0,0], 'Pois chiches':[0,1,0,0,0,0,0], 'Haricots rouges':[0,1,0,0,0,0,0],
+  'Haricots blancs':[0,1,0,0,0,0,0], 'Feves':  [0,1,0,0,0,0,0], 'Soja':       [0,1,0,0,0,0,0],
+  'Lait':       [0,0,1,0,0,0,0], 'Yaourt':     [0,0,1,0,0,0,0], 'Fromage frais':[0,0,1,0,0,0,0],
+  'Creme':      [0,0,1,0,0,0,0], 'Glace':      [0,0,1,0,0,0,0], 'Gruyere':    [0,0,0,0,0,1,0],
+  'Parmesan':   [0,0,0,0,0,1,0], 'Comte':      [0,0,0,0,0,1,0], 'Beurre':     [0,0,0,0,0,1,0],
+  'Pomme':      [0,0,0,1,1,0,0], 'Poire':      [0,0,0,1,1,0,0], 'Mangue':     [0,0,0,1,0,0,0],
+  'Cerise':     [0,0,0,1,1,0,0], 'Pasteque':   [0,0,0,1,0,0,0], 'Figue':      [0,0,0,1,0,0,0],
+  'Banane':     [0,0,0,0,0,1,0], 'Orange':     [0,0,0,0,0,1,0], 'Fraise':     [0,0,0,0,0,1,0],
+  'Kiwi':       [0,0,0,0,0,1,0], 'Raisin':     [0,0,0,0,0,1,0], 'Champignons':[0,0,0,0,1,0,0],
+  'Chou-fleur': [0,0,0,0,1,0,0], 'Prune':      [0,0,0,0,1,0,0], 'Abricot':    [0,0,0,0,1,0,0],
+  'Miel':       [0,0,0,1,0,0,0], 'Sirop agave':[0,0,0,1,0,0,0], 'Sucre blanc':[0,0,0,0,0,1,0],
+  'Sirop erable':[0,0,0,0,0,1,0], 'Pizza':     [1,0,1,0,0,0,1], 'Burger':     [1,0,0,0,0,0,1],
+  'Charcuterie':[0,0,1,0,0,0,0], 'Soupe industrielle':[1,0,0,0,0,0,0]
+};
+
+// FODMAP category definitions
+var FODMAP_CATS = ['Fructanes','GOS','Lactose','Fructose','Polyols'];
+var FODMAP_CATS_EN = ['Fructans','GOS','Lactose','Fructose','Polyols'];
+var FODMAP_COLORS = ['ft-fructanes','ft-gos','ft-lactose','ft-fructose','ft-polyols'];
+var FODMAP_IDX = {Fructanes:0, GOS:1, Lactose:2, Fructose:3, Polyols:4};
+
+// Look up FODMAP data for a food name (case-insensitive, partial match)
+function getFodmapData(name){
+  var key = name.trim();
+  if(FODMAP_DB[key]) return FODMAP_DB[key];
+  // Try case-insensitive
+  var lower = key.toLowerCase();
+  var found = Object.keys(FODMAP_DB).find(function(k){ return k.toLowerCase()===lower; });
+  return found ? FODMAP_DB[found] : null;
+}
+
+// Get FODMAP tags HTML for a food name
+function getFodmapTagsHtml(name){
+  var data = getFodmapData(name);
+  if(!data) return '';
+  var cats = LANG==='en' ? FODMAP_CATS_EN : FODMAP_CATS;
+  var tags = '';
+  var isSafe = data[5]===1; // Hors FODMAP
+  var hasGluten = data[6]===1;
+  if(isSafe && !hasGluten){
+    tags += '<span class="fodmap-tag ft-safe">✓ OK</span>';
+  } else {
+    for(var i=0;i<5;i++){
+      if(data[i]===1) tags += '<span class="fodmap-tag '+FODMAP_COLORS[i]+'">'+cats[i]+'</span>';
+    }
+    if(hasGluten) tags += '<span class="fodmap-tag ft-gluten">'+(LANG==='en'?'Gluten':'Gluten')+'</span>';
+  }
+  return tags ? '<div class="fodmap-tags">'+tags+'</div>' : '';
+}
+
+// Render FODMAP indicator for currently selected foods
+function renderFodmapIndicator(){
+  var el = document.getElementById('fodmapIndicator');
+  if(!el) return;
+  if(!selectedFoods.length){ el.style.display='none'; return; }
+
+  var catCounts = [0,0,0,0,0]; // Fructanes, GOS, Lactose, Fructose, Polyols
+  var glutenCount = 0;
+  var safeCount = 0;
+  var unknownCount = 0;
+
+  selectedFoods.forEach(function(name){
+    var data = getFodmapData(name);
+    if(!data){ unknownCount++; return; }
+    for(var i=0;i<5;i++) if(data[i]===1) catCounts[i]++;
+    if(data[6]===1) glutenCount++;
+    if(data[5]===1 && data.slice(0,5).every(function(v){return v===0;})) safeCount++;
+  });
+
+  var hasFodmap = catCounts.some(function(v){return v>0;}) || glutenCount>0;
+  var cats = LANG==='en' ? FODMAP_CATS_EN : FODMAP_CATS;
+
+  var html = '<div class="fodmap-summary"><div class="fodmap-summary-title">🧬 '
+    +(LANG==='en'?'FODMAP profile of this meal':'Profil FODMAP de ce repas')+'</div>';
+
+  if(!hasFodmap && safeCount>0){
+    html += '<div class="fodmap-ok">✅ '+(LANG==='en'?'No FODMAP detected in recognised foods.':'Aucun FODMAP détecté dans les aliments reconnus.')+'</div>';
+  }
+
+  for(var i=0;i<5;i++){
+    if(catCounts[i]>0){
+      html += '<div class="fodmap-bar-row">'
+        +'<span class="fodmap-bar-label fodmap-tag '+FODMAP_COLORS[i]+'">'+cats[i]+'</span>'
+        +'<div class="fodmap-bar-track"><div class="fodmap-bar-fill '+FODMAP_COLORS[i]+'" style="width:'+Math.min(100,catCounts[i]*30)+'%;background:currentColor;opacity:0.5"></div></div>'
+        +'<span class="fodmap-bar-count">×'+catCounts[i]+'</span>'
+        +'</div>';
+    }
+  }
+  if(glutenCount>0){
+    html += '<div class="fodmap-bar-row">'
+      +'<span class="fodmap-bar-label fodmap-tag ft-gluten">Gluten</span>'
+      +'<div class="fodmap-bar-track"><div class="fodmap-bar-fill ft-gluten" style="width:'+Math.min(100,glutenCount*30)+'%;background:currentColor;opacity:0.5"></div></div>'
+      +'<span class="fodmap-bar-count">×'+glutenCount+'</span>'
+      +'</div>';
+  }
+  if(unknownCount>0){
+    html += '<div style="font-size:11px;color:var(--text3);margin-top:6px">'
+      +(LANG==='en'?unknownCount+' food(s) not in FODMAP database':unknownCount+' aliment(s) non répertorié(s) dans la base FODMAP')+'</div>';
+  }
+  html += '</div>';
+  el.innerHTML = html;
+  el.style.display = 'block';
+}
+
+// ===== FODMAP ANALYSIS =====
+function runFodmapAnalysis(){
+  var all = getData();
+  // For each category, track: days with high load vs score next day
+  var catStats = {}; // catName -> {days: [{load, score}]}
+  FODMAP_CATS.forEach(function(c){ catStats[c] = []; });
+  catStats['Gluten'] = [];
+
+  var dates = Object.keys(all).sort();
+  dates.forEach(function(date){
+    var day = all[date];
+    if(!day.repas || !day.repas.length) return;
+
+    // Count FODMAP load for this day
+    var loads = [0,0,0,0,0,0]; // 5 cats + gluten
+    day.repas.forEach(function(r){
+      (r.aliments||[]).forEach(function(name){
+        var data = getFodmapData(name);
+        if(!data) return;
+        for(var i=0;i<5;i++) loads[i] += data[i];
+        loads[5] += data[6]; // gluten
+      });
+    });
+
+    // Look at selles quality same day and next day
+    var scoreDays = [date];
+    var nextDate = new Date(date+'T12:00:00');
+    nextDate.setDate(nextDate.getDate()+1);
+    scoreDays.push(nextDate.toISOString().split('T')[0]);
+
+    var badSelle = false;
+    scoreDays.forEach(function(sd){
+      var sday = all[sd];
+      if(!sday || !sday.selles || !sday.selles.length) return;
+      sday.selles.forEach(function(s){
+        if(s.bristol >= 5 || s.bristol <= 2 || s.collante || s.sang) badSelle = true;
+      });
+    });
+
+    // Record for each category that had a load > 0
+    var catNames = FODMAP_CATS.concat(['Gluten']);
+    catNames.forEach(function(cat, ci){
+      if(loads[ci] > 0){
+        catStats[cat].push({load: loads[ci], bad: badSelle});
+      }
+    });
+  });
+
+  // Build results
+  var el = document.getElementById('fodmapAnalysis');
+  var catNames = FODMAP_CATS.concat(['Gluten']);
+  var catNamesDisplay = (LANG==='en' ? FODMAP_CATS_EN : FODMAP_CATS).concat(['Gluten']);
+  var colorMap = FODMAP_COLORS.concat(['ft-gluten']);
+
+  var rows = catNames.map(function(cat, ci){
+    var data = catStats[cat];
+    if(!data.length) return null;
+    var badCount = data.filter(function(d){return d.bad;}).length;
+    var pct = Math.round(badCount / data.length * 100);
+    return {name: catNamesDisplay[ci], cat: cat, pct: pct, n: data.length, color: colorMap[ci]};
+  }).filter(Boolean);
+
+  if(!rows.length){
+    el.innerHTML = '<div class="card"><div class="empty-state"><div class="empty-icon">🧬</div>'
+      +'<div class="empty-text">'+(LANG==='en'?'Not enough data for FODMAP analysis.':'Pas assez de données pour l\'analyse FODMAP.')+'</div></div></div>';
+    return;
+  }
+
+  rows.sort(function(a,b){return b.pct-a.pct;});
+
+  var html = '<div class="fodmap-corr-card"><div class="fodmap-corr-title">🧬 '
+    +(LANG==='en'?'FODMAP correlation with stool quality':'Corrélation FODMAP / qualité des selles')+'</div>';
+
+  html += '<div style="font-size:11px;color:var(--text3);margin-bottom:10px">'
+    +(LANG==='en'?'% of days with FODMAP intake followed by poor stools (same or next day)':'% de journées avec apport FODMAP suivi de selles perturbées (même jour ou lendemain)')+'</div>';
+
+  rows.forEach(function(r){
+    var pctColor = r.pct>=60?'#C62828':r.pct>=40?'#E65100':'#2E7D32';
+    var bgColor = r.pct>=60?'#FFEBEE':r.pct>=40?'#FFF3E0':'#E8F5E9';
+    html += '<div class="fodmap-corr-row">'
+      +'<span class="fodmap-corr-name fodmap-tag '+r.color+'">'+r.name+'</span>'
+      +'<span style="font-size:11px;color:var(--text3)">'+r.n+(LANG==='en'?' day(s)':' jour(s)')+'</span>'
+      +'<span class="fodmap-corr-pct" style="background:'+bgColor+';color:'+pctColor+'">'+r.pct+'%</span>'
+      +'</div>';
+  });
+
+  // Highlight worst offender
+  if(rows[0].pct >= 40){
+    html += '<div class="fodmap-warn" style="margin-top:10px">⚠️ '
+      +(LANG==='en'
+        ?'<strong>'+rows[0].name+'</strong> shows the highest correlation with poor stools ('+rows[0].pct+'%).'
+        :'<strong>'+rows[0].name+'</strong> présente la plus forte corrélation avec les selles perturbées ('+rows[0].pct+'%).')
+      +'</div>';
+  } else {
+    html += '<div class="fodmap-ok" style="margin-top:10px">✅ '
+      +(LANG==='en'?'No FODMAP category shows a strong correlation.':'Aucune catégorie FODMAP ne montre de forte corrélation.')
+      +'</div>';
+  }
+
+  html += '</div>';
+  el.innerHTML = html;
+  el.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 // ===== NOTIF =====
