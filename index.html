@@ -469,7 +469,7 @@ main{position:relative;z-index:1;}
 /* ===== EDIT BUTTON ===== */
 .entry-edit{background:var(--primary-pale);border:none;border-radius:8px;padding:6px 9px;font-size:15px;cursor:pointer;color:var(--primary);transition:background 0.15s;flex-shrink:0;}
 .entry-edit:hover{background:var(--primary-soft);}
-.edit-modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:1000;display:flex;align-items:flex-end;justify-content:center;}
+.edit-modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:1000;display:flex;align-items:flex-end;justify-content:center;overflow:visible;}
 .edit-modal{background:var(--card);border-radius:20px 20px 0 0;padding:20px 18px 32px;width:100%;max-width:480px;box-shadow:0 -4px 24px var(--shadow2);overflow:visible;}
 .edit-modal-title{font-family:'Nunito',sans-serif;font-size:17px;font-weight:800;color:var(--text);margin-bottom:16px;text-align:center;}
 .edit-modal-handle{width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px;}
@@ -549,7 +549,7 @@ main{position:relative;z-index:1;}
 .fodmap-check-item{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;cursor:pointer;}
 /* Autocomplete */
 .autocomplete-wrap{position:relative;}
-.autocomplete-list{position:absolute;top:100%;left:0;right:0;background:var(--card);border:1.5px solid var(--border2);border-radius:10px;z-index:100;max-height:200px;overflow-y:auto;box-shadow:0 4px 16px var(--shadow2);margin-top:2px;}
+.autocomplete-list{position:absolute;top:100%;left:0;right:0;background:var(--card);border:1.5px solid var(--border2);border-radius:10px;z-index:1200;max-height:200px;overflow-y:auto;box-shadow:0 4px 16px var(--shadow2);margin-top:2px;}
 .autocomplete-item{padding:8px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--border);}
 .autocomplete-item:last-child{border-bottom:none;}
 .autocomplete-item:hover,.autocomplete-item:active{background:var(--primary-pale);}
@@ -1273,8 +1273,8 @@ function onAlimentInput(val){
     if(r){if(r[7])tags+='<span class="fodmap-tag ft-safe" style="font-size:9px">✓ OK</span>';else{for(var i=0;i<5;i++)if(r[i+1])tags+='<span class="fodmap-tag '+FODMAP_COLORS[i]+'" style="font-size:9px">'+getFodmapCats()[i]+'</span>';if(r[6])tags+='<span class="fodmap-tag ft-gluten" style="font-size:9px">Gluten</span>';}}
     var div=document.createElement('div');div.className='autocomplete-item';
     div.innerHTML='<span class="ac-name">'+name+'</span><span class="ac-meta">'+(r?r[8]:'')+'</span>'+(tags?'<div class="ac-tags">'+tags+'</div>':'');
-    div.addEventListener('mousedown',function(e){e.preventDefault();
-      var inp=document.getElementById('repasAlimentInput');var parts=inp.value.split(',');parts[parts.length-1]=name;inp.value=parts.join(', ')+', ';ac.style.display='none';});
+    div.addEventListener('mousedown',function(e){e.preventDefault();e.stopPropagation();
+      var inp=document.getElementById('repasAlimentInput');var parts=inp.value.split(',');parts[parts.length-1]=name;inp.value=parts.join(', ')+', ';ac.style.display='none';inp.focus();});
     ac.appendChild(div);
   });
 }
@@ -1897,11 +1897,13 @@ function onEditAlimInput(val, inputId, acId){
     div.innerHTML='<span class="ac-name">'+name+'</span><span class="ac-meta">'+(r?r[8]:'')+'</span>'+(tags?'<div class="ac-tags">'+tags+'</div>':'');
     div.addEventListener('mousedown',function(e){
       e.preventDefault();
+      e.stopPropagation();
       var inp=document.getElementById(inputId);
       var ps=inp.value.split(/\s*[\/,]\s*/);
       ps[ps.length-1]=name;
       inp.value=ps.join(' / ')+' / ';
       ac.style.display='none';
+      inp.focus();
     });
     ac.appendChild(div);
   });
