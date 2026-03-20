@@ -532,13 +532,18 @@ main{position:relative;z-index:1;}
 .aliments-filter-btn.active{background:var(--primary);color:white;border-color:var(--primary);}
 .aliments-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:8px;}
 .aliments-table{border-collapse:collapse;width:100%;font-size:11px;}
+.aliments-table-wrap{max-height:420px;overflow:auto;-webkit-overflow-scrolling:touch;position:relative;}
+.aliments-table{border-collapse:collapse;font-size:11px;min-width:500px;}
 .aliments-table th{background:var(--primary-pale);color:var(--primary2);font-weight:800;padding:6px 7px;border:1px solid var(--border);white-space:nowrap;position:sticky;top:0;z-index:2;}
-.aliments-table td{padding:5px 7px;border:1px solid var(--border);text-align:center;}
+.aliments-table th:first-child{position:sticky;left:0;top:0;z-index:4;min-width:130px;}
+.aliments-table th:nth-child(2){position:sticky;left:130px;top:0;z-index:3;}
+.aliments-table td{padding:5px 7px;border:1px solid var(--border);text-align:center;background:var(--card);}
 .aliments-table tr:nth-child(even) td{background:var(--bg2);}
-.aliments-table td:first-child{text-align:left;font-weight:600;white-space:normal;min-width:130px;max-width:180px;}
-.aliments-table td:nth-child(2){white-space:nowrap;font-size:10px;color:var(--text3);}
-.at-yes{color:#1B5E20;font-weight:900;font-size:13px;}
-.at-safe{color:#0D47A1;font-weight:900;font-size:13px;}
+.aliments-table td:first-child{text-align:left;font-weight:600;white-space:nowrap;position:sticky;left:0;z-index:1;background:inherit;min-width:130px;}
+.aliments-table td:nth-child(2){white-space:nowrap;font-size:10px;color:var(--text3);position:sticky;left:130px;z-index:1;background:inherit;}
+.aliments-table tr:nth-child(even) td:first-child,.aliments-table tr:nth-child(even) td:nth-child(2){background:var(--bg2);}
+.at-yes{color:#1B5E20;font-weight:900;font-size:14px;}
+.at-safe{color:#0D47A1;font-weight:900;font-size:14px;}
 .add-aliment-card{background:var(--card);border-radius:16px;padding:16px;margin-top:14px;border:1px solid var(--border);}
 .fodmap-check-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
 .fodmap-check-item{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;cursor:pointer;}
@@ -553,6 +558,15 @@ main{position:relative;z-index:1;}
 .ac-tags{display:flex;gap:3px;flex-wrap:wrap;margin-top:2px;}
 /* Ballonnements heure */
 .ballons-heure-row{display:flex;align-items:center;gap:8px;margin-top:8px;padding-left:8px;}
+
+
+/* ===== CAL LEGEND ===== */
+.cal-legend{display:flex;flex-wrap:wrap;gap:8px;padding:12px 14px;background:var(--card);border-radius:14px;margin-top:10px;font-size:11px;color:var(--text2);}
+.cal-legend-item{display:flex;align-items:center;gap:5px;font-weight:600;}
+.cal-legend-dot{width:20px;height:20px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;}
+.score-great-dot{background:var(--green3);color:var(--green);}
+.score-good-dot{background:var(--yellow3);color:var(--yellow);}
+.score-bad-dot{background:var(--red3);color:var(--red);}
 
 </style>
 </head>
@@ -597,8 +611,8 @@ main{position:relative;z-index:1;}
   <button class="tab-btn" onclick="switchTab('score',this)" id="tb_score">📊 Score</button>
   <button class="tab-btn" onclick="switchTab('calendrier',this)" id="tb_cal">🗓️ Cal.</button>
   <button class="tab-btn" onclick="switchTab('analyse',this)" id="tb_analyse">🔍 Analyse</button>
-  <button class="tab-btn" onclick="switchTab('aliments',this)" id="tb_aliments">🧬 Aliments</button>
-  <button class="tab-btn" onclick="switchTab('plats',this)" id="tb_plats">🍲 Plats</button>
+  <button class="tab-btn" onclick="switchTab('aliments',this)" id="tb_aliments">🧬 Base FODMAP</button>
+  <button class="tab-btn" onclick="switchTab('plats',this)" id="tb_plats">🍲 Plats types</button>
   <button class="tab-btn" onclick="switchTab('io',this)" id="tb_io">💾 I/O</button>
 </div></div>
 <div class="sync-indicator" id="syncIndicator"></div>
@@ -607,17 +621,17 @@ main{position:relative;z-index:1;}
 <div id="tab-repas" class="tab-content active">
   <div class="card">
     <div class="card-title" id="L_repas_title">🍽️ Enregistrer un repas</div>
+    <div class="form-group plat-suggest">
+      <label class="form-label" id="L_plat_search">Chercher un plat type</label>
+      <input type="text" id="platSearch" class="form-input" oninput="onPlatSearch(this.value)" autocomplete="off">
+      <div class="plat-suggest-list" id="platSuggestList" style="display:none"></div>
+    </div>
     <div class="form-group">
       <label class="form-label" id="L_repas_heure">Heure du repas</label>
       <div class="time-row">
         <input type="time" id="repasHeure" class="form-input" style="flex:1">
         <button class="time-now-btn" onclick="setNow('repasHeure')" id="L_now_repas">⏱️ Maintenant</button>
       </div>
-    </div>
-    <div class="form-group plat-suggest">
-      <label class="form-label" id="L_plat_search">Chercher un plat type</label>
-      <input type="text" id="platSearch" class="form-input" oninput="onPlatSearch(this.value)" autocomplete="off">
-      <div class="plat-suggest-list" id="platSuggestList" style="display:none"></div>
     </div>
     <div class="form-group">
       <label class="form-label" id="L_aliments_courants">Aliments courants</label>
@@ -777,8 +791,8 @@ main{position:relative;z-index:1;}
       <div id="L_score_missing" style="font-size:14px;font-weight:600;color:var(--text2);margin-top:8px">Aucune donnée pour cette date.</div>
     </div>
   </div>
-  <div id="scoreDisplay"></div>
-  <div id="scoreBreakdown" class="score-breakdown"></div>
+  <div id="scoreDisplay" style="display:none"></div>
+  <div id="scoreBreakdown" class="score-breakdown" style="display:none"></div>
   <div id="scoreFormula"></div>
 </div>
 <!-- CALENDRIER -->
@@ -796,6 +810,17 @@ main{position:relative;z-index:1;}
     <div class="cal-grid" id="calGrid"></div>
   </div>
   <div id="calDayDetail"></div>
+<div class="cal-legend" id="calLegend">
+  <div style="width:100%;font-weight:700;font-size:12px;color:var(--text2);margin-bottom:4px" id="calLegendTitle">📖 Légende</div>
+  <div class="cal-legend-item"><div class="cal-legend-dot score-great-dot">8+</div> <span id="cleg_great">Excellent (≥8)</span></div>
+  <div class="cal-legend-item"><div class="cal-legend-dot score-good-dot">4+</div> <span id="cleg_good">Correct (4–7)</span></div>
+  <div class="cal-legend-item"><div class="cal-legend-dot score-bad-dot">&lt;4</div> <span id="cleg_bad">Difficile (&lt;4)</span></div>
+  <div class="cal-legend-item" style="width:100%;margin-top:4px;border-top:1px solid var(--border);padding-top:6px">
+    <span>🪨🌰🍫🍌💩💦 = consistance selles (Bristol 1→6)</span>
+  </div>
+  <div class="cal-legend-item"><span>😫😕😐😊😄 = humeur du jour</span></div>
+  <div class="cal-legend-item"><span>🚫 = journée sans selle enregistrée</span></div>
+</div>
 </div>
 <!-- ANALYSE -->
 <div id="tab-analyse" class="tab-content">
@@ -1100,8 +1125,8 @@ var FODMAP_CATS=['Fructanes','GOS','Lactose','Fructose','Polyols'];
 var FODMAP_CATS_EN=['Fructans','GOS','Lactose','Fructose','Polyols'];
 var FODMAP_COLORS=['ft-fructanes','ft-gos','ft-lactose','ft-fructose','ft-polyols'];
 // FOOD GRIDS — derived from FODMAP_FULL (first 28 most common)
-var FOOD_QUICK=['Poulet','Boeuf','Saumon','Thon','Oeuf','Riz','Quinoa','Pomme de terre','Carotte','Tomate','Courgette','Épinard','Laitue','Aubergine','Broccoli','Lait (vache)','Yaourt nature','Parmesan','Beurre','Fraise','Banane (ferme)','Orange','Pomme','Curcuma','Sel','Poivre','Huile d\'olive','Chocolat noir'];
-var FOOD_EM=['🍗','🥩','🐟','🐡','🥚','🍚','🌾','🥔','🥕','🍅','🥒','🥬','🥗','🍆','🥦','🥛','🍦','🧀','🧈','🍓','🍌','🍊','🍎','🌿','🧂','🫙','🫒','🍫'];
+var FOOD_QUICK=['Poulet','Boeuf','Saumon','Thon','Oeuf','Riz','Blé (pain/pâtes)','Pomme de terre','Carotte','Tomate','Courgette','Épinard','Laitue','Aubergine','Broccoli','Lait (vache)','Yaourt nature','Parmesan','Beurre','Fraise','Banane (ferme)','Orange','Pomme','Curcuma','Sel','Poivre','Huile d\'olive','Chocolat noir'];
+var FOOD_EM=['🍗','🥩','🐟','🐡','🥚','🍚','🍞','🥔','🥕','🍅','🥒','🥬','🥗','🍆','🥦','🥛','🍦','🧀','🧈','🍓','🍌','🍊','🍎','🌿','🧂','🫙','🫒','🍫'];
 
 // FODMAP lookup
 var FODMAP_MAP={};
@@ -1176,10 +1201,10 @@ function renderAlimentsTable(search){
   tbody.innerHTML='';
   rows.forEach(function(r){
     var tr=document.createElement('tr');
-    function cell(v,cls){return'<td class="'+(v?cls:'')+'">'+( v?'✅':'')+'</td>';}
+    function cell(v){return'<td class="'+(v?'at-safe':'')+'">'+( v?'✓':'')+'</td>';}
     tr.innerHTML='<td>'+r[0]+'</td><td>'+r[8]+'</td>'
-      +cell(r[1],'at-yes')+cell(r[2],'at-yes')+cell(r[3],'at-yes')+cell(r[4],'at-yes')+cell(r[5],'at-yes')
-      +cell(r[6],'at-yes')+'<td class="'+(r[7]?'at-safe':'')+'">'+( r[7]?'✓':'')+'</td>';
+      +cell(r[1])+cell(r[2])+cell(r[3])+cell(r[4])+cell(r[5])
+      +cell(r[6])+cell(r[7]);
     tbody.appendChild(tr);
   });
 }
@@ -1231,7 +1256,7 @@ function toggleBallonsHeure(checked){
 var FR={
   langBtn:'🇬🇧 EN',themeNight:'🌙 Nuit',themeDay:'☀️ Jour',
   tb_repas:'🍽️ Repas',tb_selles:'🚽 Selles',tb_etat:'🌟 État',tb_score:'📊 Score',
-  tb_cal:'🗓️ Cal.',tb_analyse:'🔍 Analyse',tb_aliments:'🧬 Aliments',tb_plats:'🍲 Plats',tb_io:'💾 I/O',
+  tb_cal:'🗓️ Cal.',tb_analyse:'🔍 Analyse',tb_aliments:'🧬 Base FODMAP',tb_plats:'🍲 Plats types',tb_io:'💾 I/O',
   today:"Aujourd'hui",
   L_repas_title:'🍽️ Enregistrer un repas',L_repas_heure:'Heure du repas',
   L_now_repas:'⏱️ Maintenant',L_now_selle:'⏱️ Maintenant',
@@ -1267,6 +1292,7 @@ var FR={
   s_symp_selle:'Symptômes de la selle',s_collante:'  🩹 Selles collantes',s_sang:'  🩸 Sang dans les selles',
   s_symp_etat:'Symptômes digestifs',s_douleur:'  😣 Douleur au côlon',s_ballons:'  🎈 Ballonnements / Gaz',
   scoreLabels:['','Très mauvaise journée','Journée difficile','Journée correcte','Journée correcte','Bonne journée','Bonne journée','Excellente journée !','Excellente journée !','Excellente journée !','Excellente journée !'],
+  calLegendTitle:'📖 Légende',cleg_great:'Excellent (≥8) 🎉',cleg_good:'Correct (4–7) 😊',cleg_bad:'Difficile (<4) 😫',
   months:['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'],
   weekdays:['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'],
   cal_repas:'🍽️ Repas',cal_selles:'🚽 Selles',cal_etat:'🌟 État général',
@@ -1313,7 +1339,7 @@ var FR={
 var EN={
   langBtn:'🇫🇷 FR',themeNight:'🌙 Night',themeDay:'☀️ Day',
   tb_repas:'🍽️ Meals',tb_selles:'🚽 Stools',tb_etat:'🌟 Status',tb_score:'📊 Score',
-  tb_cal:'🗓️ Cal.',tb_analyse:'🔍 Analysis',tb_aliments:'🧬 Foods',tb_plats:'🍲 Meals',tb_io:'💾 I/O',
+  tb_cal:'🗓️ Cal.',tb_analyse:'🔍 Analysis',tb_aliments:'🧬 FODMAP DB',tb_plats:'🍲 Meal types',tb_io:'💾 I/O',
   today:'Today',
   L_repas_title:'🍽️ Record a meal',L_repas_heure:'Meal time',L_now_repas:'⏱️ Now',L_now_selle:'⏱️ Now',
   L_plat_search:'Search a meal type',ph_plat_search:'E.g. Biryani...',
@@ -1345,6 +1371,7 @@ var EN={
   s_symp_selle:'Stool symptoms',s_collante:'  🩹 Sticky stools',s_sang:'  🩸 Blood in stools',
   s_symp_etat:'Digestive symptoms',s_douleur:'  😣 Colon pain',s_ballons:'  🎈 Bloating / Gas',
   scoreLabels:['','Very bad day','Difficult day','Decent day','Decent day','Good day','Good day','Excellent day!','Excellent day!','Excellent day!','Excellent day!'],
+  calLegendTitle:'📖 Legend',cleg_great:'Excellent (≥8) 🎉',cleg_good:'Decent (4–7) 😊',cleg_bad:'Difficult (<4) 😫',
   months:['January','February','March','April','May','June','July','August','September','October','November','December'],
   weekdays:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
   cal_repas:'🍽️ Meals',cal_selles:'🚽 Stools',cal_etat:'🌟 Daily status',
@@ -1466,6 +1493,8 @@ function applyLang(){
   s('L_banner_title','L_banner_title');s('L_banner_desc','L_banner_desc');s('L_banner_install','L_banner_install');
   s('L_date_title','L_date_title');s('L_confirmer','L_confirmer');s('L_annuler','L_annuler');
   for(var i=0;i<7;i++){var el=document.getElementById('wd'+i);if(el)el.textContent=t('weekdays')[i];}
+  var clt=document.getElementById('calLegendTitle');if(clt)clt.textContent=t('calLegendTitle');
+  ['great','good','bad'].forEach(function(k){var el=document.getElementById('cleg_'+k);if(el)el.textContent=t('cleg_'+k);});
   updateDateDisplay();renderNotifCard();
 }
 
@@ -1559,7 +1588,7 @@ function renderScore(){populateScoreDateSelect();var sd2=document.getElementById
 // CALENDAR
 function getBristolEm(day){if(!day||!day.selles||!day.selles.length)return'';return BRISTOL_EM[day.selles[day.selles.length-1].bristol]||'';}
 function getMoodEm(day){if(!day||!day.etat||!day.etat.humeur)return'';return HUM_EM[day.etat.humeur]||'';}
-function renderCalendar(){var mN=t('months');document.getElementById('calMonthLabel').textContent=mN[calMonth]+' '+calYear;var first=new Date(calYear,calMonth,1),last=new Date(calYear,calMonth+1,0);var dow=first.getDay();dow=dow===0?6:dow-1;var all=getData(),today=new Date().toISOString().split('T')[0];var grid=document.getElementById('calGrid');grid.innerHTML='';for(var i=0;i<dow;i++){var pd=new Date(calYear,calMonth,1-dow+i);var cell=document.createElement('div');cell.className='cal-day other-month';cell.innerHTML='<div class="cal-day-num">'+pd.getDate()+'</div>';grid.appendChild(cell);}for(var d=1;d<=last.getDate();d++){var ds=calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');var isT=ds===today,isSel=ds===selectedCalDate,isPast=ds<today,dd=all[ds];var cls='cal-day'+(isT?' today':'')+(dd&&(dd.selles&&dd.selles.length||dd.etat)?' has-data':'')+(isSel?' selected':'');var inner='<div class="cal-day-num">'+d+'</div>';if(dd){var res=calculateScore(dd);if(res){var sc=res.score,sCls=sc>=7?'score-great':sc>=4?'score-good':'score-bad';inner+='<div class="cal-day-score '+sCls+'">'+sc+'</div>';}var be=getBristolEm(dd),me=getMoodEm(dd);if(!be&&isPast&&(dd.etat||dd.repas&&dd.repas.length))be='🚫';if(be||me)inner+='<div class="cal-day-icons">'+be+me+'</div>';}else if(isPast&&!isT){inner+='<div class="cal-day-icons" style="opacity:0.3">🚫</div>';}var cell=document.createElement('div');cell.className=cls;cell.innerHTML=inner;(function(dateStr){cell.addEventListener('click',function(){selectCalDay(dateStr);});})(ds);grid.appendChild(cell);}var tot=dow+last.getDate(),rem=tot%7;if(rem!==0)for(var k=1;k<=7-rem;k++){var cell=document.createElement('div');cell.className='cal-day other-month';cell.innerHTML='<div class="cal-day-num">'+k+'</div>';grid.appendChild(cell);}}
+function renderCalendar(){var mN=t('months');document.getElementById('calMonthLabel').textContent=mN[calMonth]+' '+calYear;var first=new Date(calYear,calMonth,1),last=new Date(calYear,calMonth+1,0);var dow=first.getDay();dow=dow===0?6:dow-1;var all=getData(),today=new Date().toISOString().split('T')[0];var grid=document.getElementById('calGrid');grid.innerHTML='';for(var i=0;i<dow;i++){var pd=new Date(calYear,calMonth,1-dow+i);var cell=document.createElement('div');cell.className='cal-day other-month';cell.innerHTML='<div class="cal-day-num">'+pd.getDate()+'</div>';grid.appendChild(cell);}for(var d=1;d<=last.getDate();d++){var ds=calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');var isT=ds===today,isSel=ds===selectedCalDate,isPast=ds<today,dd=all[ds];var cls='cal-day'+(isT?' today':'')+(dd&&(dd.selles&&dd.selles.length||dd.etat)?' has-data':'')+(isSel?' selected':'');var inner='<div class="cal-day-num">'+d+'</div>';if(dd){var res=calculateScore(dd);if(res){var sc=res.score,sCls=sc>=7?'score-great':sc>=4?'score-good':'score-bad';inner+='<div class="cal-day-score '+sCls+'" style="font-size:10px">'+getScoreEmoji(sc)+sc+'</div>';}var be=getBristolEm(dd),me=getMoodEm(dd);if(!be&&isPast&&(dd.etat||dd.repas&&dd.repas.length))be='🚫';if(be||me)inner+='<div class="cal-day-icons">'+be+me+'</div>';}else if(isPast&&!isT){inner+='<div class="cal-day-icons" style="opacity:0.3">🚫</div>';}var cell=document.createElement('div');cell.className=cls;cell.innerHTML=inner;(function(dateStr){cell.addEventListener('click',function(){selectCalDay(dateStr);});})(ds);grid.appendChild(cell);}var tot=dow+last.getDate(),rem=tot%7;if(rem!==0)for(var k=1;k<=7-rem;k++){var cell=document.createElement('div');cell.className='cal-day other-month';cell.innerHTML='<div class="cal-day-num">'+k+'</div>';grid.appendChild(cell);}}
 function changeMonth(dir){calMonth+=dir;if(calMonth>11){calMonth=0;calYear++;}if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
 function selectCalDay(ds){selectedCalDate=ds;currentDate=ds;updateDateDisplay();renderCalendar();renderCalDayDetail(ds);}
 function renderCalDayDetail(ds){var day=getDayData(ds);var c=document.getElementById('calDayDetail');var res=calculateScore(day);var BN=getBN();var html='<div class="cal-detail-card"><div class="cal-detail-header"><div class="cal-detail-date">📅 '+fmtDate(ds)+'</div>'+(res?'<div class="cal-detail-score-badge"><span>'+getScoreEmoji(res.score)+'</span><span class="cal-detail-score-num"> '+res.score+'</span><span style="opacity:0.7;font-size:12px">/10</span></div>':'')+'</div>';if(day.repas&&day.repas.length){var sorted=day.repas.slice().sort(function(a,b){return a.heure.localeCompare(b.heure);});html+='<div class="cal-detail-section"><div class="cal-detail-section-title">'+t('cal_repas')+' ('+sorted.length+')</div>';sorted.forEach(function(r){html+='<div class="entry-item" style="margin-bottom:5px"><span class="entry-time">'+r.heure+'</span><div class="entry-body"><div class="entry-main" style="font-size:12px">'+r.aliments.join(', ')+'</div></div></div>';});html+='</div>';}if(day.selles&&day.selles.length){html+='<div class="cal-detail-section"><div class="cal-detail-section-title">'+t('cal_selles')+' ('+day.selles.length+')</div>';day.selles.forEach(function(s){var sy=[];if(s.quantite)sy.push(QTY_DOTS[s.quantite]);if(s.collante)sy.push(t('tag_collante'));if(s.sang)sy.push(t('tag_sang'));html+='<div class="entry-item" style="margin-bottom:5px'+(s.sang?';border-color:var(--red)':'')+'"><span class="entry-time">'+s.heure+'</span><div class="entry-body"><div class="entry-main" style="font-size:12px">'+BRISTOL_EM[s.bristol]+' '+BN[s.bristol]+(sy.length?' — '+sy.join(' '):'')+'</div></div></div>';});html+='</div>';}if(day.etat){var e=day.etat;var hI={faible:'🥤',moyen:'💧',bon:'💦'};var sI={aucun:'💤',marche:'🚶',endurance:'🏃',velo:'🚴',cardio:'💪',musculation:'🏋️'};var etags='';if(e.humeur)etags+='<span class="tag tag-yellow">'+HUM_EM[e.humeur]+' '+e.humeur+'/5</span> ';if(e.sommeil)etags+='<span class="tag tag-blue">'+SOM_EM[e.sommeil]+' '+t('s_sommeil')+' '+e.sommeil+'/5</span> ';if(e.hydration)etags+='<span class="tag tag-blue">'+(hI[e.hydration]||'')+' '+t('L_hyd_'+e.hydration)+'</span> ';if(e.sport&&e.sport!=='aucun')etags+='<span class="tag tag-green">'+(sI[e.sport]||'🏃')+' '+e.sport+(e.sportDuree?' '+e.sportDuree+'min':'')+'</span> ';if(e.douleur)etags+='<span class="tag tag-red">'+t('tag_douleur')+'</span> ';if(e.ballons)etags+='<span class="tag tag-red">'+t('tag_ballons')+(e.ballonsHeure?' '+e.ballonsHeure:'')+'</span> ';if(e.regles)etags+='<span class="tag tag-red">'+t('regleLabel')+'</span>';html+='<div class="cal-detail-section"><div class="cal-detail-section-title">'+t('cal_etat')+'</div><div style="display:flex;gap:5px;flex-wrap:wrap">'+etags+'</div>'+(e.note?'<div style="font-size:11px;color:var(--text3);margin-top:4px">'+t('noteLabel')+' '+e.note+'</div>':'')+'</div>';}if(res){var det=res.details;html+='<div class="cal-detail-section"><div class="cal-detail-section-title">'+t('cal_calcul')+'</div><div class="cal-detail-points"><div class="cal-detail-points-row"><span class="cdpr-label">'+t('s_base')+'</span><span class="cdpr-val cdpr-neu">5,0</span></div>';if(det.bristol)html+='<div class="cal-detail-points-row"><span class="cdpr-label">'+det.bristol.icon+' '+det.bristol.desc+'</span><span class="cdpr-val '+dCls(det.bristol.score)+'">'+fmtV(det.bristol.score)+'</span></div>';html+='<div class="cal-detail-points-row"><span class="cdpr-label">🩹 '+t('s_symp_selle')+'</span><span class="cdpr-val '+dCls(det.symp_selle?det.symp_selle.score:0)+'">'+fmtV(det.symp_selle?det.symp_selle.score:0)+'</span></div>';html+='<div class="cal-detail-points-row" style="padding-left:12px;font-size:11px"><span class="cdpr-label">'+t('s_collante')+'</span><span class="cdpr-val '+dCls(det.symp_selle?det.symp_selle.collScore:0)+'">'+fmtV(det.symp_selle?det.symp_selle.collScore:0)+'</span></div>';html+='<div class="cal-detail-points-row" style="padding-left:12px;font-size:11px"><span class="cdpr-label">'+t('s_sang')+'</span><span class="cdpr-val '+dCls(det.symp_selle?det.symp_selle.sangScore:0)+'">'+fmtV(det.symp_selle?det.symp_selle.sangScore:0)+'</span></div>';html+='<div class="cal-detail-points-row"><span class="cdpr-label">🩺 '+t('s_symp_etat')+'</span><span class="cdpr-val '+dCls(det.symp_etat?det.symp_etat.score:0)+'">'+fmtV(det.symp_etat?det.symp_etat.score:0)+'</span></div>';html+='<div class="cal-detail-points-row" style="padding-left:12px;font-size:11px"><span class="cdpr-label">'+t('s_douleur')+'</span><span class="cdpr-val '+dCls(det.symp_etat?det.symp_etat.doulScore:0)+'">'+fmtV(det.symp_etat?det.symp_etat.doulScore:0)+'</span></div>';html+='<div class="cal-detail-points-row" style="padding-left:12px;font-size:11px"><span class="cdpr-label">'+t('s_ballons')+'</span><span class="cdpr-val '+dCls(det.symp_etat?det.symp_etat.ballScore:0)+'">'+fmtV(det.symp_etat?det.symp_etat.ballScore:0)+'</span></div>';if(det.humeur)html+='<div class="cal-detail-points-row"><span class="cdpr-label">'+det.humeur.icon+' '+t('s_humeur')+' '+det.humeur.desc+'</span><span class="cdpr-val '+dCls(det.humeur.score)+'">'+fmtV(det.humeur.score)+'</span></div>';if(det.sommeil)html+='<div class="cal-detail-points-row"><span class="cdpr-label">'+det.sommeil.icon+' '+t('s_sommeil')+' '+det.sommeil.desc+'</span><span class="cdpr-val '+dCls(det.sommeil.score)+'">'+fmtV(det.sommeil.score)+'</span></div>';if(det.hydration)html+='<div class="cal-detail-points-row"><span class="cdpr-label">💧 '+t('s_hydra')+' : '+det.hydration.desc+'</span><span class="cdpr-val '+dCls(det.hydration.score)+'">'+fmtV(det.hydration.score)+'</span></div>';if(det.sport)html+='<div class="cal-detail-points-row"><span class="cdpr-label">'+det.sport.icon+' '+det.sport.desc+'</span><span class="cdpr-val '+dCls(det.sport.score)+'">'+fmtV(det.sport.score)+'</span></div>';html+='<div class="cal-detail-total"><span>'+t('s_final')+'</span><span class="cal-detail-total-val">'+res.score+'/10</span></div></div></div>';}if(!day.repas.length&&!day.selles.length&&!day.etat)html+='<div class="empty-state" style="padding:16px 0"><div class="empty-icon">📭</div><div class="empty-text">'+t('cal_nodata')+'</div></div>';html+='</div>';c.innerHTML=html;c.scrollIntoView({behavior:'smooth',block:'start'});}
@@ -1665,11 +1694,44 @@ function setNow(id){var n=new Date();document.getElementById(id).value=String(n.
 function toggleCheckbox(labelEl){var cb=labelEl.querySelector('input[type="checkbox"]');if(!cb)return;cb.checked=!cb.checked;var v=labelEl.querySelector('.checkbox-visual');if(cb.checked){labelEl.classList.add('checked');if(v){v.style.background='var(--accent)';v.style.borderColor='var(--accent)';v.innerHTML='<span style="font-size:13px;font-weight:900;color:white">✓</span>';}}else{labelEl.classList.remove('checked');if(v){v.style.background='var(--card)';v.style.borderColor='var(--border2)';v.innerHTML='';}}}
 function showToast(msg){var c=document.getElementById('toastContainer');var el=document.createElement('div');el.className='toast';el.textContent=msg;c.appendChild(el);setTimeout(function(){el.remove();},2500);}
 function openDatePicker(){document.getElementById('datePicker').value=currentDate;document.getElementById('dateModal').classList.add('open');}
-function confirmDate(){var v=document.getElementById('datePicker').value;if(v){currentDate=v;updateDateDisplay();refreshAll();}closeModal('dateModal');}
+function confirmDate(){var v=document.getElementById('datePicker').value;if(v){currentDate=v;updateDateDisplay();refreshAll();loadEtatToForm();}closeModal('dateModal');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 function updateDateDisplay(){var today=new Date().toISOString().split('T')[0];var locale=LANG==='en'?'en-GB':'fr-FR';var d=new Date(currentDate+'T12:00:00');document.getElementById('currentDateDisplay').textContent=currentDate===today?t('today'):d.toLocaleDateString(locale,{day:'numeric',month:'short'});}
-function switchTab(name,btn){document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});document.querySelectorAll('.tab-btn').forEach(function(el){el.classList.remove('active');});document.getElementById('tab-'+name).classList.add('active');btn.classList.add('active');if(name==='repas'){renderRepasList();renderTop10();}if(name==='selles')renderSellesList();if(name==='etat')renderEtatDisplay();if(name==='score'){populateScoreDateSelect();renderScore();}if(name==='calendrier')renderCalendar();if(name==='plats')renderPlatsList();if(name==='io')renderNotifCard();if(name==='aliments')initAlimentsTab();}
+function switchTab(name,btn){document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});document.querySelectorAll('.tab-btn').forEach(function(el){el.classList.remove('active');});document.getElementById('tab-'+name).classList.add('active');btn.classList.add('active');if(name==='repas'){renderRepasList();renderTop10();}if(name==='selles')renderSellesList();if(name==='etat'){renderEtatDisplay();loadEtatToForm();}if(name==='score'){populateScoreDateSelect();renderScore();}if(name==='calendrier')renderCalendar();if(name==='plats')renderPlatsList();if(name==='io')renderNotifCard();if(name==='aliments')initAlimentsTab();}
 function refreshAll(){renderRepasList();renderSellesList();renderEtatDisplay();renderScore();renderCalendar();renderTop10();}
+
+
+// ===== LOAD ÉTAT INTO FORM =====
+function loadEtatToForm(){
+  var day=getDayData(currentDate);var e=day.etat;
+  // Reset all
+  ['humeur','sommeil','hydration','sport'].forEach(function(name){
+    document.querySelectorAll('input[name="'+name+'"]').forEach(function(r){r.checked=false;});
+  });
+  ['eDouleur','eBallons','etatRegles'].forEach(function(id){
+    var el=document.getElementById(id);if(el)el.checked=false;
+  });
+  ['cbDouleur','cbBallons','cbRegles'].forEach(function(id){
+    var el=document.getElementById(id);if(!el)return;
+    el.classList.remove('checked');
+    var v=el.querySelector('.checkbox-visual');
+    if(v){v.style.background='var(--card)';v.style.borderColor='var(--border2)';v.innerHTML='';}
+  });
+  document.getElementById('etatNote').value='';
+  document.getElementById('sportDureeGroup').style.display='none';
+  var ballonsRow=document.getElementById('ballonsHeureRow');
+  if(ballonsRow)ballonsRow.style.display='none';
+  if(!e)return;
+  // Load saved values
+  if(e.humeur){var r=document.getElementById('h'+e.humeur);if(r)r.checked=true;}
+  if(e.sommeil){var r=document.getElementById('so'+e.sommeil);if(r)r.checked=true;}
+  if(e.hydration){var r=document.getElementById('hyd'+({'faible':1,'moyen':2,'bon':3}[e.hydration]||0));if(r)r.checked=true;}
+  if(e.sport){var spMap={'aucun':0,'marche':1,'endurance':2,'velo':3,'cardio':4,'musculation':5};var idx=spMap[e.sport];if(idx!==undefined){var r=document.getElementById('sp'+idx);if(r)r.checked=true;}if(e.sport!=='aucun'){document.getElementById('sportDureeGroup').style.display='block';document.getElementById('sportDuree').value=e.sportDuree||'';}}
+  if(e.douleur){document.getElementById('eDouleur').checked=true;var cb=document.getElementById('cbDouleur');if(cb){cb.classList.add('checked');var v=cb.querySelector('.checkbox-visual');if(v){v.style.background='var(--accent)';v.style.borderColor='var(--accent)';v.innerHTML='<span style="font-size:13px;font-weight:900;color:white">✓</span>';}}}
+  if(e.ballons){document.getElementById('eBallons').checked=true;var cb=document.getElementById('cbBallons');if(cb){cb.classList.add('checked');var v=cb.querySelector('.checkbox-visual');if(v){v.style.background='var(--accent)';v.style.borderColor='var(--accent)';v.innerHTML='<span style="font-size:13px;font-weight:900;color:white">✓</span>';}}if(ballonsRow)ballonsRow.style.display='flex';if(e.ballonsHeure)document.getElementById('ballonsHeure').value=e.ballonsHeure;}
+  if(e.regles){document.getElementById('etatRegles').checked=true;var cb=document.getElementById('cbRegles');if(cb){cb.classList.add('checked');var v=cb.querySelector('.checkbox-visual');if(v){v.style.background='var(--accent)';v.style.borderColor='var(--accent)';v.innerHTML='<span style="font-size:13px;font-weight:900;color:white">✓</span>';}}}
+  if(e.note)document.getElementById('etatNote').value=e.note;
+}
 
 // EVENT LISTENERS
 document.querySelectorAll('input[name="sport"]').forEach(function(el){el.addEventListener('change',function(){document.getElementById('sportDureeGroup').style.display=el.value!=='aucun'?'block':'none';});});
