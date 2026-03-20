@@ -470,7 +470,7 @@ main{position:relative;z-index:1;}
 .entry-edit{background:var(--primary-pale);border:none;border-radius:8px;padding:6px 9px;font-size:15px;cursor:pointer;color:var(--primary);transition:background 0.15s;flex-shrink:0;}
 .entry-edit:hover{background:var(--primary-soft);}
 .edit-modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:1000;display:flex;align-items:flex-end;justify-content:center;}
-.edit-modal{background:var(--card);border-radius:20px 20px 0 0;padding:20px 18px 32px;width:100%;max-width:480px;box-shadow:0 -4px 24px var(--shadow2);}
+.edit-modal{background:var(--card);border-radius:20px 20px 0 0;padding:20px 18px 32px;width:100%;max-width:480px;box-shadow:0 -4px 24px var(--shadow2);overflow:visible;}
 .edit-modal-title{font-family:'Nunito',sans-serif;font-size:17px;font-weight:800;color:var(--text);margin-bottom:16px;text-align:center;}
 .edit-modal-handle{width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px;}
 
@@ -1278,7 +1278,13 @@ function onAlimentInput(val){
     ac.appendChild(div);
   });
 }
-document.addEventListener('click',function(e){var ac=document.getElementById('repasAC');if(ac&&!e.target.closest('.autocomplete-wrap'))ac.style.display='none';});
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.autocomplete-wrap')){
+    ['repasAC','editRepasAC','editPlatAC'].forEach(function(id){
+      var ac=document.getElementById(id);if(ac)ac.style.display='none';
+    });
+  }
+});
 
 // Ballonnements heure toggle
 function toggleBallonsHeure(checked){
@@ -1804,8 +1810,8 @@ function openEditModal(title,bodyHtml){document.getElementById('editModalTitle')
 function openEditRepas(id){var day=getDayData(currentDate);var r=day.repas.find(function(x){return x.id===id;});if(!r)return;openEditModal('✏️ '+t('L_repas_title'),
   '<div class="form-group"><label class="form-label">'+t('L_repas_heure')+'</label><input type="time" id="editRepasHeure" class="form-input" value="'+r.heure+'"></div>'
   +'<div class="form-group autocomplete-wrap"><label class="form-label">'+t('L_texte_libre')+'</label>'
-  +'<input type="text" id="editRepasAlim" class="form-input" oninput="onEditAlimInput(this.value,\'editRepasAlim\',\'editRepasAC\')" autocomplete="off" value="'+r.aliments.join(' / ')+'"></div>'
-  +'<div class="autocomplete-list" id="editRepasAC" style="display:none"></div>'
+  +'<input type="text" id="editRepasAlim" class="form-input" oninput="onEditAlimInput(this.value,\'editRepasAlim\',\'editRepasAC\')" autocomplete="off" value="'+r.aliments.join(' / ')+'">'
+  +'<div class="autocomplete-list" id="editRepasAC" style="display:none"></div></div>'
   +'<button class="btn btn-primary btn-full" onclick="saveEditRepas('+id+')">💾 '+t('L_confirmer')+'</button>');}
 function saveEditRepas(id){var h=document.getElementById('editRepasHeure').value;if(!h)return showToast(t('errHeure'));var alims=document.getElementById('editRepasAlim').value.split(/\s*[\/,]\s*/).map(function(s){return s.trim();}).filter(Boolean);if(!alims.length)return showToast(t('errAliment'));var day=getDayData(currentDate);day.repas=day.repas.map(function(r){return r.id===id?{heure:h,aliments:alims,id:id}:r;});saveDayData(currentDate,day);document.getElementById('editModal').style.display='none';renderRepasList();renderTop10();showToast('✅');}
 function openEditSelle(id){var day=getDayData(currentDate);var s=day.selles.find(function(x){return x.id===id;});if(!s)return;var BN=getBN();var bo=BRISTOL_EM.slice(1).map(function(em,i){var v=i+1;return'<div class="bristol-option"><input type="radio" name="editBristol" id="eb'+v+'" value="'+v+'"'+(s.bristol===v?' checked':'')+'><label class="bristol-label" for="eb'+v+'"><span class="bristol-emoji">'+em+'</span><span class="bristol-name">'+BN[v]+'</span><span class="bristol-num">T'+(v<=2?v:v===3?'3-4':v===4?5:v===5?6:7)+'</span></label></div>';}).join('');var ql=[t('L_qty1'),t('L_qty2'),t('L_qty3'),t('L_qty4'),t('L_qty5')];var qo=ql.map(function(lbl,i){var v=i+1;return'<div class="qty-option"><input type="radio" name="editQty" id="eq'+v+'" value="'+v+'"'+(s.quantite===v?' checked':'')+'><label class="qty-label" for="eq'+v+'"><span class="qty-dots">'+QTY_DOTS[v]+'</span><span>'+lbl+'</span></label></div>';}).join('');openEditModal('✏️ '+t('L_selle_title'),'<div class="form-group"><label class="form-label">'+t('L_heure_selle')+'</label><input type="time" id="editSelleHeure" class="form-input" value="'+s.heure+'"></div><div class="form-group"><label class="form-label">'+t('L_quantite')+'</label><div class="qty-scale">'+qo+'</div></div><div class="form-group"><label class="form-label">'+t('L_bristol_title')+'</label><div class="bristol-grid">'+bo+'</div></div><div class="form-group"><label class="form-label">'+t('L_symp_selle')+'</label><div style="display:flex;flex-direction:column;gap:8px"><label style="display:flex;align-items:center;gap:8px;font-size:14px"><input type="checkbox" id="editColles"'+(s.collante?' checked':'')+'>🩹 '+t('L_collante')+'</label><label style="display:flex;align-items:center;gap:8px;font-size:14px"><input type="checkbox" id="editSang"'+(s.sang?' checked':'')+'>🩸 '+t('L_sang')+'</label></div></div><button class="btn btn-primary btn-full" onclick="saveEditSelle('+id+')">💾 '+t('L_confirmer')+'</button>');}
@@ -1813,8 +1819,8 @@ function saveEditSelle(id){var h=document.getElementById('editSelleHeure').value
 function openEditPlat(id){var plat=getPlats().find(function(p){return p.id===id;});if(!plat)return;openEditModal('✏️ '+t('L_plat_create'),
   '<div class="form-group"><label class="form-label">'+t('L_plat_nom')+'</label><input type="text" id="editPlatNom" class="form-input" value="'+plat.nom+'"></div>'
   +'<div class="form-group autocomplete-wrap"><label class="form-label">'+t('L_plat_selectionnes')+'</label>'
-  +'<input type="text" id="editPlatAlim" class="form-input" oninput="onEditAlimInput(this.value,\'editPlatAlim\',\'editPlatAC\')" autocomplete="off" value="'+plat.aliments.join(' / ')+'"></div>'
-  +'<div class="autocomplete-list" id="editPlatAC" style="display:none"></div>'
+  +'<input type="text" id="editPlatAlim" class="form-input" oninput="onEditAlimInput(this.value,\'editPlatAlim\',\'editPlatAC\')" autocomplete="off" value="'+plat.aliments.join(' / ')+'">'
+  +'<div class="autocomplete-list" id="editPlatAC" style="display:none"></div></div>'
   +'<button class="btn btn-primary btn-full" onclick="saveEditPlat('+id+')">💾 '+t('L_confirmer')+'</button>');}
 function saveEditPlat(id){var nom=document.getElementById('editPlatNom').value.trim();if(!nom)return showToast(t('errPlatNom'));var alims=document.getElementById('editPlatAlim').value.split(/\s*[\/,]\s*/).map(function(s){return s.trim();}).filter(Boolean);if(!alims.length)return showToast(t('errPlatIng'));savePlats(getPlats().map(function(p){return p.id===id?{nom:nom,aliments:alims,id:id}:p;}));document.getElementById('editModal').style.display='none';renderPlatsList();showToast('✅');}
 
