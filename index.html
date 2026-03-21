@@ -1066,6 +1066,7 @@ main{position:relative;z-index:1;}
 <script>
 
 
+
 // ===== FIREBASE =====
 var FIREBASE_CONFIG={apiKey:"AIzaSyDr4hzkX78G2BfuFF1stKdeYATiDKLkQ5Y",authDomain:"supercaca-47497.firebaseapp.com",projectId:"supercaca-47497",storageBucket:"supercaca-47497.firebasestorage.app",messagingSenderId:"218710879445",appId:"1:218710879445:web:67529aad2edef8e968065c"};
 var db,auth,currentUser=null,AUTH_MODE='login',syncTimer=null,localData={},localPlats=[];
@@ -1556,7 +1557,39 @@ function doSignOut(){if(!confirm(t('auth_disconnect')))return;auth.signOut();}
 function updateAccountInfo(){var el=document.getElementById('accountInfo');if(!el||!currentUser)return;var n=currentUser.displayName||currentUser.email,p=currentUser.photoURL;el.innerHTML='<div class="user-badge">'+(p?'<img src="'+p+'" alt="">':'')+'<span>'+n+'</span></div><div style="font-size:12px;color:var(--text3);margin-top:6px">'+currentUser.email+'</div>';}
 function getUserDoc(){return db.collection('users').doc(currentUser.uid);}
 function setSyncStatus(s){var el=document.getElementById('syncIndicator');if(!el)return;el.textContent=t('sync_'+s);el.className='sync-indicator'+(s!=='ok'?' '+s:'');if(s==='ok')setTimeout(function(){el.textContent='';},3000);}
-function loadDataFromFirestore(){setSyncStatus('ing');getUserDoc().get().then(function(doc){if(doc.exists){var d=doc.data();localData=d.data||{};localPlats=d.plats||[];}else{localData={};localPlats=[];}setSyncStatus('ok');initApp();}).catch(function(){setSyncStatus('err');localData={};localPlats=[];initApp();});}
+function loadDataFromFirestore(retries){
+  if(retries===undefined)retries=3;
+  setSyncStatus('ing');
+  getUserDoc().get()
+    .then(function(doc){
+      if(doc.exists){var d=doc.data();localData=d.data||{};localPlats=d.plats||[];}
+      else{localData={};localPlats=[];}
+      setSyncStatus('ok');
+      initApp();
+    })
+    .catch(function(e){
+      console.warn('Firestore read error:',e.code,e.message,'retries left:',retries);
+      if(retries>0){
+        // Retry after delay — auth token may not be ready yet
+        setTimeout(function(){loadDataFromFirestore(retries-1);},1500);
+      } else {
+        // After all retries, try with fresh token
+        if(currentUser){
+          currentUser.getIdToken(true).then(function(){
+            getUserDoc().get()
+              .then(function(doc){
+                if(doc.exists){var d=doc.data();localData=d.data||{};localPlats=d.plats||[];}
+                else{localData={};localPlats=[];}
+                setSyncStatus('ok');initApp();
+              })
+              .catch(function(){setSyncStatus('err');localData={};localPlats=[];initApp();});
+          }).catch(function(){setSyncStatus('err');localData={};localPlats=[];initApp();});
+        } else {
+          setSyncStatus('err');localData={};localPlats=[];initApp();
+        }
+      }
+    });
+}
 function saveToFirestore(){
   if(!currentUser)return;
   clearTimeout(syncTimer);
@@ -1567,7 +1600,13 @@ function saveToFirestore(){
       clean.updatedAt=firebase.firestore.FieldValue.serverTimestamp();
       getUserDoc().set(clean)
         .then(function(){setSyncStatus('ok');})
-        .catch(function(e){console.error('Sync:',e.code,e.message);setSyncStatus('err');});
+        .catch(function(e){
+        console.error('Sync error:',e.code,e.message);
+        if(e.code==='permission-denied'&&currentUser){
+          currentUser.getIdToken(true).then(function(){saveToFirestore();});
+        } else {
+          setSyncStatus('err');
+        }});
     }catch(e){console.error('Serial:',e);setSyncStatus('err');}
   },1000);
 }
@@ -2229,6 +2268,7 @@ function renderTrendChart(){
     ]);
   },300);
 }
+
 
 </script>
 </body>
