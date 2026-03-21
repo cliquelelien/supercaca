@@ -1210,7 +1210,16 @@ function getFodmapRow(name){
   return null;
 }
 function getFodmapCats(){return LANG==='en'?FODMAP_CATS_EN:FODMAP_CATS;}
-function getAllNames(){return Object.keys(FODMAP_MAP).map(function(k){return FODMAP_MAP[k][0];});}
+function getAllNames(){
+  var names=Object.keys(FODMAP_MAP).map(function(k){return FODMAP_MAP[k][0];});
+  // Also add plat type names
+  getPlats().forEach(function(p){if(names.indexOf(p.nom)<0)names.push(p.nom);});
+  return names;
+}
+// Check if a name is a plat type
+function getPlatByName(nom){
+  return getPlats().find(function(p){return p.nom.toLowerCase()===nom.toLowerCase();});
+}
 
 // Transit weight
 function transitWeight(h){if(h<4)return 0;if(h<12)return 0.30;if(h<24)return 0.40;if(h<48)return 0.30;return 0;}
@@ -1297,16 +1306,34 @@ function onAlimentInput(val){
   var q=val.split(',').map(function(s){return s.trim();});var current=q[q.length-1].toLowerCase();
   if(!current){ac.style.display='none';return;}
   var names=getAllNames();
-  var matches=names.filter(function(n){return n.toLowerCase().indexOf(current)>=0;}).slice(0,8);
+  var matches=names.filter(function(n){return n.toLowerCase().indexOf(current)>=0;}).slice(0,10);
   if(!matches.length){ac.style.display='none';return;}
   ac.style.display='block';ac.innerHTML='';
   matches.forEach(function(name){
-    var r=getFodmapRow(name);var tags='';
-    if(r){if(r[7])tags+='<span class="fodmap-tag ft-safe" style="font-size:9px">✓ OK</span>';else{for(var i=0;i<5;i++)if(r[i+1])tags+='<span class="fodmap-tag '+FODMAP_COLORS[i]+'" style="font-size:9px">'+getFodmapCats()[i]+'</span>';if(r[6])tags+='<span class="fodmap-tag ft-gluten" style="font-size:9px">Gluten</span>';}}
+    var r=getFodmapRow(name);var plat=getPlatByName(name);var tags='';
+    if(plat){
+      // It's a plat type — show ingredients
+      tags='<span class="fodmap-tag ft-safe" style="font-size:9px">🍲 Plat type</span>';
+    } else if(r){
+      if(r[7])tags+='<span class="fodmap-tag ft-safe" style="font-size:9px">✓ OK</span>';
+      else{for(var i=0;i<5;i++)if(r[i+1])tags+='<span class="fodmap-tag '+FODMAP_COLORS[i]+'" style="font-size:9px">'+getFodmapCats()[i]+'</span>';if(r[6])tags+='<span class="fodmap-tag ft-gluten" style="font-size:9px">Gluten</span>';}
+    }
+    var subtitle=plat?'<span class="ac-meta" style="font-size:9px">'+plat.aliments.slice(0,4).join(', ')+(plat.aliments.length>4?'…':'')+'</span>':'<span class="ac-meta">'+(r?r[8]:'')+'</span>';
     var div=document.createElement('div');div.className='autocomplete-item';
-    div.innerHTML='<span class="ac-name">'+name+'</span><span class="ac-meta">'+(r?r[8]:'')+'</span>'+(tags?'<div class="ac-tags">'+tags+'</div>':'');
+    div.innerHTML='<span class="ac-name">'+name+'</span>'+subtitle+(tags?'<div class="ac-tags">'+tags+'</div>':'');
     div.addEventListener('mousedown',function(e){e.preventDefault();e.stopPropagation();
-      var inp=document.getElementById('repasAlimentInput');var parts=inp.value.split(',');parts[parts.length-1]=name;inp.value=parts.join(', ')+', ';ac.style.display='none';inp.focus();});
+      var inp=document.getElementById('repasAlimentInput');
+      if(plat){
+        // Apply plat: add all its ingredients
+        plat.aliments.forEach(function(a){if(selectedFoods.indexOf(a)<0)selectedFoods.push(a);});
+        renderSelectedFoods();
+        document.querySelectorAll('#foodCommon .food-common-btn,#foodTop10 .food-common-btn').forEach(function(b){if(selectedFoods.indexOf(b.getAttribute('data-name'))>=0)b.classList.add('sel');});
+        inp.value='';
+      } else {
+        var parts=inp.value.split(',');parts[parts.length-1]=name;inp.value=parts.join(', ')+', ';
+      }
+      ac.style.display='none';inp.focus();
+    });
     ac.appendChild(div);
   });
 }
@@ -1971,25 +1998,35 @@ function onEditAlimInput(val, inputId, acId){
   var current=parts[parts.length-1].toLowerCase().trim();
   if(!current){ac.style.display='none';return;}
   var names=getAllNames();
-  var matches=names.filter(function(n){return n.toLowerCase().indexOf(current)>=0;}).slice(0,8);
+  var matches=names.filter(function(n){return n.toLowerCase().indexOf(current)>=0;}).slice(0,10);
   if(!matches.length){ac.style.display='none';return;}
   ac.style.display='block';ac.innerHTML='';
   matches.forEach(function(name){
-    var r=getFodmapRow(name);var tags='';
-    if(r){if(r[7])tags+='<span class="fodmap-tag ft-safe" style="font-size:9px">✓ OK</span>';
+    var r=getFodmapRow(name);var plat=getPlatByName(name);var tags='';
+    if(plat){
+      tags='<span class="fodmap-tag ft-safe" style="font-size:9px">🍲 Plat type</span>';
+    } else if(r){
+      if(r[7])tags+='<span class="fodmap-tag ft-safe" style="font-size:9px">✓ OK</span>';
       else{var cats=getFodmapCats();for(var i=0;i<5;i++)if(r[i+1])tags+='<span class="fodmap-tag '+FODMAP_COLORS[i]+'" style="font-size:9px">'+cats[i]+'</span>';
-        if(r[6])tags+='<span class="fodmap-tag ft-gluten" style="font-size:9px">Gluten</span>';}}
+        if(r[6])tags+='<span class="fodmap-tag ft-gluten" style="font-size:9px">Gluten</span>';}
+    }
+    var subtitle=plat?'<span class="ac-meta" style="font-size:9px">'+plat.aliments.slice(0,4).join(', ')+(plat.aliments.length>4?'…':'')+'</span>':'<span class="ac-meta">'+(r?r[8]:'')+'</span>';
     var div=document.createElement('div');div.className='autocomplete-item';
-    div.innerHTML='<span class="ac-name">'+name+'</span><span class="ac-meta">'+(r?r[8]:'')+'</span>'+(tags?'<div class="ac-tags">'+tags+'</div>':'');
+    div.innerHTML='<span class="ac-name">'+name+'</span>'+subtitle+(tags?'<div class="ac-tags">'+tags+'</div>':'');
     div.addEventListener('mousedown',function(e){
-      e.preventDefault();
-      e.stopPropagation();
+      e.preventDefault();e.stopPropagation();
       var inp=document.getElementById(inputId);
-      var ps=inp.value.split(/\s*[\/,]\s*/);
-      ps[ps.length-1]=name;
-      inp.value=ps.join(' / ')+' / ';
-      ac.style.display='none';
-      inp.focus();
+      if(plat){
+        // For plat in edit context: expand ingredients
+        var existing=inp.value?inp.value.split(/\s*[\/,]\s*/).map(function(s){return s.trim();}).filter(Boolean):[];
+        plat.aliments.forEach(function(a){if(existing.indexOf(a)<0)existing.push(a);});
+        inp.value=existing.join(' / ')+' / ';
+      } else {
+        var ps=inp.value.split(/\s*[\/,]\s*/);
+        ps[ps.length-1]=name;
+        inp.value=ps.join(' / ')+' / ';
+      }
+      ac.style.display='none';inp.focus();
     });
     ac.appendChild(div);
   });
