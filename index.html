@@ -1070,6 +1070,7 @@ main{position:relative;z-index:1;}
 
 
 
+
 // ===== FIREBASE =====
 var FIREBASE_CONFIG={apiKey:"AIzaSyDr4hzkX78G2BfuFF1stKdeYATiDKLkQ5Y",authDomain:"supercaca-47497.firebaseapp.com",projectId:"supercaca-47497",storageBucket:"supercaca-47497.firebasestorage.app",messagingSenderId:"218710879445",appId:"1:218710879445:web:67529aad2edef8e968065c"};
 var db,auth,currentUser=null,AUTH_MODE='login',syncTimer=null,localData={},localPlats=[];
@@ -1586,7 +1587,7 @@ function loadDataFromFirestore(){
             initApp();
           })
           .catch(function(e2){
-            console.warn('Firestore retry failed:',e2.code);
+            console.warn('Firestore retry failed:',e2.code,e2.message);
             // Last resort: try token refresh then one more attempt
             if(currentUser){
               currentUser.getIdToken(true)
@@ -1599,9 +1600,12 @@ function loadDataFromFirestore(){
                   setSyncStatus('ok');
                   initApp();
                 })
-                .catch(function(){
+                .catch(function(e3){
+                  console.error('FINAL Firestore error:',e3.code,e3.message);
                   localData={};localPlats=[];
-                  setSyncStatus('err');
+                  // Show the actual error code so user can diagnose
+                  var si=document.getElementById('syncIndicator');
+                  if(si)si.textContent='⚠️ Erreur: '+(e3.code||e3.message||'inconnue');
                   initApp();
                 });
             } else {
@@ -2307,6 +2311,7 @@ function renderTrendChart(){
     ]);
   },300);
 }
+
 
 
 
