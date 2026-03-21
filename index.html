@@ -470,7 +470,7 @@ main{position:relative;z-index:1;}
 .entry-edit{background:var(--primary-pale);border:none;border-radius:8px;padding:6px 9px;font-size:15px;cursor:pointer;color:var(--primary);transition:background 0.15s;flex-shrink:0;}
 .entry-edit:hover{background:var(--primary-soft);}
 .edit-modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:1000;display:flex;align-items:flex-end;justify-content:center;overflow:visible;}
-.edit-modal{background:var(--card);border-radius:20px 20px 0 0;padding:20px 18px 32px;width:100%;max-width:480px;box-shadow:0 -4px 24px var(--shadow2);overflow:visible;}
+.edit-modal{background:var(--card);border-radius:20px 20px 0 0;padding:20px 18px 32px;width:100%;max-width:480px;box-shadow:0 -4px 24px var(--shadow2);overflow:visible;max-height:70vh;display:flex;flex-direction:column;}
 .edit-modal-title{font-family:'Nunito',sans-serif;font-size:17px;font-weight:800;color:var(--text);margin-bottom:16px;text-align:center;}
 .edit-modal-handle{width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px;}
 
@@ -607,6 +607,10 @@ main{position:relative;z-index:1;}
 
 /* ===== BOTTOM PADDING FOR AUTOCOMPLETE SPACE ===== */
 #tab-repas, #tab-aliments, #tab-plats { padding-bottom: 200px; }
+
+
+/* Edit modal body scrollable */
+#editModalBody{overflow-y:auto;flex:1;padding-bottom:100px;}
 
 </style>
 </head>
@@ -1180,16 +1184,23 @@ var FODMAP_CATS=['Fructanes','GOS','Lactose','Fructose','Polyols'];
 var FODMAP_CATS_EN=['Fructans','GOS','Lactose','Fructose','Polyols'];
 var FODMAP_COLORS=['ft-fructanes','ft-gos','ft-lactose','ft-fructose','ft-polyols'];
 // FOOD GRIDS — derived from FODMAP_FULL (first 28 most common)
-var FOOD_QUICK=['Poulet','Boeuf','Saumon','Thon','Oeuf','Riz','Blé (pain/pâtes)','Pomme de terre','Carotte','Tomate','Courgette','Épinard','Laitue','Aubergine','Broccoli','Lait (vache)','Yaourt nature','Parmesan','Beurre','Fraise','Banane (ferme)','Orange','Pomme','Curcuma','Sel','Poivre','Huile d\'olive','Chocolat noir'];
-var FOOD_EM=['🍗','🥩','🐟','🐡','🥚','🍚','🍞','🥔','🥕','🍅','🥒','🥬','🥗','🍆','🥦','🥛','🍦','🧀','🧈','🍓','🍌','🍊','🍎','🌿','🧂','🫙','🫒','🍫'];
+var FOOD_QUICK=['Poulet','Boeuf','Saumon','Thon','Oeuf','Riz','Pain blanc','Pâtes','Pomme de terre','Carotte','Tomate','Courgette','Épinard','Laitue','Aubergine','Broccoli','Lait (vache)','Yaourt nature','Parmesan','Beurre','Fraise','Banane (ferme)','Orange','Pomme','Curcuma','Sel','Poivre','Huile d\'olive','Chocolat noir'];
+var FOOD_EM=['🍗','🥩','🐟','🐡','🥚','🍚','🍞','🍝','🥔','🥕','🍅','🥒','🥬','🥗','🍆','🥦','🥛','🍦','🧀','🧈','🍓','🍌','🍊','🍎','🌿','🧂','🫙','🫒','🍫'];
 
 // FODMAP lookup
 var FODMAP_MAP={};
 function buildFodmapMap(){
   FODMAP_MAP={};
-  FODMAP_FULL.forEach(function(r){FODMAP_MAP[r[0].toLowerCase()]=r;});
+  var deleted=getDeletedAliments();
+  FODMAP_FULL.forEach(function(r){
+    if(deleted.indexOf(r[0].toLowerCase())<0)FODMAP_MAP[r[0].toLowerCase()]=r;
+  });
   getCustomAliments().forEach(function(r){FODMAP_MAP[r[0].toLowerCase()]=r;});
 }
+function getDeletedAliments(){
+  try{return JSON.parse(localStorage.getItem('sc_deleted_aliments')||'[]');}catch(e){return[];}
+}
+function saveDeletedAliments(arr){localStorage.setItem('sc_deleted_aliments',JSON.stringify(arr));}
 function getFodmapRow(name){
   if(!name)return null;
   var k=name.trim().toLowerCase();
@@ -1241,7 +1252,7 @@ function addCustomAliment(){
 var alimentActiveCat='';
 function initAlimentsTab(){
   var bar=document.getElementById('alimentsCatBar');if(!bar||bar.dataset.init)return;bar.dataset.init='1';
-  var all=FODMAP_FULL.concat(getCustomAliments());
+  var deleted=getDeletedAliments();var all=FODMAP_FULL.filter(function(r){return deleted.indexOf(r[0].toLowerCase())<0;}).concat(getCustomAliments());
   var cats=[...new Set(all.map(function(r){return r[8];}))].sort();
   function mkBtn(label,cat){var b=document.createElement('button');b.className='aliments-filter-btn'+(cat===alimentActiveCat?' active':'');b.textContent=label;b.onclick=function(){alimentActiveCat=cat;document.querySelectorAll('.aliments-filter-btn').forEach(function(x){x.classList.remove('active');});b.classList.add('active');renderAlimentsTable(document.getElementById('alimentsSearch').value);};bar.appendChild(b);}
   mkBtn(LANG==='en'?'All':'Tout','');cats.forEach(function(c){mkBtn(c,c);});
@@ -1860,7 +1871,16 @@ function resetAllData(){if(!confirm(t('confirmReset')))return;localData={};local
 
 // EDIT FUNCTIONS
 function closeEditModal(e){if(e&&e.target!==document.getElementById('editModal'))return;document.getElementById('editModal').style.display='none';document.getElementById('editModalBody').innerHTML='';}
-function openEditModal(title,bodyHtml){document.getElementById('editModalTitle').textContent=title;document.getElementById('editModalBody').innerHTML=bodyHtml;document.getElementById('editModal').style.display='flex';}
+function openEditModal(title,bodyHtml){
+  document.getElementById('editModalTitle').textContent=title;
+  document.getElementById('editModalBody').innerHTML=bodyHtml;
+  document.getElementById('editModal').style.display='flex';
+  // Scroll modal body to top so autocomplete is always visible
+  var mb=document.getElementById('editModalBody');
+  if(mb)mb.scrollTop=0;
+  var em=document.querySelector('.edit-modal');
+  if(em)em.scrollTop=0;
+}
 function openEditRepas(id){var day=getDayData(currentDate);var r=day.repas.find(function(x){return x.id===id;});if(!r)return;openEditModal('✏️ '+t('L_repas_title'),
   '<div class="form-group"><label class="form-label">'+t('L_repas_heure')+'</label><input type="time" id="editRepasHeure" class="form-input" value="'+r.heure+'"></div>'
   +'<div class="form-group autocomplete-wrap"><label class="form-label">'+t('L_texte_libre')+'</label>'
@@ -1996,27 +2016,31 @@ function deleteAliment(){
   var nom=document.getElementById('delAlimInput').value.trim();
   var msg=document.getElementById('delAlimMsg');
   if(!nom){if(msg)msg.innerHTML='<span style="color:var(--red)">⚠️ Indiquez un nom</span>';return;}
-  // Check if it's a custom aliment
+  var nomL=nom.toLowerCase();
+  // Check custom aliments first
   var custom=getCustomAliments();
-  var idx=custom.findIndex(function(r){return r[0].toLowerCase()===nom.toLowerCase();});
+  var idx=custom.findIndex(function(r){return r[0].toLowerCase()===nomL;});
   if(idx>=0){
     custom.splice(idx,1);
     saveCustomAliments(custom);
-    buildFodmapMap();
-    document.getElementById('delAlimInput').value='';
-    var ac=document.getElementById('delAlimAC');if(ac)ac.style.display='none';
-    renderAlimentsTable('');
-    if(msg)msg.innerHTML='<span style="color:var(--green)">✅ '+nom+' supprimé de la base</span>';
-    setTimeout(function(){if(msg)msg.innerHTML='';},3000);
   } else {
-    // Check if it's in the built-in list
-    var inBuiltin=FODMAP_FULL.some(function(r){return r[0].toLowerCase()===nom.toLowerCase();});
-    if(inBuiltin){
-      if(msg)msg.innerHTML='<span style="color:var(--red)">⚠️ Aliment standard — non supprimable</span>';
-    } else {
+    // Check built-in
+    var inBuiltin=FODMAP_FULL.some(function(r){return r[0].toLowerCase()===nomL;});
+    if(!inBuiltin){
       if(msg)msg.innerHTML='<span style="color:var(--red)">⚠️ Aliment introuvable : '+nom+'</span>';
+      return;
     }
+    // Add to deleted list
+    var deleted=getDeletedAliments();
+    if(deleted.indexOf(nomL)<0)deleted.push(nomL);
+    saveDeletedAliments(deleted);
   }
+  buildFodmapMap();
+  document.getElementById('delAlimInput').value='';
+  var ac=document.getElementById('delAlimAC');if(ac)ac.style.display='none';
+  renderAlimentsTable('');
+  if(msg)msg.innerHTML='<span style="color:var(--green)">✅ '+nom+' supprimé</span>';
+  setTimeout(function(){if(msg)msg.innerHTML='';},3000);
 }
 
 // EVENT LISTENERS
