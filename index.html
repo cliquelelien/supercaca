@@ -2116,11 +2116,22 @@ function renderTrendChart(){
     if(all[ds]) days.push(ds);
   }
 
+  card.style.display = 'block';
   if(days.length < 2){
-    card.style.display = 'none';
+    canvas.style.display = 'none';
+    var nodata = document.getElementById('trendNoData');
+    if(!nodata){
+      nodata = document.createElement('div');
+      nodata.id = 'trendNoData';
+      nodata.style.cssText = 'text-align:center;padding:30px;color:var(--text3);font-size:13px';
+      nodata.textContent = LANG==='en'?'Not enough data yet (need at least 2 days).':'Pas encore assez de données (minimum 2 jours).';
+      canvas.parentNode.appendChild(nodata);
+    }
     return;
   }
-  card.style.display = 'block';
+  canvas.style.display = 'block';
+  var nodata2 = document.getElementById('trendNoData');
+  if(nodata2) nodata2.remove();
 
   // ── Compute values for each day ──────────────────────────────────────
   // Humeur: 1-5 (null if not recorded → gap)
@@ -2189,7 +2200,8 @@ function renderTrendChart(){
   // ── Destroy previous chart if exists ─────────────────────────────────
   if(trendChartInstance){ trendChartInstance.destroy(); trendChartInstance = null; }
 
-  // ── Build chart ───────────────────────────────────────────────────────
+  // ── Build chart after DOM paint ───────────────────────────────────────
+  requestAnimationFrame(function(){
   var ctx = canvas.getContext('2d');
   trendChartInstance = new Chart(ctx, {
     type: 'line',
@@ -2292,6 +2304,7 @@ function renderTrendChart(){
       }
     }
   });
+  }); // end requestAnimationFrame
 }
 
 // EVENT LISTENERS
