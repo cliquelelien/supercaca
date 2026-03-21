@@ -1890,8 +1890,17 @@ function setNow(id){var n=new Date();document.getElementById(id).value=String(n.
 function toggleCheckbox(labelEl){var cb=labelEl.querySelector('input[type="checkbox"]');if(!cb)return;cb.checked=!cb.checked;if(cb.checked)labelEl.classList.add('checked');else labelEl.classList.remove('checked');}
 function showToast(msg){var c=document.getElementById('toastContainer');var el=document.createElement('div');el.className='toast';el.textContent=msg;c.appendChild(el);setTimeout(function(){el.remove();},2500);}
 function openDatePicker(){
-  document.getElementById('datePicker').value=currentDate;
-  document.getElementById('dateModal').classList.add('open');
+  // Set value and trigger native date picker directly — no intermediate modal
+  var dp=document.getElementById('datePicker');
+  dp.value=currentDate;
+  // Hide the modal wrapper visually but keep datePicker accessible
+  dp.style.position='fixed';dp.style.opacity='0';dp.style.top='60px';dp.style.left='50%';dp.style.zIndex='9999';
+  dp.showPicker?dp.showPicker():dp.click();
+  dp.addEventListener('change',function onPickerChange(){
+    if(dp.value){currentDate=dp.value;updateDateDisplay();refreshAll();loadEtatToForm();}
+    dp.style.position='';dp.style.opacity='';dp.style.top='';dp.style.left='';dp.style.zIndex='';
+    dp.removeEventListener('change',onPickerChange);
+  },{once:true});
 }
 function confirmDate(){var v=document.getElementById('datePicker').value;if(v){currentDate=v;updateDateDisplay();refreshAll();loadEtatToForm();}closeModal('dateModal');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
