@@ -1081,6 +1081,7 @@ main{position:relative;z-index:1;}
 
 
 
+
 // ===== FIREBASE =====
 var FIREBASE_CONFIG={apiKey:"AIzaSyDr4hzkX78G2BfuFF1stKdeYATiDKLkQ5Y",authDomain:"supercaca-47497.firebaseapp.com",projectId:"supercaca-47497",storageBucket:"supercaca-47497.firebasestorage.app",messagingSenderId:"218710879445",appId:"1:218710879445:web:67529aad2edef8e968065c"};
 var db,auth,currentUser=null,AUTH_MODE='login',syncTimer=null,localData={},localPlats=[];
@@ -2243,10 +2244,14 @@ function drawTrendCanvas(canvas, labels, series){
     }
     ctx.stroke();
 
-    // Dots
+    // Dots — for selles: only on days with actual recorded stools
     ctx.fillStyle=s.color;
     for(var i=0;i<n;i++){
       if(s.data[i]===null||s.data[i]===undefined)continue;
+      // If dotOnly array provided, only draw dot where original has a value
+      var drawDot=true;
+      if(s.dotOnly){drawDot=(s.dotOnly[i]!==null&&s.dotOnly[i]!==undefined);}
+      if(!drawDot)continue;
       var x=padL+(i/(n-1||1))*chartW;
       var y=padT+chartH-((s.data[i]-minY)/(maxY-minY))*chartH;
       ctx.beginPath();ctx.arc(x,y,3.5,0,2*Math.PI);ctx.fill();
@@ -2319,20 +2324,64 @@ function renderTrendChart(){
       sellesD.push(Math.round(sum/day.selles.length*10)/10);
     }else sellesD.push(null);
     sportD.push((day.etat&&day.etat.sport!=null)?(spScore[day.etat.sport]!==undefined?spScore[day.etat.sport]:0):null);
-    if(day.selles&&day.selles.length){
-      var tot=0;day.selles.forEach(function(s){var L=computeFodmapLoad(ds,s.heure,all);Object.values(L).forEach(function(v){tot+=v;});});
-      fodmapD.push(Math.min(5,Math.round(tot/2*10)/10));
-    }else fodmapD.push(null);
+    // FODMAP + Gluten daily load from food consumed that day
+    {
+      var fodmapCount=0,total=0;
+      (day.repas||[]).forEach(function(r){
+        (r.aliments||[]).forEach(function(name){
+          var fd=getFodmapRow(name);
+          if(!fd)return;
+          // Count FODMAP categories + gluten present in this food
+          var hit=0;
+          for(var fi=1;fi<=5;fi++)if(fd[fi])hit++;
+          if(fd[6])hit++; // gluten
+          fodmapCount+=hit;
+          total++;
+        });
+      });
+      // Normalize: 0 = no FODMAP, 5 = heavy FODMAP day
+      // Cap at 10 FODMAP-hits → 5 points
+      fodmapD.push(total>0?Math.min(5,Math.round(fodmapCount/2*10)/10):0);
+    }
   });
+  // Fill selles gaps: interpolate between known values
+  var sellesFilled=sellesD.slice();
+  // Forward fill then backward fill
+  var last=null;
+  for(var fi=0;fi<sellesFilled.length;fi++){
+    if(sellesFilled[fi]!==null)last=sellesFilled[fi];
+    else if(last!==null)sellesFilled[fi]=last;
+  }
+  last=null;
+  for(var fi=sellesFilled.length-1;fi>=0;fi--){
+    if(sellesFilled[fi]!==null)last=sellesFilled[fi];
+    else if(last!==null)sellesFilled[fi]=last;
+  }
+  // Linear interpolation between measured points
+  var sellesInterp=sellesFilled.slice();
+  for(var fi=0;fi<sellesInterp.length;fi++){
+    if(sellesD[fi]===null){
+      // Find prev and next known values
+      var prev=-1,next=-1;
+      for(var pi=fi-1;pi>=0;pi--){if(sellesD[pi]!==null){prev=pi;break;}}
+      for(var ni=fi+1;ni<sellesD.length;ni++){if(sellesD[ni]!==null){next=ni;break;}}
+      if(prev>=0&&next>=0){
+        var t=(fi-prev)/(next-prev);
+        sellesInterp[fi]=Math.round((sellesD[prev]*(1-t)+sellesD[next]*t)*10)/10;
+      }
+    }
+  }
+
   setTimeout(function(){
     drawTrendCanvas(canvas,labels,[
-      {data:humeurD, color:'#2196F3',label:LANG==='en'?'Mood':'Humeur'},
-      {data:sellesD, color:'#F44336',label:LANG==='en'?'Consistency':'Selles'},
-      {data:sportD,  color:'#4CAF50',label:LANG==='en'?'Activity':'Sport'},
-      {data:fodmapD, color:'#FFC107',label:'FODMAP'}
+      {data:humeurD,       color:'#2196F3', label:LANG==='en'?'Mood':'Humeur',    dashed:false},
+      {data:sellesInterp,  color:'#F44336', label:LANG==='en'?'Consistency':'Selles', dashed:false, dotOnly:sellesD},
+      {data:sportD,        color:'#4CAF50', label:LANG==='en'?'Activity':'Sport', dashed:false},
+      {data:fodmapD,       color:'#FFC107', label:'FODMAP',                       dashed:false}
     ]);
   },300);
 }
+
 
 
 
