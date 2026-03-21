@@ -1067,9 +1067,14 @@ main{position:relative;z-index:1;}
 
 
 
+
 // ===== FIREBASE =====
 var FIREBASE_CONFIG={apiKey:"AIzaSyDr4hzkX78G2BfuFF1stKdeYATiDKLkQ5Y",authDomain:"supercaca-47497.firebaseapp.com",projectId:"supercaca-47497",storageBucket:"supercaca-47497.firebasestorage.app",messagingSenderId:"218710879445",appId:"1:218710879445:web:67529aad2edef8e968065c"};
 var db,auth,currentUser=null,AUTH_MODE='login',syncTimer=null,localData={},localPlats=[];
+// Local cache keys
+var LS_DATA='sc_local_data', LS_PLATS='sc_local_plats';
+function lsLoad(){try{localData=JSON.parse(localStorage.getItem(LS_DATA)||'{}');localPlats=JSON.parse(localStorage.getItem(LS_PLATS)||'[]');}catch(e){localData={};localPlats=[];}}
+function lsSave(){try{localStorage.setItem(LS_DATA,JSON.stringify(localData));localStorage.setItem(LS_PLATS,JSON.stringify(localPlats));}catch(e){}}
 var LANG=localStorage.getItem('sc_lang')||'fr';
 var BRISTOL_FR=['','Très dur','Dur','Normal','Mou','Très mou','Liquide'];
 var BRISTOL_EN=['','Very hard','Hard','Normal','Soft','Very soft','Liquid'];
@@ -1557,40 +1562,42 @@ function doSignOut(){if(!confirm(t('auth_disconnect')))return;auth.signOut();}
 function updateAccountInfo(){var el=document.getElementById('accountInfo');if(!el||!currentUser)return;var n=currentUser.displayName||currentUser.email,p=currentUser.photoURL;el.innerHTML='<div class="user-badge">'+(p?'<img src="'+p+'" alt="">':'')+'<span>'+n+'</span></div><div style="font-size:12px;color:var(--text3);margin-top:6px">'+currentUser.email+'</div>';}
 function getUserDoc(){return db.collection('users').doc(currentUser.uid);}
 function setSyncStatus(s){var el=document.getElementById('syncIndicator');if(!el)return;el.textContent=t('sync_'+s);el.className='sync-indicator'+(s!=='ok'?' '+s:'');if(s==='ok')setTimeout(function(){el.textContent='';},3000);}
-function loadDataFromFirestore(retries){
-  if(retries===undefined)retries=3;
-  setSyncStatus('ing');
+function loadDataFromFirestore(){
+  // Load from localStorage immediately so app is usable right away
+  lsLoad();
+  initApp();
+  // Then sync with Firestore in background
+  syncFromFirestore();
+}
+function syncFromFirestore(attempt){
+  if(!attempt)attempt=1;
   getUserDoc().get()
     .then(function(doc){
-      if(doc.exists){var d=doc.data();localData=d.data||{};localPlats=d.plats||[];}
-      else{localData={};localPlats=[];}
+      if(doc.exists){
+        var d=doc.data();
+        // Merge: prefer Firestore if it has data, else keep local
+        if(d.data&&Object.keys(d.data).length>0){
+          localData=d.data;localPlats=d.plats||[];
+          lsSave();
+          refreshAll();renderTop10();
+        }
+      }
       setSyncStatus('ok');
-      initApp();
     })
     .catch(function(e){
-      console.warn('Firestore read error:',e.code,e.message,'retries left:',retries);
-      if(retries>0){
-        // Retry after delay — auth token may not be ready yet
-        setTimeout(function(){loadDataFromFirestore(retries-1);},1500);
+      console.warn('Firestore read attempt',attempt,':',e.code);
+      if(attempt<3){
+        setTimeout(function(){syncFromFirestore(attempt+1);},2000*attempt);
       } else {
-        // After all retries, try with fresh token
-        if(currentUser){
-          currentUser.getIdToken(true).then(function(){
-            getUserDoc().get()
-              .then(function(doc){
-                if(doc.exists){var d=doc.data();localData=d.data||{};localPlats=d.plats||[];}
-                else{localData={};localPlats=[];}
-                setSyncStatus('ok');initApp();
-              })
-              .catch(function(){setSyncStatus('err');localData={};localPlats=[];initApp();});
-          }).catch(function(){setSyncStatus('err');localData={};localPlats=[];initApp();});
-        } else {
-          setSyncStatus('err');localData={};localPlats=[];initApp();
-        }
+        // Silent failure - app works with local data
+        var el=document.getElementById('syncIndicator');
+        if(el){el.textContent='';} // hide sync indicator entirely on persistent failure
+        console.warn('Firestore unavailable - using local data');
       }
     });
 }
 function saveToFirestore(){
+  lsSave(); // Always save locally first
   if(!currentUser)return;
   clearTimeout(syncTimer);
   setSyncStatus('ing');
@@ -1606,6 +1613,11 @@ function saveToFirestore(){
           currentUser.getIdToken(true).then(function(){saveToFirestore();});
         } else {
           setSyncStatus('err');
+          // Auto-clear error after 4s so it's not permanently shown
+          setTimeout(function(){
+            var el=document.getElementById('syncIndicator');
+            if(el&&el.textContent.indexOf('Erreur')>=0)el.textContent='';
+          },4000);
         }});
     }catch(e){console.error('Serial:',e);setSyncStatus('err');}
   },1000);
@@ -2152,7 +2164,10 @@ function deleteAliment(){
 
 function drawTrendCanvas(canvas, labels, series){
   var isDark=document.documentElement.getAttribute('data-theme')==='dark';
-  var W=Math.min((window.innerWidth||360)-40,560);
+  // Use parent container width, fallback to window width
+  var parent=canvas.parentNode;
+  var W=Math.min((parent?parent.offsetWidth:0)||canvas.offsetWidth||(window.innerWidth-40)||320,600);
+  if(W<100)W=window.innerWidth?window.innerWidth-40:320; // last resort
   var H=250;
   canvas.width=W;canvas.height=H;
   var ctx=canvas.getContext('2d');
@@ -2213,6 +2228,13 @@ function drawTrendCanvas(canvas, labels, series){
   ctx.beginPath();ctx.moveTo(padL,padT);ctx.lineTo(padL,padT+chartH);ctx.lineTo(padL+chartW,padT+chartH);ctx.stroke();
 }
 
+// Redraw chart on resize
+window.addEventListener('resize',function(){
+  if(document.getElementById('tab-analyse')&&
+     document.getElementById('tab-analyse').classList.contains('active')){
+    renderTrendChart();
+  }
+});
 initTheme();applyLang();initFirebase();
 
 
@@ -2268,6 +2290,7 @@ function renderTrendChart(){
     ]);
   },300);
 }
+
 
 
 </script>
