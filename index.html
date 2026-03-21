@@ -1651,9 +1651,7 @@ function populateScoreDateSelect(){
   // Score always shows currentDate — no dropdown needed
 }
 
-function populateScoreDateSelect(){
-  // Score always shows currentDate — no dropdown needed
-}
+
 function renderScore(){
   populateScoreDateSelect();
   var lbl=document.getElementById('scoreDateLabel');
@@ -1667,6 +1665,92 @@ function renderScore(){
   sb.innerHTML='';
   sf.innerHTML='<div class="card"><div class="score-formula"><div class="score-formula-title">'+t('s_detail')+'</div>'+scoreRow(t('s_base'),5,false)+(det.bristol?scoreRow(det.bristol.icon+' '+t('s_bristol')+' : '+det.bristol.desc,det.bristol.score,false):scoreRow(t('s_no_selle'),0,false))+'<div class="score-formula-row" style="margin-top:4px;font-weight:700;font-size:12px;color:var(--text2)"><span class="score-formula-left">🩹 '+t('s_symp_selle')+'</span><span class="score-formula-right '+vCls(det.symp_selle?det.symp_selle.score:0)+'">'+fmtV(det.symp_selle?det.symp_selle.score:0)+'</span></div>'+scoreRow(t('s_collante'),det.symp_selle?det.symp_selle.collScore:0,true)+scoreRow(t('s_sang'),det.symp_selle?det.symp_selle.sangScore:0,true)+'<div class="score-formula-row" style="margin-top:4px;font-weight:700;font-size:12px;color:var(--text2)"><span class="score-formula-left">🩺 '+t('s_symp_etat')+'</span><span class="score-formula-right '+vCls(det.symp_etat?det.symp_etat.score:0)+'">'+fmtV(det.symp_etat?det.symp_etat.score:0)+'</span></div>'+scoreRow(t('s_douleur'),det.symp_etat?det.symp_etat.doulScore:0,true)+scoreRow(t('s_ballons'),det.symp_etat?det.symp_etat.ballScore:0,true)+scoreRow((det.humeur?det.humeur.icon:'😐')+' '+t('s_humeur')+(det.humeur?' '+det.humeur.desc:''),det.humeur?det.humeur.score:0,false)+scoreRow((det.sommeil?det.sommeil.icon:'😐')+' '+t('s_sommeil')+(det.sommeil?' '+det.sommeil.desc:''),det.sommeil?det.sommeil.score:0,false)+scoreRow('💧 '+t('s_hydra')+(det.hydration?' : '+det.hydration.desc:''),det.hydration?det.hydration.score:0,false)+scoreRow((det.sport?det.sport.icon:'🏃')+' '+t('s_sport')+(det.sport?' : '+det.sport.desc:''),det.sport?det.sport.score:0,false)+'<div class="score-formula-row" style="font-weight:800;border-top:2px solid var(--border);margin-top:6px;padding-top:8px"><span class="score-formula-left" style="color:var(--text)">'+t('s_final')+'</span><span class="score-formula-right" style="color:var(--accent);font-size:17px">'+s+'/10</span></div><div class="score-base-note">'+t('s_note')+'</div></div></div>';
 }
+
+
+
+// ===== CALENDAR =====
+function getBristolEm(day){if(!day||!day.selles||!day.selles.length)return'';return BRISTOL_EM[day.selles[day.selles.length-1].bristol]||'';}
+function getMoodEm(day){if(!day||!day.etat||!day.etat.humeur)return'';return HUM_EM[day.etat.humeur]||'';}
+function renderCalendar(){var mN=t('months');document.getElementById('calMonthLabel').textContent=mN[calMonth]+' '+calYear;var first=new Date(calYear,calMonth,1),last=new Date(calYear,calMonth+1,0);var dow=first.getDay();dow=dow===0?6:dow-1;var all=getData(),today=new Date().toISOString().split('T')[0];var grid=document.getElementById('calGrid');grid.innerHTML='';for(var i=0;i<dow;i++){var pd=new Date(calYear,calMonth,1-dow+i);var cell=document.createElement('div');cell.className='cal-day other-month';cell.innerHTML='<div class="cal-day-num">'+pd.getDate()+'</div>';grid.appendChild(cell);}for(var d=1;d<=last.getDate();d++){var ds=calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');var isT=ds===today,isSel=ds===selectedCalDate,isPast=ds<today,dd=all[ds];var cls='cal-day'+(isT?' today':'')+(dd&&(dd.selles&&dd.selles.length||dd.etat)?' has-data':'')+(isSel?' selected':'');var inner='<div class="cal-day-num">'+d+'</div>';if(dd){var res=calculateScore(dd);if(res){var sc=res.score,sCls=sc>=7?'score-great':sc>=4?'score-good':'score-bad';inner+='<div class="cal-day-score '+sCls+'">'+sc+'</div>';}var be=getBristolEm(dd),me=getMoodEm(dd);if(!be&&isPast&&(dd.etat||dd.repas&&dd.repas.length))be='🚫';if(be||me)inner+='<div class="cal-day-icons">'+be+me+'</div>';}else if(isPast&&!isT){inner+='<div class="cal-day-icons" style="opacity:0.3">🚫</div>';}var cell=document.createElement('div');cell.className=cls;cell.innerHTML=inner;(function(dateStr){cell.addEventListener('click',function(){selectCalDay(dateStr);});})(ds);grid.appendChild(cell);}var tot=dow+last.getDate(),rem=tot%7;if(rem!==0)for(var k=1;k<=7-rem;k++){var cell=document.createElement('div');cell.className='cal-day other-month';cell.innerHTML='<div class="cal-day-num">'+k+'</div>';grid.appendChild(cell);}}
+function changeMonth(dir){calMonth+=dir;if(calMonth>11){calMonth=0;calYear++;}if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
+function selectCalDay(ds){selectedCalDate=ds;currentDate=ds;updateDateDisplay();renderCalendar();renderCalDayDetail(ds);}
+function renderCalDayDetail(ds){var day=getDayData(ds);var c=document.getElementById('calDayDetail');var res=calculateScore(day);var BN=getBN();var html='<div class="cal-detail-card"><div class="cal-detail-header"><div class="cal-detail-date">📅 '+fmtDate(ds)+'</div>'+(res?'<div class="cal-detail-score-badge"><span>'+getScoreEmoji(res.score)+'</span><span class="cal-detail-score-num"> '+res.score+'</span><span style="opacity:0.7;font-size:12px">/10</span></div>':'')+'</div>';if(day.repas&&day.repas.length){var sorted=day.repas.slice().sort(function(a,b){return a.heure.localeCompare(b.heure);});html+='<div class="cal-detail-section"><div class="cal-detail-section-title">'+t('cal_repas')+' ('+sorted.length+')</div>';sorted.forEach(function(r){html+='<div class="entry-item" style="margin-bottom:5px"><span class="entry-time">'+r.heure+'</span><div class="entry-body"><div class="entry-main" style="font-size:12px">'+r.aliments.join(', ')+'</div></div></div>';});html+='</div>';}if(day.selles&&day.selles.length){html+='<div class="cal-detail-section"><div class="cal-detail-section-title">'+t('cal_selles')+' ('+day.selles.length+')</div>';day.selles.forEach(function(s){var sy=[];if(s.quantite)sy.push(QTY_DOTS[s.quantite]);if(s.collante)sy.push(t('tag_collante'));if(s.sang)sy.push(t('tag_sang'));html+='<div class="entry-item" style="margin-bottom:5px'+(s.sang?';border-color:var(--red)':'')+'"><span class="entry-time">'+s.heure+'</span><div class="entry-body"><div class="entry-main" style="font-size:12px">'+BRISTOL_EM[s.bristol]+' '+BN[s.bristol]+(sy.length?' — '+sy.join(' '):'')+'</div></div></div>';});html+='</div>';}if(day.etat){var e=day.etat;var hI={faible:'🥤',moyen:'💧',bon:'💦'};var sI={aucun:'💤',marche:'🚶',endurance:'🏃',velo:'🚴',cardio:'💪',musculation:'🏋️'};var etags='';if(e.humeur)etags+='<span class="tag tag-yellow">'+HUM_EM[e.humeur]+' '+e.humeur+'/5</span> ';if(e.sommeil)etags+='<span class="tag tag-blue">'+SOM_EM[e.sommeil]+' '+t('s_sommeil')+' '+e.sommeil+'/5</span> ';if(e.hydration)etags+='<span class="tag tag-blue">'+(hI[e.hydration]||'')+' '+t('L_hyd_'+e.hydration)+'</span> ';if(e.sport&&e.sport!=='aucun')etags+='<span class="tag tag-green">'+(sI[e.sport]||'🏃')+' '+e.sport+(e.sportDuree?' '+e.sportDuree+'min':'')+'</span> ';if(e.douleur)etags+='<span class="tag tag-red">'+t('tag_douleur')+'</span> ';if(e.ballons)etags+='<span class="tag tag-red">'+t('tag_ballons')+(e.ballonsHeure?' '+e.ballonsHeure:'')+'</span> ';if(e.regles)etags+='<span class="tag tag-red">'+t('regleLabel')+'</span>';html+='<div class="cal-detail-section"><div class="cal-detail-section-title">'+t('cal_etat')+'</div><div style="display:flex;gap:5px;flex-wrap:wrap">'+etags+'</div>'+(e.note?'<div style="font-size:11px;color:var(--text3);margin-top:4px">'+t('noteLabel')+' '+e.note+'</div>':'')+'</div>';}if(res){var det=res.details;html+='<div class="cal-detail-section"><div class="cal-detail-section-title">'+t('cal_calcul')+'</div><div class="cal-detail-points"><div class="cal-detail-points-row"><span class="cdpr-label">'+t('s_base')+'</span><span class="cdpr-val cdpr-neu">5,0</span></div>';if(det.bristol)html+='<div class="cal-detail-points-row"><span class="cdpr-label">'+det.bristol.icon+' '+det.bristol.desc+'</span><span class="cdpr-val '+dCls(det.bristol.score)+'">'+fmtV(det.bristol.score)+'</span></div>';html+='<div class="cal-detail-points-row"><span class="cdpr-label">🩹 '+t('s_symp_selle')+'</span><span class="cdpr-val '+dCls(det.symp_selle?det.symp_selle.score:0)+'">'+fmtV(det.symp_selle?det.symp_selle.score:0)+'</span></div>';html+='<div class="cal-detail-points-row" style="padding-left:12px;font-size:11px"><span class="cdpr-label">'+t('s_collante')+'</span><span class="cdpr-val '+dCls(det.symp_selle?det.symp_selle.collScore:0)+'">'+fmtV(det.symp_selle?det.symp_selle.collScore:0)+'</span></div>';html+='<div class="cal-detail-points-row" style="padding-left:12px;font-size:11px"><span class="cdpr-label">'+t('s_sang')+'</span><span class="cdpr-val '+dCls(det.symp_selle?det.symp_selle.sangScore:0)+'">'+fmtV(det.symp_selle?det.symp_selle.sangScore:0)+'</span></div>';html+='<div class="cal-detail-points-row"><span class="cdpr-label">🩺 '+t('s_symp_etat')+'</span><span class="cdpr-val '+dCls(det.symp_etat?det.symp_etat.score:0)+'">'+fmtV(det.symp_etat?det.symp_etat.score:0)+'</span></div>';html+='<div class="cal-detail-points-row" style="padding-left:12px;font-size:11px"><span class="cdpr-label">'+t('s_douleur')+'</span><span class="cdpr-val '+dCls(det.symp_etat?det.symp_etat.doulScore:0)+'">'+fmtV(det.symp_etat?det.symp_etat.doulScore:0)+'</span></div>';html+='<div class="cal-detail-points-row" style="padding-left:12px;font-size:11px"><span class="cdpr-label">'+t('s_ballons')+'</span><span class="cdpr-val '+dCls(det.symp_etat?det.symp_etat.ballScore:0)+'">'+fmtV(det.symp_etat?det.symp_etat.ballScore:0)+'</span></div>';if(det.humeur)html+='<div class="cal-detail-points-row"><span class="cdpr-label">'+det.humeur.icon+' '+t('s_humeur')+' '+det.humeur.desc+'</span><span class="cdpr-val '+dCls(det.humeur.score)+'">'+fmtV(det.humeur.score)+'</span></div>';if(det.sommeil)html+='<div class="cal-detail-points-row"><span class="cdpr-label">'+det.sommeil.icon+' '+t('s_sommeil')+' '+det.sommeil.desc+'</span><span class="cdpr-val '+dCls(det.sommeil.score)+'">'+fmtV(det.sommeil.score)+'</span></div>';if(det.hydration)html+='<div class="cal-detail-points-row"><span class="cdpr-label">💧 '+t('s_hydra')+' : '+det.hydration.desc+'</span><span class="cdpr-val '+dCls(det.hydration.score)+'">'+fmtV(det.hydration.score)+'</span></div>';if(det.sport)html+='<div class="cal-detail-points-row"><span class="cdpr-label">'+det.sport.icon+' '+det.sport.desc+'</span><span class="cdpr-val '+dCls(det.sport.score)+'">'+fmtV(det.sport.score)+'</span></div>';html+='<div class="cal-detail-total"><span>'+t('s_final')+'</span><span class="cal-detail-total-val">'+res.score+'/10</span></div></div></div>';}if(!day.repas.length&&!day.selles.length&&!day.etat)html+='<div class="empty-state" style="padding:16px 0"><div class="empty-icon">📭</div><div class="empty-text">'+t('cal_nodata')+'</div></div>';html+='</div>';c.innerHTML=html;c.scrollIntoView({behavior:'smooth',block:'start'});}
+
+// ANALYSE
+
+// ===== ANALYSE =====
+function runAnalysis(){var all=getData();var foodStats={};Object.keys(all).sort().forEach(function(date){var day=all[date];if(!day.repas||!day.repas.length)return;day.repas.forEach(function(repas){var rt=new Date(date+'T'+repas.heure+':00').getTime();repas.aliments.forEach(function(food){if(!foodStats[food])foodStats[food]={events:0,badEvents:0};var t1=new Date(new Date(date+'T12:00:00').getTime()+86400000).toISOString().split('T')[0];var t2=new Date(new Date(date+'T12:00:00').getTime()+2*86400000).toISOString().split('T')[0];[date,t1,t2].forEach(function(cd){var cday=all[cd];if(!cday||!cday.selles)return;cday.selles.forEach(function(s){var diff=new Date(cd+'T'+s.heure+':00').getTime()-rt;if(diff>=12*3600000&&diff<=48*3600000){foodStats[food].events++;if(s.bristol>=5||s.collante||s.sang)foodStats[food].badEvents++;}});});});});});var foods=Object.entries(foodStats).filter(function(e){return e[1].events>=1;}).map(function(e){return{name:e[0],events:e[1].events,badRate:e[1].badEvents/e[1].events};}).sort(function(a,b){return b.badRate-a.badRate;});var c=document.getElementById('analysisResults');if(!foods.length){c.innerHTML='<div class="card"><div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">'+t('noAnalysis')+'</div></div></div>';return;}var prob=foods.filter(function(f){return f.badRate>=0.5;});var html='';if(prob.length)html+='<div class="food-warning">⚠️ <strong>'+prob.length+' '+t('analyse_warn')+'</strong></div>';html+='<div class="card"><div class="card-title">'+t('analyse_corr')+'</div>';foods.forEach(function(f){var pct=Math.round(f.badRate*100),rc=pct>=50?'rank-bad':pct>=25?'rank-ok':'rank-good',bc=pct>=50?'bar-red':pct>=25?'bar-yellow':'bar-green';html+='<div class="food-analysis-item"><div class="food-rank '+rc+'">'+pct+'%</div><div class="food-score-bar"><div class="food-name">'+f.name+'</div><div class="food-occurrences">'+f.events+t('analyse_selles')+'</div><div class="food-bar-wrap"><div class="food-bar-fill '+bc+'" style="width:'+pct+'%"></div></div></div></div>';});html+='</div>';c.innerHTML=html;}
+
+// FODMAP MATRIX
+function runFodmapAnalysis(){
+  var all=getData();var el=document.getElementById('fodmapAnalysis');
+  var allDates=Object.keys(all).sort();
+  var stoolDays=allDates.filter(function(d){return all[d].selles&&all[d].selles.length>0;});
+  if(!stoolDays.length){el.innerHTML='<div class="card"><div class="empty-state"><div class="empty-icon">🧬</div><div class="empty-text">'+t('noAnalysis')+'</div></div></div>';return;}
+  var cats=FODMAP_CATS.concat(['Gluten']);
+  var catsD=(LANG==='en'?FODMAP_CATS_EN:FODMAP_CATS).concat(['Gluten']);
+  var colors=FODMAP_COLORS.concat(['ft-gluten']);
+  var BN=getBN();var today=new Date().toISOString().split('T')[0];
+  var dayInfo={};
+  stoolDays.forEach(function(date){
+    var day=all[date];
+    var sellesSummary=day.selles.map(function(s){return{bristol:s.bristol,collante:s.collante,sang:s.sang};});
+    var loads={};cats.forEach(function(c){loads[c]={score:0,foods:[]};});
+    day.selles.forEach(function(s){
+      var sTs=new Date(date+'T'+s.heure+':00').getTime();
+      var wEnd=sTs-4*3600000,wStart=sTs-48*3600000,prevTs=wStart,found=false;
+      allDates.slice().reverse().forEach(function(d){if(found)return;var dd=all[d];if(!dd.selles)return;dd.selles.slice().reverse().forEach(function(ps){if(found)return;var pTs=new Date(d+'T'+ps.heure+':00').getTime();if(pTs<sTs&&pTs>wStart){prevTs=pTs;found=true;}});});
+      allDates.forEach(function(d){var dd=all[d];if(!dd.repas)return;dd.repas.forEach(function(r){var rTs=new Date(d+'T'+r.heure+':00').getTime();if(rTs<prevTs||rTs>wEnd)return;var h=(sTs-rTs)/3600000,w=transitWeight(h);if(!w)return;(r.aliments||[]).forEach(function(name){var fd=getFodmapRow(name);if(!fd)return;for(var i=0;i<5;i++){if(fd[i+1]){loads[FODMAP_CATS[i]].score+=w;if(loads[FODMAP_CATS[i]].foods.indexOf(name)<0)loads[FODMAP_CATS[i]].foods.push(name);}}if(fd[6]){loads['Gluten'].score+=w;if(loads['Gluten'].foods.indexOf(name)<0)loads['Gluten'].foods.push(name);}});});});
+    });
+    dayInfo[date]={selles:sellesSummary,loads:loads};
+  });
+
+  function fmtDateShort(ds){var locale=LANG==='en'?'en-GB':'fr-FR';return new Date(ds+'T12:00:00').toLocaleDateString(locale,{day:'numeric',month:'short'});}
+
+  var html='<div class="card"><div class="card-title">'+t('fodmap_matrix_title')+'</div>'
+    +'<div style="font-size:11px;color:var(--text3);margin-bottom:10px">'+t('fodmap_legend')+'</div>'
+    +'<div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table style="border-collapse:collapse;min-width:100%;font-size:11px">'
+    +'<thead><tr>'
+    +'<th style="background:var(--primary-pale);color:var(--primary2);font-weight:800;padding:6px 8px;border:1px solid var(--border);position:sticky;left:0;z-index:3;min-width:110px">'+t('fodmap_indicator_col')+'</th>';
+  stoolDays.forEach(function(d){html+='<th style="background:var(--primary-pale);color:var(--primary2);font-weight:800;padding:6px 8px;border:1px solid var(--border);text-align:center;white-space:nowrap'+(d===today?';font-size:12px;color:var(--accent)':'')+'">'+fmtDateShort(d)+'</th>';});
+  html+='</tr></thead><tbody>';
+
+  // Bristol row
+  html+='<tr><th style="background:var(--primary-soft);font-weight:700;padding:5px 8px;border:1px solid var(--border);position:sticky;left:0;text-align:left">🚽 Bristol</th>';
+  stoolDays.forEach(function(d){var info=dayInfo[d];var cell=info.selles.map(function(s){return BRISTOL_EM[s.bristol]+'<span style="font-size:9px"> '+BN[s.bristol]+'</span>';}).join('<br>');html+='<td style="border:1px solid var(--border);padding:5px 7px;text-align:center;font-size:14px">'+cell+'</td>';});
+  html+='</tr>';
+  // Collante
+  html+='<tr><th style="background:#FFF3E0;font-weight:700;padding:5px 8px;border:1px solid var(--border);position:sticky;left:0;text-align:left">🩹 '+t('fodmap_sticky')+'</th>';
+  stoolDays.forEach(function(d){var has=dayInfo[d].selles.some(function(s){return s.collante;});html+='<td style="border:1px solid var(--border);padding:5px 7px;text-align:center;color:'+(has?'var(--red)':'var(--text3)')+';font-weight:'+(has?'900':'400')+'">'+(has?'●':'–')+'</td>';});
+  html+='</tr>';
+  // Sang
+  html+='<tr><th style="background:#FFF3E0;font-weight:700;padding:5px 8px;border:1px solid var(--border);position:sticky;left:0;text-align:left">🩸 '+t('fodmap_blood')+'</th>';
+  stoolDays.forEach(function(d){var has=dayInfo[d].selles.some(function(s){return s.sang;});html+='<td style="border:1px solid var(--border);padding:5px 7px;text-align:center;color:'+(has?'var(--red)':'var(--text3)')+';font-weight:'+(has?'900':'400')+'">'+(has?'●':'–')+'</td>';});
+  html+='</tr>';
+  // Separator
+  html+='<tr><td colspan="'+(stoolDays.length+1)+'" style="background:var(--border);padding:1px;border:none"></td></tr>';
+  // FODMAP rows
+  cats.forEach(function(cat,ci){
+    html+='<tr><th style="background:var(--bg2);font-weight:700;padding:5px 8px;border:1px solid var(--border);position:sticky;left:0;text-align:left"><span class="fodmap-tag '+colors[ci]+'" style="font-size:10px">'+catsD[ci]+'</span></th>';
+    stoolDays.forEach(function(d){
+      var lo=dayInfo[d].loads[cat];var score=Math.round(lo.score*100)/100;var foods=lo.foods;
+      var bg=score>2?'#FFEBEE':score>1?'#FFF3E0':score>0?'#E8F5E9':'';
+      var col=score>2?'#C62828':score>1?'#E65100':score>0?'#2E7D32':'var(--text3)';
+      var cell=score>0
+        ?'<strong style="color:'+col+'">'+score+'</strong>'+(foods.length?'<div style="font-size:9px;color:var(--text3);white-space:normal;max-width:80px;line-height:1.2">'+foods.join(', ')+'</div>':'')
+        :'<span style="color:var(--text3)">–</span>';
+      html+='<td style="border:1px solid var(--border);padding:5px 7px;text-align:center;background:'+bg+'">'+cell+'</td>';
+    });
+    html+='</tr>';
+  });
+  html+='</tbody></table></div></div>';
+  el.innerHTML=html;el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// IMPORT/EXPORT
+// IMPORT/EXPORT
+
+
 
 // IMPORT/EXPORT
 function exportCSV(){
