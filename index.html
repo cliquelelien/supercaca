@@ -614,6 +614,7 @@ main{position:relative;z-index:1;}
 
 </style>
 </head>
+
 <body>
 <!-- AUTH -->
 <div class="auth-overlay" id="authOverlay">
@@ -1061,7 +1062,9 @@ main{position:relative;z-index:1;}
 </div>
 </div><!-- appContent -->
 
+
 <script>
+
 
 // ===== FIREBASE =====
 var FIREBASE_CONFIG={apiKey:"AIzaSyDr4hzkX78G2BfuFF1stKdeYATiDKLkQ5Y",authDomain:"supercaca-47497.firebaseapp.com",projectId:"supercaca-47497",storageBucket:"supercaca-47497.firebasestorage.app",messagingSenderId:"218710879445",appId:"1:218710879445:web:67529aad2edef8e968065c"};
@@ -1554,7 +1557,20 @@ function updateAccountInfo(){var el=document.getElementById('accountInfo');if(!e
 function getUserDoc(){return db.collection('users').doc(currentUser.uid);}
 function setSyncStatus(s){var el=document.getElementById('syncIndicator');if(!el)return;el.textContent=t('sync_'+s);el.className='sync-indicator'+(s!=='ok'?' '+s:'');if(s==='ok')setTimeout(function(){el.textContent='';},3000);}
 function loadDataFromFirestore(){setSyncStatus('ing');getUserDoc().get().then(function(doc){if(doc.exists){var d=doc.data();localData=d.data||{};localPlats=d.plats||[];}else{localData={};localPlats=[];}setSyncStatus('ok');initApp();}).catch(function(){setSyncStatus('err');localData={};localPlats=[];initApp();});}
-function saveToFirestore(){if(!currentUser)return;clearTimeout(syncTimer);setSyncStatus('ing');syncTimer=setTimeout(function(){getUserDoc().set({data:localData,plats:localPlats,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){setSyncStatus('ok');}).catch(function(){setSyncStatus('err');});},800);}
+function saveToFirestore(){
+  if(!currentUser)return;
+  clearTimeout(syncTimer);
+  setSyncStatus('ing');
+  syncTimer=setTimeout(function(){
+    try{
+      var clean=JSON.parse(JSON.stringify({data:localData,plats:localPlats}));
+      clean.updatedAt=firebase.firestore.FieldValue.serverTimestamp();
+      getUserDoc().set(clean)
+        .then(function(){setSyncStatus('ok');})
+        .catch(function(e){console.error('Sync:',e.code,e.message);setSyncStatus('err');});
+    }catch(e){console.error('Serial:',e);setSyncStatus('err');}
+  },1000);
+}
 function getData(){return localData;}
 function saveData(d){localData=d;saveToFirestore();}
 function getDayData(date){if(!localData[date])localData[date]={repas:[],selles:[],etat:null};return localData[date];}
@@ -2097,7 +2113,7 @@ function deleteAliment(){
 
 function drawTrendCanvas(canvas, labels, series){
   var isDark=document.documentElement.getAttribute('data-theme')==='dark';
-  var W=canvas.offsetWidth||canvas.parentNode.offsetWidth||300;
+  var W=Math.min((window.innerWidth||360)-40,560);
   var H=250;
   canvas.width=W;canvas.height=H;
   var ctx=canvas.getContext('2d');
@@ -2211,8 +2227,9 @@ function renderTrendChart(){
       {data:sportD,  color:'#4CAF50',label:LANG==='en'?'Activity':'Sport'},
       {data:fodmapD, color:'#FFC107',label:'FODMAP'}
     ]);
-  },80);
+  },300);
 }
+
 </script>
 </body>
 </html>
