@@ -1890,9 +1890,8 @@ function setNow(id){var n=new Date();document.getElementById(id).value=String(n.
 function toggleCheckbox(labelEl){var cb=labelEl.querySelector('input[type="checkbox"]');if(!cb)return;cb.checked=!cb.checked;if(cb.checked)labelEl.classList.add('checked');else labelEl.classList.remove('checked');}
 function showToast(msg){var c=document.getElementById('toastContainer');var el=document.createElement('div');el.className='toast';el.textContent=msg;c.appendChild(el);setTimeout(function(){el.remove();},2500);}
 function openDatePicker(){
-  // Switch to calendar tab so user can pick date visually
-  var calBtn=document.getElementById('tb_cal');
-  if(calBtn){switchTab('calendrier',calBtn);}
+  document.getElementById('datePicker').value=currentDate;
+  document.getElementById('dateModal').classList.add('open');
 }
 function confirmDate(){var v=document.getElementById('datePicker').value;if(v){currentDate=v;updateDateDisplay();refreshAll();loadEtatToForm();}closeModal('dateModal');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
