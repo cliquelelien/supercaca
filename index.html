@@ -1069,13 +1069,10 @@ main{position:relative;z-index:1;}
 
 
 
+
 // ===== FIREBASE =====
 var FIREBASE_CONFIG={apiKey:"AIzaSyDr4hzkX78G2BfuFF1stKdeYATiDKLkQ5Y",authDomain:"supercaca-47497.firebaseapp.com",projectId:"supercaca-47497",storageBucket:"supercaca-47497.firebasestorage.app",messagingSenderId:"218710879445",appId:"1:218710879445:web:67529aad2edef8e968065c"};
 var db,auth,currentUser=null,AUTH_MODE='login',syncTimer=null,localData={},localPlats=[];
-// Local cache keys
-var LS_DATA='sc_local_data', LS_PLATS='sc_local_plats';
-function lsLoad(){try{localData=JSON.parse(localStorage.getItem(LS_DATA)||'{}');localPlats=JSON.parse(localStorage.getItem(LS_PLATS)||'[]');}catch(e){localData={};localPlats=[];}}
-function lsSave(){try{localStorage.setItem(LS_DATA,JSON.stringify(localData));localStorage.setItem(LS_PLATS,JSON.stringify(localPlats));}catch(e){}}
 var LANG=localStorage.getItem('sc_lang')||'fr';
 var BRISTOL_FR=['','Très dur','Dur','Normal','Mou','Très mou','Liquide'];
 var BRISTOL_EN=['','Very hard','Hard','Normal','Soft','Very soft','Liquid'];
@@ -1564,48 +1561,60 @@ function updateAccountInfo(){var el=document.getElementById('accountInfo');if(!e
 function getUserDoc(){return db.collection('users').doc(currentUser.uid);}
 function setSyncStatus(s){var el=document.getElementById('syncIndicator');if(!el)return;el.textContent=t('sync_'+s);el.className='sync-indicator'+(s!=='ok'?' '+s:'');if(s==='ok')setTimeout(function(){el.textContent='';},3000);}
 function loadDataFromFirestore(){
-  // Load from localStorage immediately so app is usable right away
-  lsLoad();
-  initApp();
-  // Then sync with Firestore in background
-  syncFromFirestore();
-}
-function syncFromFirestore(attempt){
-  if(!attempt)attempt=1;
+  setSyncStatus('ing');
   getUserDoc().get()
     .then(function(doc){
       if(doc.exists){
         var d=doc.data();
-        if(d.data&&Object.keys(d.data).length>0){
-          localData=d.data;
-          localPlats=d.plats||[];
-          lsSave();
-          // Full UI refresh with Firestore data
-          refreshAll();
-          renderTop10();
-          renderPlatsList();
-          populateScoreDateSelect();
-          renderCalendar();
-          if(document.getElementById('tab-etat').classList.contains('active'))loadEtatToForm();
-          // Rebuild aliments map with custom aliments
-          buildFodmapMap();
-        }
+        localData=d.data||{};
+        localPlats=d.plats||[];
+      } else {
+        localData={};localPlats=[];
       }
       setSyncStatus('ok');
+      initApp();
     })
     .catch(function(e){
-      console.warn('Firestore read attempt',attempt,':',e.code);
-      if(attempt<3){
-        setTimeout(function(){syncFromFirestore(attempt+1);},2000*attempt);
-      } else {
-        var el=document.getElementById('syncIndicator');
-        if(el)el.textContent='';
-        console.warn('Firestore unavailable, using local cache');
-      }
+      console.warn('Firestore load error:',e.code,e.message);
+      // Retry once after 2s before giving up
+      setTimeout(function(){
+        getUserDoc().get()
+          .then(function(doc){
+            if(doc.exists){var d=doc.data();localData=d.data||{};localPlats=d.plats||[];}
+            else{localData={};localPlats=[];}
+            setSyncStatus('ok');
+            initApp();
+          })
+          .catch(function(e2){
+            console.warn('Firestore retry failed:',e2.code);
+            // Last resort: try token refresh then one more attempt
+            if(currentUser){
+              currentUser.getIdToken(true)
+                .then(function(){
+                  return getUserDoc().get();
+                })
+                .then(function(doc){
+                  if(doc.exists){var d=doc.data();localData=d.data||{};localPlats=d.plats||[];}
+                  else{localData={};localPlats=[];}
+                  setSyncStatus('ok');
+                  initApp();
+                })
+                .catch(function(){
+                  localData={};localPlats=[];
+                  setSyncStatus('err');
+                  initApp();
+                });
+            } else {
+              localData={};localPlats=[];
+              setSyncStatus('err');
+              initApp();
+            }
+          });
+      }, 2000);
     });
 }
+
 function saveToFirestore(){
-  lsSave(); // Always save locally first
   if(!currentUser)return;
   clearTimeout(syncTimer);
   setSyncStatus('ing');
@@ -2298,6 +2307,7 @@ function renderTrendChart(){
     ]);
   },300);
 }
+
 
 
 
