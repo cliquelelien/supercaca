@@ -1071,6 +1071,7 @@ main{position:relative;z-index:1;}
 
 
 
+
 // ===== FIREBASE =====
 var FIREBASE_CONFIG={apiKey:"AIzaSyDr4hzkX78G2BfuFF1stKdeYATiDKLkQ5Y",authDomain:"supercaca-47497.firebaseapp.com",projectId:"supercaca-47497",storageBucket:"supercaca-47497.firebasestorage.app",messagingSenderId:"218710879445",appId:"1:218710879445:web:67529aad2edef8e968065c"};
 var db,auth,currentUser=null,AUTH_MODE='login',syncTimer=null,localData={},localPlats=[];
@@ -2256,6 +2257,18 @@ window.addEventListener('resize',function(){
     renderTrendChart();
   }
 });
+function initApp(){
+  buildFodmapMap();
+  applyLang();setNow('repasHeure');setNow('selleHeure');
+  initFoodCommon();initPlatFoodCommon();updateDateDisplay();
+  renderRepasList();renderSellesList();renderEtatDisplay();renderPlatsList();
+  renderTop10();populateScoreDateSelect();renderCalendar();
+  renderNotifCard();updateAccountInfo();
+  if(typeof Notification!=='undefined'&&Notification.permission==='granted')scheduleNightlyReminder();
+  // Note libre highlight
+  var noteEl=document.getElementById('etatNote');
+  if(noteEl){noteEl.addEventListener('input',function(){if(this.value.trim())this.classList.add('note-filled');else this.classList.remove('note-filled');});}
+}
 initTheme();applyLang();initFirebase();
 
 
@@ -2311,6 +2324,7 @@ function renderTrendChart(){
     ]);
   },300);
 }
+
 
 
 
