@@ -1068,6 +1068,7 @@ main{position:relative;z-index:1;}
 
 
 
+
 // ===== FIREBASE =====
 var FIREBASE_CONFIG={apiKey:"AIzaSyDr4hzkX78G2BfuFF1stKdeYATiDKLkQ5Y",authDomain:"supercaca-47497.firebaseapp.com",projectId:"supercaca-47497",storageBucket:"supercaca-47497.firebasestorage.app",messagingSenderId:"218710879445",appId:"1:218710879445:web:67529aad2edef8e968065c"};
 var db,auth,currentUser=null,AUTH_MODE='login',syncTimer=null,localData={},localPlats=[];
@@ -1575,11 +1576,19 @@ function syncFromFirestore(attempt){
     .then(function(doc){
       if(doc.exists){
         var d=doc.data();
-        // Merge: prefer Firestore if it has data, else keep local
         if(d.data&&Object.keys(d.data).length>0){
-          localData=d.data;localPlats=d.plats||[];
+          localData=d.data;
+          localPlats=d.plats||[];
           lsSave();
-          refreshAll();renderTop10();
+          // Full UI refresh with Firestore data
+          refreshAll();
+          renderTop10();
+          renderPlatsList();
+          populateScoreDateSelect();
+          renderCalendar();
+          if(document.getElementById('tab-etat').classList.contains('active'))loadEtatToForm();
+          // Rebuild aliments map with custom aliments
+          buildFodmapMap();
         }
       }
       setSyncStatus('ok');
@@ -1589,10 +1598,9 @@ function syncFromFirestore(attempt){
       if(attempt<3){
         setTimeout(function(){syncFromFirestore(attempt+1);},2000*attempt);
       } else {
-        // Silent failure - app works with local data
         var el=document.getElementById('syncIndicator');
-        if(el){el.textContent='';} // hide sync indicator entirely on persistent failure
-        console.warn('Firestore unavailable - using local data');
+        if(el)el.textContent='';
+        console.warn('Firestore unavailable, using local cache');
       }
     });
 }
@@ -2290,6 +2298,7 @@ function renderTrendChart(){
     ]);
   },300);
 }
+
 
 
 
