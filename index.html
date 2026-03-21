@@ -872,9 +872,6 @@ main{position:relative;z-index:1;}
     <button class="btn btn-primary btn-full" onclick="runAnalysis()" id="L_run_analyse">🔍 Lancer l'analyse</button>
     <button class="btn btn-secondary btn-full" onclick="runFodmapAnalysis()" id="L_run_fodmap" style="margin-top:8px">🧬 Matrice FODMAP × Selles</button>
   </div>
-  <div id="analysisResults"></div>
-  <div id="fodmapAnalysis"></div>
-  <!-- Trend chart -->
   <div class="card" id="trendChartCard" style="display:none">
     <div class="card-title" id="L_trend_title">📈 Tendances sur 30 jours</div>
     <div style="font-size:11px;color:var(--text3);margin-bottom:10px;display:flex;flex-wrap:wrap;gap:8px" id="trendLegend">
@@ -896,6 +893,10 @@ main{position:relative;z-index:1;}
       <div style="margin-top:6px"><span style="color:#FFC107;font-weight:700">🟡 Charge FODMAP</span> — Somme pondérée des FODMAP consommés avant chaque selle (fenêtre 4–48h), normalisée sur 5. Plus c'est haut, plus la charge alimentaire FODMAP était élevée.</div>
     </div>
   </div>
+  <div id="fodmapAnalysis"></div>
+  <div id="analysisResults"></div>
+  <!-- Trend chart -->
+
 </div>
 <!-- ALIMENTS -->
 <div id="tab-aliments" class="tab-content">
