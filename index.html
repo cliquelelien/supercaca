@@ -886,7 +886,15 @@ main{position:relative;z-index:1;}
     <div style="position:relative;height:260px">
       <canvas id="trendChart"></canvas>
     </div>
-    <div style="font-size:10px;color:var(--text3);margin-top:8px;text-align:center" id="L_trend_note">Consistance : 5=idéale (Bristol 3-4), diminue vers 1 (liquide/très dur) · Sport : 0=aucun, 1=marche, 2=vélo/cardio, 3=endurance/muscu · FODMAP : charge pondérée du jour</div>
+    <div style="margin-top:14px;background:var(--bg2);border-radius:12px;padding:12px;font-size:11px;color:var(--text2);line-height:1.7" id="L_trend_note">
+      <div style="font-weight:800;margin-bottom:6px;font-size:12px">📖 Logique de points</div>
+      <div><span style="color:#F44336;font-weight:700">🔴 Consistance selles</span> — Échelle de 1 à 5 basée sur Bristol :<br>
+      🪨 T1=1 · 🌰 T2=2 · 🍫 T3=<strong>5</strong> · 🍌 T4=<strong>5</strong> · 💩 T5=3 · 💦 T6=2 · T7=1<br>
+      <em style="color:var(--text3)">Idéal = 5 (Bristol 3-4). Si plusieurs selles dans la journée : moyenne.</em></div>
+      <div style="margin-top:6px"><span style="color:#2196F3;font-weight:700">🔵 Humeur</span> — Votre saisie directe de 1 à 5.</div>
+      <div style="margin-top:6px"><span style="color:#4CAF50;font-weight:700">🟢 Activité sportive</span> — 💤 Aucune=0 · 🚶 Marche=1 · 🚴 Vélo/Cardio=2 · 🏃 Endurance/Muscu=3</div>
+      <div style="margin-top:6px"><span style="color:#FFC107;font-weight:700">🟡 Charge FODMAP</span> — Somme pondérée des FODMAP consommés avant chaque selle (fenêtre 4–48h), normalisée sur 5. Plus c'est haut, plus la charge alimentaire FODMAP était élevée.</div>
+    </div>
   </div>
 </div>
 <!-- ALIMENTS -->
@@ -1064,6 +1072,7 @@ main{position:relative;z-index:1;}
 
 
 <script>
+
 
 
 
@@ -2298,7 +2307,7 @@ function renderTrendChart(){
   if(nd)nd.remove();
   canvas.style.display='block';
   var spScore={aucun:0,marche:1,velo:2,cardio:2,endurance:3,musculation:3};
-  var bScore={'1':1,'2':2,'3':5,'4':5,'5':2,'6':1};
+  var bScore={'1':1,'2':2,'3':5,'4':5,'5':3,'6':2,'7':1};
   var labels=[],humeurD=[],sellesD=[],sportD=[],fodmapD=[];
   days.forEach(function(ds){
     var day=all[ds];
@@ -2324,6 +2333,7 @@ function renderTrendChart(){
     ]);
   },300);
 }
+
 
 
 
