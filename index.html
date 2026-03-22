@@ -976,6 +976,20 @@ main{position:relative;z-index:1;}
     </div>
     <div id="delAlimMsg" style="font-size:12px;margin-top:6px"></div>
   </div>
+  <!-- Export FODMAP -->
+  <div class="card">
+    <div class="card-title" id="L_fodmap_export_title">📤 Exporter la base FODMAP</div>
+    <p style="font-size:12px;color:var(--text2);margin:0 0 10px 0">Exporte un CSV de tous les aliments. Ajoutez-y des colonnes (fibres, calories…) puis réimportez.</p>
+    <button class="btn btn-success btn-full" onclick="exportFodmapCSV()">📥 Télécharger CSV base FODMAP</button>
+  </div>
+  <!-- Import FODMAP -->
+  <div class="card">
+    <div class="card-title" id="L_fodmap_import_title">📥 Importer une base enrichie</div>
+    <p style="font-size:12px;color:var(--text2);margin:0 0 10px 0">Réimportez un CSV précédemment exporté et enrichi. Les colonnes supplémentaires sont conservées.</p>
+    <input type="file" id="fodmapImportFile" accept=".csv" style="display:none" onchange="importFodmapCSV(this)">
+    <button class="btn btn-secondary btn-full" onclick="document.getElementById('fodmapImportFile').click()">📂 Choisir un fichier CSV enrichi</button>
+    <div id="fodmapImportMsg" style="font-size:12px;margin-top:8px"></div>
+  </div>
 </div>
 <!-- PLATS -->
 <div id="tab-plats" class="tab-content">
