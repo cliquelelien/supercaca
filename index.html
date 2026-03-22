@@ -617,6 +617,7 @@ main{position:relative;z-index:1;}
 
 
 
+
 <body>
 <!-- AUTH -->
 <div class="auth-overlay" id="authOverlay">
@@ -1090,7 +1091,9 @@ main{position:relative;z-index:1;}
 
 
 
+
 <script>
+
 
 
 
@@ -1882,10 +1885,17 @@ function runFodmapAnalysis(){
     var loads={};cats.forEach(function(c){loads[c]={score:0,foods:[]};});
     day.selles.forEach(function(s){
       var sTs=new Date(date+'T'+s.heure+':00').getTime();
-      var wEnd=sTs-4*3600000,wStart=sTs-48*3600000,prevTs=wStart,found=false;
-      allDates.slice().reverse().forEach(function(d){if(found)return;var dd=all[d];if(!dd.selles)return;dd.selles.slice().reverse().forEach(function(ps){if(found)return;var pTs=new Date(d+'T'+ps.heure+':00').getTime();if(pTs<sTs&&pTs>wStart){prevTs=pTs;found=true;}});});
-      allDates.forEach(function(d){var dd=all[d];if(!dd.repas)return;dd.repas.forEach(function(r){var rTs=new Date(d+'T'+r.heure+':00').getTime();if(rTs<prevTs||rTs>wEnd)return;var h=(sTs-rTs)/3600000,w=transitWeight(h);if(!w)return;(r.aliments||[]).forEach(function(name){var fd=getFodmapRow(name);if(!fd)return;for(var i=0;i<5;i++){if(fd[i+1]){loads[FODMAP_CATS[i]].score+=w;if(loads[FODMAP_CATS[i]].foods.indexOf(name)<0)loads[FODMAP_CATS[i]].foods.push(name);}}if(fd[6]){loads['Gluten'].score+=w;if(loads['Gluten'].foods.indexOf(name)<0)loads['Gluten'].foods.push(name);}});});});
-    });
+      var wStart=sTs-48*3600000;
+      allDates.forEach(function(d){var dd=all[d];if(!dd.repas)return;dd.repas.forEach(function(r){
+        var rTs=new Date(d+'T'+r.heure+':00').getTime();
+        if(rTs<wStart||rTs>sTs)return;
+        (r.aliments||[]).forEach(function(name){
+          var fd=getFodmapRow(name);if(!fd)return;
+          for(var i=0;i<5;i++){if(fd[i+1]){loads[FODMAP_CATS[i]].score+=1;if(loads[FODMAP_CATS[i]].foods.indexOf(name)<0)loads[FODMAP_CATS[i]].foods.push(name);}}
+          if(fd[6]){loads['Gluten'].score+=1;if(loads['Gluten'].foods.indexOf(name)<0)loads['Gluten'].foods.push(name);}
+        });
+      });});
+    });;
     dayInfo[date]={selles:sellesSummary,loads:loads};
   });
 
@@ -1928,7 +1938,12 @@ function runFodmapAnalysis(){
     html+='</tr>';
   });
   html+='</tbody></table></div></div>';
-  el.innerHTML=html;el.scrollIntoView({behavior:'smooth',block:'start'});
+  el.innerHTML=html;
+  el.scrollIntoView({behavior:'smooth',block:'start'});
+  setTimeout(function(){
+    var wrap=el.querySelector('div[style*="overflow-x"]');
+    if(wrap)wrap.scrollLeft=wrap.scrollWidth;
+  },200);
 }
 
 // IMPORT/EXPORT
@@ -2392,7 +2407,7 @@ function renderTrendChart(){
   if(nd)nd.remove();
   canvas.style.display='block';
   var spScore={aucun:0,marche:1,velo:2,cardio:2,endurance:3,musculation:3};
-  var bScore={'1':1,'2':2,'3':5,'4':5,'5':3,'6':2,'7':1};
+  var bScore={'1':0,'2':2,'3':5,'4':5,'5':3,'6':0,'7':0};
   var labels=[],humeurD=[],sellesD=[],sportD=[],fodmapD=[];
   days.forEach(function(ds){
     var day=all[ds];
@@ -2461,6 +2476,7 @@ function renderTrendChart(){
     ]);
   },300);
 }
+
 
 
 
