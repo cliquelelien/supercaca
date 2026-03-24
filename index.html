@@ -625,6 +625,7 @@ main{position:relative;z-index:1;}
 
 
 
+
 <body>
 <!-- AUTH -->
 <div class="auth-overlay" id="authOverlay">
@@ -876,12 +877,7 @@ main{position:relative;z-index:1;}
 </div>
 <!-- ANALYSE -->
 <div id="tab-analyse" class="tab-content">
-  <div class="card">
-    <div class="card-title" id="L_analyse_title">🔍 Analyse alimentaire</div>
-    <p id="L_analyse_desc" style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6">Corrélation aliments / selles 12–48h après.</p>
-    <button class="btn btn-primary btn-full" onclick="runAnalysis()" id="L_run_analyse">🔍 Lancer l'analyse</button>
-    <button class="btn btn-secondary btn-full" onclick="runFodmapAnalysis()" id="L_run_fodmap" style="margin-top:8px">🧬 Matrice FODMAP × Selles</button>
-  </div>
+
   <div class="card" id="trendChartCard" style="display:none">
     <div class="card-title" id="L_trend_title">📈 Tendances sur 30 jours</div>
     <div style="font-size:11px;color:var(--text3);margin-bottom:10px;display:flex;flex-wrap:wrap;gap:8px" id="trendLegend">
@@ -1115,7 +1111,9 @@ main{position:relative;z-index:1;}
 
 
 
+
 <script>
+
 
 
 
@@ -1514,7 +1512,7 @@ var FR={
   notif_ask:'Rappel à <strong>21h chaque jour</strong>.',notif_btn:'🔔 Activer le rappel 21h',
   auth_fill:'Veuillez renseigner email et mot de passe.',auth_disconnect:'Se déconnecter ?',
   fodmap_matrix_title:'🧬 FODMAP × Selles — Matrice par jour',
-  fodmap_legend:'Poids transit : 0–4h : 0% · 4–12h : 30% · 12–24h : 40% · 24–48h : 30%',
+  fodmap_legend:'',
   fodmap_indicator_col:'Indicateur',fodmap_sticky:'Collante',fodmap_blood:'Sang'
 };
 var EN={
@@ -1593,7 +1591,7 @@ var EN={
   notif_ask:'Reminder at <strong>9pm every day</strong>.',notif_btn:'🔔 Enable daily reminder',
   auth_fill:'Please enter your email and password.',auth_disconnect:'Sign out?',
   fodmap_matrix_title:'🧬 FODMAP × Stools — Day-by-day matrix',
-  fodmap_legend:'Transit weights: 0–4h: 0% · 4–12h: 30% · 12–24h: 40% · 24–48h: 30%',
+  fodmap_legend:'',
   fodmap_indicator_col:'Indicator',fodmap_sticky:'Sticky',fodmap_blood:'Blood'
 };
 
@@ -1761,25 +1759,25 @@ function applyLang(){
 
 // TOP 10
 function getTop10Foods(){
-  var all=getData();var counts={};
-  // Count ALL foods eaten, exclude only the fixed quick-grid foods
+  var all=getData();
+  // Count occurrences across ALL days (not per-day uniqueness, actual total count)
+  var counts={};
   var quickNames=FOOD_QUICK.map(function(n){return n.toLowerCase();});
   Object.values(all).forEach(function(day){
     (day.repas||[]).forEach(function(r){
       (r.aliments||[]).forEach(function(a){
         var k=a.trim();if(!k)return;
-        // Skip foods already shown in quick grid
         if(quickNames.indexOf(k.toLowerCase())>=0)return;
         counts[k]=(counts[k]||0)+1;
       });
     });
   });
-  // Return top 10 most consumed
-  return Object.entries(counts)
-    .filter(function(e){return e[1]>=1;})
+  // Sort by frequency descending, return top 10
+  var sorted=Object.entries(counts)
     .sort(function(a,b){return b[1]-a[1];})
     .slice(0,10)
     .map(function(e){return e[0];});
+  return sorted;
 }
 function renderTop10(){
   var top10=getTop10Foods();var sec=document.getElementById('top10Section');var con=document.getElementById('foodTop10');var lbl=document.getElementById('L_top10_label');
@@ -1909,10 +1907,21 @@ function runFodmapAnalysis(){
     var loads={};cats.forEach(function(c){loads[c]={score:0,foods:[]};});
     day.selles.forEach(function(s){
       var sTs=new Date(date+'T'+s.heure+':00').getTime();
-      var wStart=sTs-48*3600000;var wEnd=sTs-4*3600000;
+      var wEnd=sTs-4*3600000;
+      // Find previous stool timestamp
+      var prevSts=null;
+      allDates.slice().reverse().forEach(function(d){
+        if(prevSts)return;
+        (all[d].selles||[]).slice().reverse().forEach(function(ps){
+          if(prevSts)return;
+          var pTs=new Date(d+'T'+ps.heure+':00').getTime();
+          if(pTs<sTs){prevSts=pTs;}
+        });
+      });
+      // Window: if prev stool < 48h ago → use 48h window. If prev stool > 48h ago → start from prev stool.
+      var wStart=(prevSts&&(sTs-prevSts)>48*3600000)?prevSts:(sTs-48*3600000);
       allDates.forEach(function(d){var dd=all[d];if(!dd.repas)return;dd.repas.forEach(function(r){
         var rTs=new Date(d+'T'+r.heure+':00').getTime();
-        // Window: 4h to 48h before stool (exclude meals eaten in last 4h = not yet digested)
         if(rTs<wStart||rTs>wEnd)return;
         (r.aliments||[]).forEach(function(name){
           var fd=getFodmapRow(name);if(!fd)return;
@@ -1927,7 +1936,7 @@ function runFodmapAnalysis(){
   function fmtDateShort(ds){var locale=LANG==='en'?'en-GB':'fr-FR';return new Date(ds+'T12:00:00').toLocaleDateString(locale,{day:'numeric',month:'short'});}
 
   var html='<div class="card"><div class="card-title">'+t('fodmap_matrix_title')+'</div>'
-    +'<div style="font-size:11px;color:var(--text3);margin-bottom:10px">'+t('fodmap_legend')+'</div>'
+    ''
     +'<div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table style="border-collapse:collapse;min-width:100%;font-size:11px">'
     +'<thead><tr>'
     +'<th style="background:var(--primary-pale);color:var(--primary2);font-weight:800;padding:6px 8px;border:1px solid var(--border);position:sticky;left:0;z-index:3;min-width:110px">'+t('fodmap_indicator_col')+'</th>';
@@ -2138,7 +2147,7 @@ function openDatePicker(){
 function confirmDate(){var v=document.getElementById('datePicker').value;if(v){currentDate=v;updateDateDisplay();refreshAll();loadEtatToForm();}closeModal('dateModal');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 function updateDateDisplay(){var today=new Date().toISOString().split('T')[0];var locale=LANG==='en'?'en-GB':'fr-FR';var d=new Date(currentDate+'T12:00:00');document.getElementById('currentDateDisplay').textContent=currentDate===today?t('today'):d.toLocaleDateString(locale,{day:'numeric',month:'short'});}
-function switchTab(name,btn){document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});document.querySelectorAll('.tab-btn').forEach(function(el){el.classList.remove('active');});document.getElementById('tab-'+name).classList.add('active');btn.classList.add('active');try{localStorage.setItem('sc_active_tab',name);}catch(e){}if(name==='repas'){renderRepasList();renderTop10();}if(name==='selles')renderSellesList();if(name==='etat'){renderEtatDisplay();loadEtatToForm();}if(name==='score'){populateScoreDateSelect();renderScore();}if(name==='calendrier')renderCalendar();if(name==='plats')renderPlatsList();if(name==='io')renderNotifCard();if(name==='aliments')initAlimentsTab();if(name==='analyse')renderTrendChart();}
+function switchTab(name,btn){document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});document.querySelectorAll('.tab-btn').forEach(function(el){el.classList.remove('active');});document.getElementById('tab-'+name).classList.add('active');btn.classList.add('active');try{localStorage.setItem('sc_active_tab',name);}catch(e){}if(name==='repas'){renderRepasList();renderTop10();}if(name==='selles')renderSellesList();if(name==='etat'){renderEtatDisplay();loadEtatToForm();}if(name==='score'){populateScoreDateSelect();renderScore();}if(name==='calendrier')renderCalendar();if(name==='plats')renderPlatsList();if(name==='io')renderNotifCard();if(name==='aliments')initAlimentsTab();if(name==='analyse'){renderTrendChart();runAnalysis();runFodmapAnalysis();}}
 function refreshAll(){renderRepasList();renderSellesList();renderEtatDisplay();renderScore();renderCalendar();renderTop10();}
 
 
@@ -2520,6 +2529,7 @@ function renderTrendChart(){
     drawTrendCanvas(canvas,labels,visibleSeries);
   },300);
 }
+
 
 
 
