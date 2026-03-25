@@ -1918,8 +1918,17 @@ function runFodmapAnalysis(){
           if(pTs<sTs){prevSts=pTs;}
         });
       });
-      // Window: if prev stool < 48h ago → use 48h window. If prev stool > 48h ago → start from prev stool.
-      var wStart=(prevSts&&(sTs-prevSts)>48*3600000)?prevSts:(sTs-48*3600000);
+      // Window logic:
+      // prev stool < 48h ago → standard window: sTs-48h to sTs-4h
+      // prev stool > 48h ago (or none) → from prevSts-4h to sTs-4h (capture all since last stool)
+      var wStart;
+      if(prevSts && (sTs-prevSts)<48*3600000){
+        wStart=sTs-48*3600000;          // standard 48h window
+      } else if(prevSts){
+        wStart=prevSts-4*3600000;       // 4h before last stool
+      } else {
+        wStart=sTs-48*3600000;          // no previous stool → default 48h
+      }
       allDates.forEach(function(d){var dd=all[d];if(!dd.repas)return;dd.repas.forEach(function(r){
         var rTs=new Date(d+'T'+r.heure+':00').getTime();
         if(rTs<wStart||rTs>wEnd)return;
