@@ -397,6 +397,9 @@ main{position:relative;z-index:1;}
 .io-section{text-align:center;padding:8px;}
 .io-icon{font-size:42px;margin-bottom:10px;}
 .io-desc{font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.5;}
+.mic-btn{flex:0 0 auto;padding:0 12px;font-size:16px;}
+.mic-btn.mic-listening{background:#C0392B;color:#fff;animation:micPulse 1s infinite;}
+@keyframes micPulse{0%,100%{opacity:1;}50%{opacity:0.55;}}
 
 /* ============================================================
    TOAST
@@ -706,6 +709,7 @@ main{position:relative;z-index:1;}
       <label class="form-label" id="L_texte_libre">Texte libre (saisie prédictive)</label>
       <div class="input-with-btn">
         <input type="text" id="repasAlimentInput" class="form-input" oninput="onAlimentInput(this.value)" autocomplete="off" placeholder="Ex: Poulet, Riz...">
+        <button class="btn btn-secondary btn-sm mic-btn" onclick="startDictation('repasAlimentInput',this)" id="micRepasBtn" title="Dicter plusieurs aliments">🎤</button>
         <button class="btn btn-secondary btn-sm" onclick="addFoodFromInput()" id="L_ajouter">+ Ajouter</button>
       </div>
       <div class="autocomplete-list" id="repasAC" style="display:none"></div>
@@ -1087,6 +1091,7 @@ main{position:relative;z-index:1;}
       <div class="autocomplete-wrap">
         <div class="input-with-btn">
           <input type="text" id="platIngredientInput" class="form-input" oninput="onEditAlimInput(this.value,'platIngredientInput','platIngAC')" autocomplete="off">
+          <button class="btn btn-secondary btn-sm mic-btn" onclick="startDictation('platIngredientInput',this)" title="Dicter plusieurs ingrédients">🎤</button>
           <button class="btn btn-secondary btn-sm" onclick="addPlatIngredientFromInput()" id="L_plat_ajouter">+ Ajouter</button>
         </div>
         <div class="autocomplete-list" id="platIngAC" style="display:none"></div>
@@ -1124,7 +1129,7 @@ main{position:relative;z-index:1;}
       <button class="btn btn-success btn-full" onclick="exportCSV()" id="L_export_btn">📥 Télécharger CSV</button>
     </div>
     <div class="io-section" style="margin-top:10px">
-      <div class="io-desc">Génère un JSON complet, idéal pour une analyse par IA (Claude, ChatGPT…).</div>
+      <div class="io-desc">Génère un JSON complet, idéal pour une analyse par IA (Claude, ChatGPT…). Un export automatique se télécharge aussi une fois par jour à l'ouverture de l'app.</div>
       <button class="btn btn-success btn-full" onclick="exportJSON()">📥 Télécharger JSON (pour analyse IA)</button>
     </div>
   </div>
@@ -2192,6 +2197,8 @@ function updateReliabilityStatus(){
     lines.push('🛟 Copie locale de secours : pas encore initialisée.');
   }
   lines.push('🕓 Historique horodaté conservé (jusqu\'à '+HISTORY_MAX_ENTRIES+' versions), restaurable à tout moment.');
+  var lastDay=localStorage.getItem('sc_last_export_day');
+  lines.push('📥 Sauvegarde JSON quotidienne : '+(lastDay===todayStr()?'✅ faite aujourd\'hui':'sera téléchargée automatiquement à l\'ouverture'));
   el.innerHTML=lines.join('<br>');
 }
 function openHistoryModal(){
@@ -2214,8 +2221,8 @@ function openHistoryModal(){
   });
 }
 
-// ===== EXPORT JSON (pour analyse IA externe) =====
-function exportJSON(){
+// ===== EXPORT JSON (pour analyse IA externe, et sauvegarde quotidienne) =====
+function exportJSON(silent){
   var payload={
     exportedAt:new Date().toISOString(),
     data:getData(),
@@ -2224,7 +2231,22 @@ function exportJSON(){
   var blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
   var url=URL.createObjectURL(blob);var a=document.createElement('a');
   a.href=url;a.download='supercaca_'+new Date().toISOString().split('T')[0]+'.json';
-  a.click();showToast('📥 JSON exporté');
+  a.click();
+  localStorage.setItem('sc_last_export_day',todayStr());
+  if(!silent)showToast('📥 JSON exporté');
+  else showToast('🛟 Sauvegarde quotidienne téléchargée');
+}
+function todayStr(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+// Déclenche un téléchargement JSON automatique une fois par jour, au premier
+// chargement de l'app ce jour-là. Les navigateurs bloquant les téléchargements
+// silencieux sans interaction, ce déclenchement a lieu juste après la connexion
+// (l'ouverture de l'app constitue l'interaction utilisateur qui l'autorise).
+function maybeAutoExportToday(){
+  if(!currentUser)return;
+  var lastDay=localStorage.getItem('sc_last_export_day');
+  if(lastDay===todayStr())return;
+  if(!getData()||!Object.keys(getData()).length)return; // rien à exporter encore
+  setTimeout(function(){exportJSON(true);},1500);
 }
 
 // ===== ANALYSE IA INTÉGRÉE (API Anthropic) =====
@@ -2299,6 +2321,63 @@ function runIaAnalysis(){
   }).finally(function(){
     btn.disabled=false;btn.textContent='🔍 Lancer l\'analyse IA';
   });
+}
+
+// ===== DICTÉE VOCALE MULTI-ALIMENTS =====
+// Utilise la Web Speech API du navigateur (gratuite, aucune clé requise).
+// Permet de dicter plusieurs aliments d'un coup ("poulet, riz et brocoli") :
+// le texte reconnu est automatiquement découpé sur les virgules et le mot "et",
+// puis directement ajouté à la sélection (comme un texte libre saisi manuellement).
+var dictationRecognition=null;
+var dictationActiveField=null;
+function getSpeechRecognitionCtor(){
+  return window.SpeechRecognition||window.webkitSpeechRecognition||null;
+}
+function startDictation(fieldId,btnEl){
+  var Ctor=getSpeechRecognitionCtor();
+  if(!Ctor){
+    showToast('🎤 Dictée vocale non disponible sur ce navigateur');
+    return;
+  }
+  // Si une dictée est déjà en cours sur ce champ, l'arrêter (bouton = toggle)
+  if(dictationRecognition&&dictationActiveField===fieldId){
+    dictationRecognition.stop();
+    return;
+  }
+  var recog=new Ctor();
+  dictationRecognition=recog;
+  dictationActiveField=fieldId;
+  recog.lang=(LANG==='en')?'en-US':'fr-FR';
+  recog.continuous=false;
+  recog.interimResults=false;
+  recog.maxAlternatives=1;
+
+  var input=document.getElementById(fieldId);
+  document.querySelectorAll('.mic-btn').forEach(function(b){b.classList.remove('mic-listening');});
+  if(btnEl)btnEl.classList.add('mic-listening');
+
+  recog.onresult=function(e){
+    var transcript=e.results[0][0].transcript||'';
+    // Découpage automatique : virgules, "et", "puis", point-virgule
+    var parts=transcript.split(/\s*(?:,|;|\bet\b|\band\b|\bpuis\b)\s*/i).map(function(s){return s.trim();}).filter(Boolean);
+    if(!parts.length)return;
+    // On remplit le champ avec le texte découpé en liste séparée par virgules,
+    // prêt à être ajouté (comportement identique à une saisie manuelle).
+    input.value=parts.join(', ');
+    if(fieldId==='repasAlimentInput'){addFoodFromInput();}
+    else if(fieldId==='platIngredientInput'){addPlatIngredientFromInput();}
+    showToast('🎤 '+parts.length+' aliment(s) reconnu(s)');
+  };
+  recog.onerror=function(e){
+    if(e.error==='no-speech'){showToast('🎤 Aucune parole détectée');}
+    else if(e.error==='not-allowed'||e.error==='permission-denied'){showToast('🎤 Accès micro refusé — vérifiez les autorisations');}
+    else{showToast('🎤 Erreur de dictée : '+e.error);}
+  };
+  recog.onend=function(){
+    document.querySelectorAll('.mic-btn').forEach(function(b){b.classList.remove('mic-listening');});
+    dictationRecognition=null;dictationActiveField=null;
+  };
+  try{recog.start();}catch(e){showToast('🎤 Impossible de démarrer la dictée');}
 }
 
 function exportCSV(){
@@ -2462,7 +2541,7 @@ function openDatePicker(){
 function confirmDate(){var v=document.getElementById('datePicker').value;if(v){currentDate=v;updateDateDisplay();refreshAll();loadEtatToForm();}closeModal('dateModal');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 function updateDateDisplay(){var today=new Date().toISOString().split('T')[0];var locale=LANG==='en'?'en-GB':'fr-FR';var d=new Date(currentDate+'T12:00:00');document.getElementById('currentDateDisplay').textContent=currentDate===today?t('today'):d.toLocaleDateString(locale,{day:'numeric',month:'short'});}
-function switchTab(name,btn){document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});document.querySelectorAll('.tab-btn').forEach(function(el){el.classList.remove('active');});document.getElementById('tab-'+name).classList.add('active');btn.classList.add('active');try{localStorage.setItem('sc_active_tab',name);}catch(e){}if(name==='repas'){renderRepasList();renderTop10();}if(name==='selles')renderSellesList();if(name==='etat'){renderEtatDisplay();loadEtatToForm();}if(name==='score'){populateScoreDateSelect();renderScore();}if(name==='calendrier')renderCalendar();if(name==='plats')renderPlatsList();if(name==='io')renderNotifCard();if(name==='aliments')initAlimentsTab();if(name==='analyse'){renderTrendChart();runAnalysis();runFodmapAnalysis();}if(name==='ia'){initIaTab();}}
+function switchTab(name,btn){document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});document.querySelectorAll('.tab-btn').forEach(function(el){el.classList.remove('active');});document.getElementById('tab-'+name).classList.add('active');btn.classList.add('active');try{localStorage.setItem('sc_active_tab',name);}catch(e){}if(name==='repas'){renderRepasList();renderTop10();}if(name==='selles')renderSellesList();if(name==='etat'){renderEtatDisplay();loadEtatToForm();}if(name==='score'){populateScoreDateSelect();renderScore();}if(name==='calendrier')renderCalendar();if(name==='plats')renderPlatsList();if(name==='io'){renderNotifCard();updateReliabilityStatus();}if(name==='aliments')initAlimentsTab();if(name==='analyse'){renderTrendChart();runAnalysis();runFodmapAnalysis();}if(name==='ia'){initIaTab();}}
 function refreshAll(){renderRepasList();renderSellesList();renderEtatDisplay();renderScore();renderCalendar();renderTop10();}
 
 
@@ -2746,6 +2825,7 @@ function initApp(){
       if(btn)switchTab(lastTab,btn);
     }
   }catch(e){}
+  maybeAutoExportToday();
 }
 initTheme();applyLang();initFirebase();
 
