@@ -541,6 +541,9 @@ main{position:relative;z-index:1;}
 .aliments-table tr:nth-child(even) td{background:var(--bg2);}
 .aliments-table td:first-child{text-align:left;font-weight:600!important;font-size:11px!important;white-space:nowrap;position:sticky;left:0;z-index:2;background:var(--card);min-width:130px;box-shadow:2px 0 4px rgba(0,0,0,0.08);}
 .aliments-table td:nth-child(2){white-space:nowrap;font-size:10px;color:var(--text3);}
+.fibre-low{color:var(--text3);font-size:10px;}
+.fibre-mod{color:#F57F17;font-weight:700;font-size:10px;}
+.fibre-high{color:#2E7D32;font-weight:800;font-size:10px;}
 .aliments-table tr:nth-child(even) td:first-child,
 .at-yes{color:#1B5E20;font-weight:900;font-size:14px;}
 .at-safe{color:#0D47A1;font-weight:900;font-size:14px;}
@@ -981,6 +984,7 @@ main{position:relative;z-index:1;}
           <th title="Polyols">Poly.</th>
           <th title="Gluten">Glut.</th>
           <th id="ath_safe">✓ OK</th>
+          <th id="ath_fibres" title="Teneur en fibres">Fibres</th>
         </tr></thead>
         <tbody id="alimentsTbody"></tbody>
       </table>
@@ -1021,6 +1025,14 @@ main{position:relative;z-index:1;}
         <label class="fodmap-check-item"><input type="checkbox" id="naf_glut"> <span class="fodmap-tag ft-gluten">Gluten</span></label>
         <label class="fodmap-check-item"><input type="checkbox" id="naf_safe"> <span class="fodmap-tag ft-safe">✓ Sans FODMAP</span></label>
       </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" id="L_add_fibres">Teneur en fibres</label>
+      <select id="naf_fibres" class="form-input">
+        <option value="0">Faible (&lt; 1.5g/100g)</option>
+        <option value="1">Modérée (1.5–3g/100g)</option>
+        <option value="2">Riche (&gt; 3g/100g)</option>
+      </select>
     </div>
     <button class="btn btn-purple btn-full" onclick="addCustomAliment()" id="L_add_alim_btn">💾 Ajouter à la base</button>
   </div>
@@ -1192,125 +1204,127 @@ var HUM_EM=['','😫','😕','😐','😊','😄'],SOM_EM=['','😩','😪','�
 
 // ===== FULL FODMAP DATABASE =====
 // Row: [name, Fructanes,GOS,Lactose,Fructose,Polyols,Gluten,SansFODMAP, Catégorie]
-// indices:  0      1       2    3       4       5      6       7           8
+// indices:  0      1       2    3       4       5      6       7           8        9
+//         nom   fructa. GOS  lactose fructose polyols gluten  safe(1=ok) fibres  catégorie
+// fibres: 0=faible (<1.5g/100g) · 1=modéré (1.5-3g/100g) · 2=riche (>3g/100g)
 var FODMAP_FULL=[
-['Bière',1,0,0,0,0,1,0,'Boissons'],['Café noir',0,0,0,0,0,0,1,'Boissons'],['Eau',0,0,0,0,0,0,1,'Boissons'],
-['Eau de coco',0,0,0,1,0,0,0,'Boissons'],['Jus de pomme',0,0,0,1,1,0,0,'Boissons'],
-["Jus d'orange",0,0,0,0,0,0,1,'Boissons'],['Limonade',0,0,0,0,0,0,1,'Boissons'],
-['Thé à la menthe',0,0,0,0,0,0,1,'Boissons'],['Thé Chaï',1,0,0,0,0,0,0,'Boissons'],
-['Thé noir',0,0,0,0,0,0,1,'Boissons'],['Thé vert',0,0,0,0,0,0,1,'Boissons'],
-['Vin blanc',0,0,0,0,0,0,1,'Boissons'],['Vin rouge',0,0,0,0,0,0,1,'Boissons'],
-['Amarante',0,0,0,0,0,0,1,'Céréales'],['Avoine (pur)',0,0,0,0,0,0,1,'Céréales'],
-['Blé (pain/pâtes)',1,0,0,0,0,1,0,'Céréales'],['Boulgour',1,0,0,0,0,1,0,'Céréales'],
-['Epeautre',1,0,0,0,0,1,0,'Céréales'],['Farine de coco',1,0,0,0,0,0,0,'Céréales'],
-['Farine de pois chiche',0,1,0,0,0,0,0,'Céréales'],['Farine de riz',0,0,0,0,0,0,1,'Céréales'],
-['Galette de riz',0,0,0,0,0,0,1,'Céréales'],['Gnocchi (blé)',1,0,0,0,0,1,0,'Céréales'],
-['Maïs (farine/polenta)',0,0,0,0,0,0,1,'Céréales'],['Millet',0,0,0,0,0,0,1,'Céréales'],
-['Orge',1,0,0,0,0,1,0,'Céréales'],['Pain sans gluten',0,0,0,0,0,0,1,'Céréales'],
-['Quinoa',0,0,0,0,0,0,1,'Céréales'],['Riz',0,0,0,0,0,0,1,'Céréales'],
-['Sarrasin',0,0,0,0,0,0,1,'Céréales'],['Seigle',1,0,0,0,0,1,0,'Céréales'],
-['Semoule de blé',1,0,0,0,0,1,0,'Céréales'],['Sorgho',0,0,0,0,0,0,1,'Céréales'],
-['Tapioca',0,0,0,0,0,0,1,'Céréales'],
-['Aneth',0,0,0,0,0,0,1,'Condiments'],['Basilic',0,0,0,0,0,0,1,'Condiments'],
-['Cannelle',0,0,0,0,0,0,1,'Condiments'],['Chocolat au lait',0,0,1,0,0,0,0,'Condiments'],
-['Chocolat noir',0,0,0,0,0,0,1,'Condiments'],['Coriandre',0,0,0,0,0,0,1,'Condiments'],
-['Cumin',0,0,0,0,0,0,1,'Condiments'],['Curcuma',0,0,0,0,0,0,1,'Condiments'],
-['Gingembre',0,0,0,0,0,0,1,'Condiments'],['Huile de coco',0,0,0,0,0,0,1,'Condiments'],
-["Huile d'olive",0,0,0,0,0,0,1,'Condiments'],['Mayonnaise',0,0,0,0,0,0,1,'Condiments'],
-['Menthe',0,0,0,0,0,0,1,'Condiments'],['Miel',0,0,0,1,0,0,0,'Condiments'],
-['Moutarde',0,0,0,0,0,0,1,'Condiments'],['Origan',0,0,0,0,0,0,1,'Condiments'],
-['Paprika',0,0,0,0,0,0,1,'Condiments'],['Persil',0,0,0,0,0,0,1,'Condiments'],
-['Piment',0,0,0,0,0,0,1,'Condiments'],['Poivre',0,0,0,0,0,0,1,'Condiments'],
-['Romarin',0,0,0,0,0,0,1,'Condiments'],['Safran',0,0,0,0,0,0,1,'Condiments'],
-['Sauce soja',0,0,0,0,0,0,1,'Condiments'],['Sel',0,0,0,0,0,0,1,'Condiments'],
-["Sirop d'agave",0,0,0,1,0,0,0,'Condiments'],["Sirop d'érable",0,0,0,0,0,0,1,'Condiments'],
-['Thym',0,0,0,0,0,0,1,'Condiments'],['Vinaigre balsamique',0,0,0,1,0,0,0,'Condiments'],
-['Vinaigre de cidre',0,0,0,0,0,0,1,'Condiments'],
-['Aspartame',0,0,0,0,0,0,1,'Édulcorants'],['Érythritol',0,0,0,0,1,0,0,'Édulcorants'],
-['Isomalt',0,0,0,0,1,0,0,'Édulcorants'],['Maltitol',0,0,0,0,1,0,0,'Édulcorants'],
-['Mannitol',0,0,0,0,1,0,0,'Édulcorants'],['Sorbitol',0,0,0,0,1,0,0,'Édulcorants'],
-['Stévia',0,0,0,0,0,0,1,'Édulcorants'],['Sucre',0,0,0,0,0,0,1,'Édulcorants'],
-['Xylitol',0,0,0,0,1,0,0,'Édulcorants'],
-['Abricot',0,0,0,0,1,0,0,'Fruits'],['Ananas',0,0,0,0,0,0,1,'Fruits'],
-['Banane (ferme)',0,0,0,0,0,0,1,'Fruits'],['Banane (mûre)',0,0,0,1,0,0,0,'Fruits'],
-['Canneberge (sèche)',0,0,0,1,0,0,0,'Fruits'],['Cassis',0,0,0,0,0,0,1,'Fruits'],
-['Cerise',0,0,0,1,1,0,0,'Fruits'],['Citron',0,0,0,0,0,0,1,'Fruits'],
-['Clémentine',0,0,0,0,0,0,1,'Fruits'],['Datte',1,0,0,0,0,0,0,'Fruits'],
-['Figue fraîche',0,0,0,1,0,0,0,'Fruits'],['Fraise',0,0,0,0,0,0,1,'Fruits'],
-['Framboise',0,0,0,0,0,0,1,'Fruits'],['Fruit de la passion',0,0,0,0,0,0,1,'Fruits'],
-['Goyave',0,0,0,0,0,0,1,'Fruits'],['Grenade',1,0,0,0,0,0,0,'Fruits'],
-['Groseille',0,0,0,0,0,0,1,'Fruits'],['Kaki',0,0,0,1,0,0,0,'Fruits'],
-['Kiwi',0,0,0,0,0,0,1,'Fruits'],['Litchi',0,0,0,0,1,0,0,'Fruits'],
-['Mandarine',0,0,0,0,0,0,1,'Fruits'],['Mangue',0,0,0,1,0,0,0,'Fruits'],
-['Melon Cantaloup',0,0,0,0,0,0,1,'Fruits'],['Pastèque',0,0,0,1,1,0,0,'Fruits'],
-['Mûre',0,0,0,0,1,0,0,'Fruits'],['Myrtille',0,0,0,0,0,0,1,'Fruits'],
-['Nectarine',0,0,0,0,1,0,0,'Fruits'],['Nèfle',0,0,0,0,1,0,0,'Fruits'],
-['Orange',0,0,0,0,0,0,1,'Fruits'],['Pamplemousse',1,0,0,0,0,0,0,'Fruits'],
-['Papaye',0,0,0,0,0,0,1,'Fruits'],['Pêche',0,0,0,0,1,0,0,'Fruits'],
-['Poire',0,0,0,1,1,0,0,'Fruits'],['Pomme',0,0,0,1,1,0,0,'Fruits'],
-['Prune',0,0,0,0,1,0,0,'Fruits'],['Pruneau',0,0,0,0,1,0,0,'Fruits'],
-['Raisin',0,0,0,1,0,0,0,'Fruits'],['Rhubarbe',0,0,0,0,0,0,1,'Fruits'],
-['Beurre',0,0,0,0,0,0,1,'Laitages'],['Brie',0,0,0,0,0,0,1,'Laitages'],
-['Camembert',0,0,0,0,0,0,1,'Laitages'],['Cheddar',0,0,0,0,0,0,1,'Laitages'],
-['Crème fraîche',0,0,1,0,0,0,0,'Laitages'],['Emmental',0,0,0,0,0,0,1,'Laitages'],
-['Feta',0,0,0,0,0,0,1,'Laitages'],['Glace (lait)',0,0,1,0,0,0,0,'Laitages'],
-['Gorgonzola',0,0,0,0,0,0,1,'Laitages'],['Lait (vache)',0,0,1,0,0,0,0,'Laitages'],
-["Lait d'amande",0,0,0,0,0,0,1,'Laitages'],["Lait d'avoine",1,0,0,0,0,0,0,'Laitages'],
-['Lait de coco',0,0,0,0,0,0,1,'Laitages'],['Lait de riz',0,0,0,0,0,0,1,'Laitages'],
-['Lait sans lactose',0,0,0,0,0,0,1,'Laitages'],['Margarine',0,0,0,0,0,0,1,'Laitages'],
-['Mascarpone',0,0,1,0,0,0,0,'Laitages'],['Mozzarella',0,0,0,0,0,0,1,'Laitages'],
-['Parmesan',0,0,0,0,0,0,1,'Laitages'],['Ricotta',0,0,1,0,0,0,0,'Laitages'],
-['Suisse (Petit)',0,0,1,0,0,0,0,'Laitages'],['Yaourt de soja',0,1,0,0,0,0,0,'Laitages'],
-['Yaourt nature',0,0,1,0,0,0,0,'Laitages'],
-['Ail',1,0,0,0,0,0,0,'Légumes'],['Artichaut',1,0,0,1,0,0,0,'Légumes'],
-['Asperge',1,0,0,1,0,0,0,'Légumes'],['Aubergine',0,0,0,0,0,0,1,'Légumes'],
-['Avocat',0,0,0,0,1,0,0,'Légumes'],['Betterave',1,0,0,0,0,0,0,'Légumes'],
-['Bok Choy',0,0,0,0,0,0,1,'Légumes'],['Brocoli',0,1,0,0,0,0,0,'Légumes'],
-['Carotte',0,0,0,0,0,0,1,'Légumes'],['Céleri branche',0,0,0,0,1,0,0,'Légumes'],
-['Céleri-rave',0,0,0,0,0,0,1,'Légumes'],['Champignon (Paris)',0,0,0,0,1,0,0,'Légumes'],
-['Chou chinois',0,0,0,0,0,0,1,'Légumes'],['Chou de Bruxelles',1,0,0,0,0,0,0,'Légumes'],
-['Chou frisé (Kale)',0,0,0,0,0,0,1,'Légumes'],['Chou rouge',0,0,0,0,0,0,1,'Légumes'],
-['Chou-fleur',0,0,0,0,1,0,0,'Légumes'],['Ciboulette',0,0,0,0,0,0,1,'Légumes'],
-['Citrouille',0,0,0,0,0,0,1,'Légumes'],['Concombre',0,0,0,0,0,0,1,'Légumes'],
-['Courge Butternut',0,0,1,0,1,0,0,'Légumes'],['Courgette',0,0,0,0,0,0,1,'Légumes'],
-['Échalote',1,0,0,0,0,0,0,'Légumes'],['Endive',0,0,0,0,0,0,1,'Légumes'],
-['Épinard',0,0,0,0,0,0,1,'Légumes'],['Fenouil (bulbe)',1,0,0,0,0,0,0,'Légumes'],
-['Gombo',0,0,0,0,0,0,1,'Légumes'],['Haricot vert',0,0,0,0,0,0,1,'Légumes'],
-['Laitue',0,0,0,0,0,0,1,'Légumes'],['Maïs',0,0,0,0,0,0,1,'Légumes'],
-['Navet',0,0,0,0,0,0,1,'Légumes'],['Oignon',1,1,0,0,0,0,0,'Légumes'],
-['Panais',0,0,0,0,0,0,1,'Légumes'],['Pâtisson',0,0,0,0,0,0,1,'Légumes'],
-['Petit pois',0,1,0,1,0,0,0,'Légumes'],['Poireau (blanc)',1,0,0,0,0,0,0,'Légumes'],
-['Poireau (vert)',0,0,0,0,0,0,1,'Légumes'],['Poivron rouge',0,0,0,0,0,0,1,'Légumes'],
-['Poivron vert',0,0,0,0,0,0,1,'Légumes'],['Pomme de terre',0,0,0,0,0,0,1,'Légumes'],
-['Pousses de bambou',0,0,0,0,0,0,1,'Légumes'],['Radis',0,0,0,0,0,0,1,'Légumes'],
-['Rutabaga',0,0,0,0,0,0,1,'Légumes'],['Salsifis',1,0,0,0,0,0,0,'Légumes'],
-['Tomate',0,0,0,0,0,0,1,'Légumes'],['Topinambour',1,0,0,0,0,0,0,'Légumes'],
-['Vinaigrette (nature)',0,0,0,0,0,0,1,'Légumes'],['Potiron',0,0,0,0,0,0,1,'Légumes'],
-['Amande (max 10)',0,1,0,0,0,0,0,'Oléagineux'],['Cacahuète',0,0,0,0,0,0,1,'Oléagineux'],
-['Graine de chia',0,0,0,0,0,0,1,'Oléagineux'],['Graine de courge',0,0,0,0,0,0,1,'Oléagineux'],
-['Graine de lin',0,0,0,0,0,0,1,'Oléagineux'],['Graine de sésame',0,0,0,0,0,0,1,'Oléagineux'],
-['Graine de tournesol',0,0,0,0,0,0,1,'Oléagineux'],['Noisette (max 10)',0,1,0,0,0,0,0,'Oléagineux'],
-['Noix',0,0,0,0,0,0,1,'Oléagineux'],['Noix de cajou',1,1,0,0,0,0,0,'Oléagineux'],
-['Noix de coco',0,0,0,0,0,0,1,'Oléagineux'],['Noix de macadamia',0,0,0,0,0,0,1,'Oléagineux'],
-['Noix de pécan',0,0,0,0,0,0,1,'Oléagineux'],['Noix du Brésil',0,0,0,0,0,0,1,'Oléagineux'],
-['Pignons de pin',0,0,0,0,0,0,1,'Oléagineux'],['Pistache',1,1,0,0,0,0,0,'Oléagineux'],
-['Burger',1,1,1,0,0,1,0,'Plats préparés'],['Pizza',1,1,1,0,0,1,0,'Plats préparés'],
-['Agneau',0,0,0,0,0,0,1,'Protéines'],['Bacon (nature)',0,0,0,0,0,0,1,'Protéines'],
-['Boeuf',0,0,0,0,0,0,1,'Protéines'],['Cabillaud',0,0,0,0,0,0,1,'Protéines'],
-['Canard',0,0,0,0,0,0,1,'Protéines'],['Colin',0,0,0,0,0,0,1,'Protéines'],
-['Crevette',0,0,0,0,0,0,1,'Protéines'],['Daurade',0,0,0,0,0,0,1,'Protéines'],
-['Dinde',0,0,0,0,0,0,1,'Protéines'],['Fruits de mer',0,0,0,0,0,0,1,'Protéines'],
-['Haricots blancs',0,1,0,0,0,0,0,'Protéines'],['Haricots rouges',0,1,0,0,0,0,0,'Protéines'],
-['Jambon blanc',0,0,0,0,0,0,1,'Protéines'],['Lentilles (corail)',0,1,0,0,0,0,0,'Protéines'],
-['Lentilles (vertes)',0,1,0,0,0,0,0,'Protéines'],['Moules',0,0,0,0,0,0,1,'Protéines'],
-['Oeuf',0,0,0,0,0,0,1,'Protéines'],['Pois chiches',0,1,0,0,0,0,0,'Protéines'],
-['Porc',0,0,0,0,0,0,1,'Protéines'],['Poulet',0,0,0,0,0,0,1,'Protéines'],
-['Sardine',0,0,0,0,0,0,1,'Protéines'],['Saucisse (pure)',0,0,0,0,0,0,1,'Protéines'],
-['Saumon',0,0,0,0,0,0,1,'Protéines'],['Seiche',0,0,0,0,0,0,1,'Protéines'],
-['Seitan',0,0,0,0,0,1,0,'Protéines'],['Tempeh',0,0,0,0,0,0,1,'Protéines'],
-['Thon',0,0,0,0,0,0,1,'Protéines'],['Tofu (ferme)',0,0,0,0,0,0,1,'Protéines'],
-['Tofu (soyeux)',0,1,0,0,0,0,0,'Protéines'],['Veau',0,0,0,0,0,0,1,'Protéines'],
-['Sucre',0,0,0,0,0,0,1,'Sucres/Édulcorants']
+['Bière',1,0,0,0,0,1,0,0,'Boissons'],['Café noir',0,0,0,0,0,0,1,0,'Boissons'],['Eau',0,0,0,0,0,0,1,0,'Boissons'],
+['Eau de coco',0,0,0,1,0,0,0,0,'Boissons'],['Jus de pomme',0,0,0,1,1,0,0,0,'Boissons'],
+["Jus d'orange",0,0,0,0,0,0,1,0,'Boissons'],['Limonade',0,0,0,0,0,0,1,0,'Boissons'],
+['Thé à la menthe',0,0,0,0,0,0,1,0,'Boissons'],['Thé Chaï',1,0,0,0,0,0,0,0,'Boissons'],
+['Thé noir',0,0,0,0,0,0,1,0,'Boissons'],['Thé vert',0,0,0,0,0,0,1,0,'Boissons'],
+['Vin blanc',0,0,0,0,0,0,1,0,'Boissons'],['Vin rouge',0,0,0,0,0,0,1,0,'Boissons'],
+['Amarante',0,0,0,0,0,0,1,2,'Céréales'],['Avoine (pur)',0,0,0,0,0,0,1,2,'Céréales'],
+['Blé (pain/pâtes)',1,0,0,0,0,1,0,1,'Céréales'],['Boulgour',1,0,0,0,0,1,0,2,'Céréales'],
+['Epeautre',1,0,0,0,0,1,0,2,'Céréales'],['Farine de coco',1,0,0,0,0,0,0,2,'Céréales'],
+['Farine de pois chiche',0,1,0,0,0,0,0,2,'Céréales'],['Farine de riz',0,0,0,0,0,0,1,0,'Céréales'],
+['Galette de riz',0,0,0,0,0,0,1,0,'Céréales'],['Gnocchi (blé)',1,0,0,0,0,1,0,0,'Céréales'],
+['Maïs (farine/polenta)',0,0,0,0,0,0,1,1,'Céréales'],['Millet',0,0,0,0,0,0,1,1,'Céréales'],
+['Orge',1,0,0,0,0,1,0,2,'Céréales'],['Pain sans gluten',0,0,0,0,0,0,1,0,'Céréales'],
+['Quinoa',0,0,0,0,0,0,1,1,'Céréales'],['Riz',0,0,0,0,0,0,1,0,'Céréales'],
+['Sarrasin',0,0,0,0,0,0,1,2,'Céréales'],['Seigle',1,0,0,0,0,1,0,2,'Céréales'],
+['Semoule de blé',1,0,0,0,0,1,0,1,'Céréales'],['Sorgho',0,0,0,0,0,0,1,1,'Céréales'],
+['Tapioca',0,0,0,0,0,0,1,0,'Céréales'],
+['Aneth',0,0,0,0,0,0,1,0,'Condiments'],['Basilic',0,0,0,0,0,0,1,0,'Condiments'],
+['Cannelle',0,0,0,0,0,0,1,1,'Condiments'],['Chocolat au lait',0,0,1,0,0,0,0,0,'Condiments'],
+['Chocolat noir',0,0,0,0,0,0,1,1,'Condiments'],['Coriandre',0,0,0,0,0,0,1,0,'Condiments'],
+['Cumin',0,0,0,0,0,0,1,0,'Condiments'],['Curcuma',0,0,0,0,0,0,1,0,'Condiments'],
+['Gingembre',0,0,0,0,0,0,1,0,'Condiments'],['Huile de coco',0,0,0,0,0,0,1,0,'Condiments'],
+["Huile d'olive",0,0,0,0,0,0,1,0,'Condiments'],['Mayonnaise',0,0,0,0,0,0,1,0,'Condiments'],
+['Menthe',0,0,0,0,0,0,1,0,'Condiments'],['Miel',0,0,0,1,0,0,0,0,'Condiments'],
+['Moutarde',0,0,0,0,0,0,1,0,'Condiments'],['Origan',0,0,0,0,0,0,1,0,'Condiments'],
+['Paprika',0,0,0,0,0,0,1,0,'Condiments'],['Persil',0,0,0,0,0,0,1,0,'Condiments'],
+['Piment',0,0,0,0,0,0,1,0,'Condiments'],['Poivre',0,0,0,0,0,0,1,0,'Condiments'],
+['Romarin',0,0,0,0,0,0,1,0,'Condiments'],['Safran',0,0,0,0,0,0,1,0,'Condiments'],
+['Sauce soja',0,0,0,0,0,0,1,0,'Condiments'],['Sel',0,0,0,0,0,0,1,0,'Condiments'],
+["Sirop d'agave",0,0,0,1,0,0,0,0,'Condiments'],["Sirop d'érable",0,0,0,0,0,0,1,0,'Condiments'],
+['Thym',0,0,0,0,0,0,1,0,'Condiments'],['Vinaigre balsamique',0,0,0,1,0,0,0,0,'Condiments'],
+['Vinaigre de cidre',0,0,0,0,0,0,1,0,'Condiments'],
+['Aspartame',0,0,0,0,0,0,1,0,'Édulcorants'],['Érythritol',0,0,0,0,1,0,0,0,'Édulcorants'],
+['Isomalt',0,0,0,0,1,0,0,0,'Édulcorants'],['Maltitol',0,0,0,0,1,0,0,0,'Édulcorants'],
+['Mannitol',0,0,0,0,1,0,0,0,'Édulcorants'],['Sorbitol',0,0,0,0,1,0,0,0,'Édulcorants'],
+['Stévia',0,0,0,0,0,0,1,0,'Édulcorants'],['Sucre',0,0,0,0,0,0,1,0,'Édulcorants'],
+['Xylitol',0,0,0,0,1,0,0,0,'Édulcorants'],
+['Abricot',0,0,0,0,1,0,0,1,'Fruits'],['Ananas',0,0,0,0,0,0,1,1,'Fruits'],
+['Banane (ferme)',0,0,0,0,0,0,1,1,'Fruits'],['Banane (mûre)',0,0,0,1,0,0,0,1,'Fruits'],
+['Canneberge (sèche)',0,0,0,1,0,0,0,1,'Fruits'],['Cassis',0,0,0,0,0,0,1,2,'Fruits'],
+['Cerise',0,0,0,1,1,0,0,1,'Fruits'],['Citron',0,0,0,0,0,0,1,1,'Fruits'],
+['Clémentine',0,0,0,0,0,0,1,1,'Fruits'],['Datte',1,0,0,0,0,0,0,2,'Fruits'],
+['Figue fraîche',0,0,0,1,0,0,0,1,'Fruits'],['Fraise',0,0,0,0,0,0,1,1,'Fruits'],
+['Framboise',0,0,0,0,0,0,1,2,'Fruits'],['Fruit de la passion',0,0,0,0,0,0,1,2,'Fruits'],
+['Goyave',0,0,0,0,0,0,1,2,'Fruits'],['Grenade',1,0,0,0,0,0,0,1,'Fruits'],
+['Groseille',0,0,0,0,0,0,1,2,'Fruits'],['Kaki',0,0,0,1,0,0,0,1,'Fruits'],
+['Kiwi',0,0,0,0,0,0,1,1,'Fruits'],['Litchi',0,0,0,0,1,0,0,0,'Fruits'],
+['Mandarine',0,0,0,0,0,0,1,1,'Fruits'],['Mangue',0,0,0,1,0,0,0,1,'Fruits'],
+['Melon Cantaloup',0,0,0,0,0,0,1,0,'Fruits'],['Pastèque',0,0,0,1,1,0,0,0,'Fruits'],
+['Mûre',0,0,0,0,1,0,0,2,'Fruits'],['Myrtille',0,0,0,0,0,0,1,1,'Fruits'],
+['Nectarine',0,0,0,0,1,0,0,1,'Fruits'],['Nèfle',0,0,0,0,1,0,0,1,'Fruits'],
+['Orange',0,0,0,0,0,0,1,1,'Fruits'],['Pamplemousse',1,0,0,0,0,0,0,1,'Fruits'],
+['Papaye',0,0,0,0,0,0,1,1,'Fruits'],['Pêche',0,0,0,0,1,0,0,1,'Fruits'],
+['Poire',0,0,0,1,1,0,0,1,'Fruits'],['Pomme',0,0,0,1,1,0,0,1,'Fruits'],
+['Prune',0,0,0,0,1,0,0,1,'Fruits'],['Pruneau',0,0,0,0,1,0,0,2,'Fruits'],
+['Raisin',0,0,0,1,0,0,0,0,'Fruits'],['Rhubarbe',0,0,0,0,0,0,1,1,'Fruits'],
+['Beurre',0,0,0,0,0,0,1,0,'Laitages'],['Brie',0,0,0,0,0,0,1,0,'Laitages'],
+['Camembert',0,0,0,0,0,0,1,0,'Laitages'],['Cheddar',0,0,0,0,0,0,1,0,'Laitages'],
+['Crème fraîche',0,0,1,0,0,0,0,0,'Laitages'],['Emmental',0,0,0,0,0,0,1,0,'Laitages'],
+['Feta',0,0,0,0,0,0,1,0,'Laitages'],['Glace (lait)',0,0,1,0,0,0,0,0,'Laitages'],
+['Gorgonzola',0,0,0,0,0,0,1,0,'Laitages'],['Lait (vache)',0,0,1,0,0,0,0,0,'Laitages'],
+["Lait d'amande",0,0,0,0,0,0,1,0,'Laitages'],["Lait d'avoine",1,0,0,0,0,0,0,0,'Laitages'],
+['Lait de coco',0,0,0,0,0,0,1,0,'Laitages'],['Lait de riz',0,0,0,0,0,0,1,0,'Laitages'],
+['Lait sans lactose',0,0,0,0,0,0,1,0,'Laitages'],['Margarine',0,0,0,0,0,0,1,0,'Laitages'],
+['Mascarpone',0,0,1,0,0,0,0,0,'Laitages'],['Mozzarella',0,0,0,0,0,0,1,0,'Laitages'],
+['Parmesan',0,0,0,0,0,0,1,0,'Laitages'],['Ricotta',0,0,1,0,0,0,0,0,'Laitages'],
+['Suisse (Petit)',0,0,1,0,0,0,0,0,'Laitages'],['Yaourt de soja',0,1,0,0,0,0,0,0,'Laitages'],
+['Yaourt nature',0,0,1,0,0,0,0,0,'Laitages'],
+['Ail',1,0,0,0,0,0,0,1,'Légumes'],['Artichaut',1,0,0,1,0,0,0,2,'Légumes'],
+['Asperge',1,0,0,1,0,0,0,1,'Légumes'],['Aubergine',0,0,0,0,0,0,1,1,'Légumes'],
+['Avocat',0,0,0,0,1,0,0,2,'Légumes'],['Betterave',1,0,0,0,0,0,0,1,'Légumes'],
+['Bok Choy',0,0,0,0,0,0,1,0,'Légumes'],['Brocoli',0,1,0,0,0,0,0,2,'Légumes'],
+['Carotte',0,0,0,0,0,0,1,1,'Légumes'],['Céleri branche',0,0,0,0,1,0,0,0,'Légumes'],
+['Céleri-rave',0,0,0,0,0,0,1,1,'Légumes'],['Champignon (Paris)',0,0,0,0,1,0,0,1,'Légumes'],
+['Chou chinois',0,0,0,0,0,0,1,0,'Légumes'],['Chou de Bruxelles',1,0,0,0,0,0,0,2,'Légumes'],
+['Chou frisé (Kale)',0,0,0,0,0,0,1,2,'Légumes'],['Chou rouge',0,0,0,0,0,0,1,1,'Légumes'],
+['Chou-fleur',0,0,0,0,1,0,0,1,'Légumes'],['Ciboulette',0,0,0,0,0,0,1,0,'Légumes'],
+['Citrouille',0,0,0,0,0,0,1,0,'Légumes'],['Concombre',0,0,0,0,0,0,1,0,'Légumes'],
+['Courge Butternut',0,0,1,0,1,0,0,1,'Légumes'],['Courgette',0,0,0,0,0,0,1,0,'Légumes'],
+['Échalote',1,0,0,0,0,0,0,0,'Légumes'],['Endive',0,0,0,0,0,0,1,2,'Légumes'],
+['Épinard',0,0,0,0,0,0,1,1,'Légumes'],['Fenouil (bulbe)',1,0,0,0,0,0,0,1,'Légumes'],
+['Gombo',0,0,0,0,0,0,1,1,'Légumes'],['Haricot vert',0,0,0,0,0,0,1,1,'Légumes'],
+['Laitue',0,0,0,0,0,0,1,0,'Légumes'],['Maïs',0,0,0,0,0,0,1,1,'Légumes'],
+['Navet',0,0,0,0,0,0,1,1,'Légumes'],['Oignon',1,1,0,0,0,0,0,0,'Légumes'],
+['Panais',0,0,0,0,0,0,1,2,'Légumes'],['Pâtisson',0,0,0,0,0,0,1,0,'Légumes'],
+['Petit pois',0,1,0,1,0,0,0,2,'Légumes'],['Poireau (blanc)',1,0,0,0,0,0,0,1,'Légumes'],
+['Poireau (vert)',0,0,0,0,0,0,1,1,'Légumes'],['Poivron rouge',0,0,0,0,0,0,1,1,'Légumes'],
+['Poivron vert',0,0,0,0,0,0,1,1,'Légumes'],['Pomme de terre',0,0,0,0,0,0,1,1,'Légumes'],
+['Pousses de bambou',0,0,0,0,0,0,1,1,'Légumes'],['Radis',0,0,0,0,0,0,1,0,'Légumes'],
+['Rutabaga',0,0,0,0,0,0,1,1,'Légumes'],['Salsifis',1,0,0,0,0,0,0,2,'Légumes'],
+['Tomate',0,0,0,0,0,0,1,0,'Légumes'],['Topinambour',1,0,0,0,0,0,0,2,'Légumes'],
+['Vinaigrette (nature)',0,0,0,0,0,0,1,0,'Légumes'],['Potiron',0,0,0,0,0,0,1,0,'Légumes'],
+['Amande (max 10)',0,1,0,0,0,0,0,2,'Oléagineux'],['Cacahuète',0,0,0,0,0,0,1,2,'Oléagineux'],
+['Graine de chia',0,0,0,0,0,0,1,2,'Oléagineux'],['Graine de courge',0,0,0,0,0,0,1,1,'Oléagineux'],
+['Graine de lin',0,0,0,0,0,0,1,2,'Oléagineux'],['Graine de sésame',0,0,0,0,0,0,1,2,'Oléagineux'],
+['Graine de tournesol',0,0,0,0,0,0,1,1,'Oléagineux'],['Noisette (max 10)',0,1,0,0,0,0,0,2,'Oléagineux'],
+['Noix',0,0,0,0,0,0,1,1,'Oléagineux'],['Noix de cajou',1,1,0,0,0,0,0,1,'Oléagineux'],
+['Noix de coco',0,0,0,0,0,0,1,2,'Oléagineux'],['Noix de macadamia',0,0,0,0,0,0,1,1,'Oléagineux'],
+['Noix de pécan',0,0,0,0,0,0,1,1,'Oléagineux'],['Noix du Brésil',0,0,0,0,0,0,1,1,'Oléagineux'],
+['Pignons de pin',0,0,0,0,0,0,1,1,'Oléagineux'],['Pistache',1,1,0,0,0,0,0,2,'Oléagineux'],
+['Burger',1,1,1,0,0,1,0,1,'Plats préparés'],['Pizza',1,1,1,0,0,1,0,1,'Plats préparés'],
+['Agneau',0,0,0,0,0,0,1,0,'Protéines'],['Bacon (nature)',0,0,0,0,0,0,1,0,'Protéines'],
+['Boeuf',0,0,0,0,0,0,1,0,'Protéines'],['Cabillaud',0,0,0,0,0,0,1,0,'Protéines'],
+['Canard',0,0,0,0,0,0,1,0,'Protéines'],['Colin',0,0,0,0,0,0,1,0,'Protéines'],
+['Crevette',0,0,0,0,0,0,1,0,'Protéines'],['Daurade',0,0,0,0,0,0,1,0,'Protéines'],
+['Dinde',0,0,0,0,0,0,1,0,'Protéines'],['Fruits de mer',0,0,0,0,0,0,1,0,'Protéines'],
+['Haricots blancs',0,1,0,0,0,0,0,2,'Protéines'],['Haricots rouges',0,1,0,0,0,0,0,2,'Protéines'],
+['Jambon blanc',0,0,0,0,0,0,1,0,'Protéines'],['Lentilles (corail)',0,1,0,0,0,0,0,2,'Protéines'],
+['Lentilles (vertes)',0,1,0,0,0,0,0,2,'Protéines'],['Moules',0,0,0,0,0,0,1,0,'Protéines'],
+['Oeuf',0,0,0,0,0,0,1,0,'Protéines'],['Pois chiches',0,1,0,0,0,0,0,2,'Protéines'],
+['Porc',0,0,0,0,0,0,1,0,'Protéines'],['Poulet',0,0,0,0,0,0,1,0,'Protéines'],
+['Sardine',0,0,0,0,0,0,1,0,'Protéines'],['Saucisse (pure)',0,0,0,0,0,0,1,0,'Protéines'],
+['Saumon',0,0,0,0,0,0,1,0,'Protéines'],['Seiche',0,0,0,0,0,0,1,0,'Protéines'],
+['Seitan',0,0,0,0,0,1,0,1,'Protéines'],['Tempeh',0,0,0,0,0,0,1,1,'Protéines'],
+['Thon',0,0,0,0,0,0,1,0,'Protéines'],['Tofu (ferme)',0,0,0,0,0,0,1,1,'Protéines'],
+['Tofu (soyeux)',0,1,0,0,0,0,0,1,'Protéines'],['Veau',0,0,0,0,0,0,1,0,'Protéines'],
+['Sucre',0,0,0,0,0,0,1,0,'Sucres/Édulcorants']
 ];
 
 var FODMAP_CATS=['Fructanes','GOS','Lactose','Fructose','Polyols'];
@@ -1381,12 +1395,14 @@ function addCustomAliment(){
     document.getElementById('naf_poly').checked?1:0,
     document.getElementById('naf_glut').checked?1:0,
     document.getElementById('naf_safe').checked?1:0,
+    parseInt(document.getElementById('naf_fibres').value,10)||0,
     cat];
   var custom=getCustomAliments();var idx=custom.findIndex(function(x){return x[0].toLowerCase()===nom.toLowerCase();});
   if(idx>=0)custom[idx]=r;else custom.push(r);
   saveCustomAliments(custom);buildFodmapMap();
   document.getElementById('newAlimNom').value='';
   ['naf_fruct','naf_gos','naf_lact','naf_fruc','naf_poly','naf_glut','naf_safe'].forEach(function(id){document.getElementById(id).checked=false;});
+  document.getElementById('naf_fibres').value='0';
   renderAlimentsTable('');showToast('✅ Aliment ajouté : '+nom);
 }
 
@@ -1395,7 +1411,7 @@ var alimentActiveCat='';
 function initAlimentsTab(){
   var bar=document.getElementById('alimentsCatBar');if(!bar||bar.dataset.init)return;bar.dataset.init='1';
   var deleted=getDeletedAliments();var all=FODMAP_FULL.filter(function(r){return deleted.indexOf(r[0].toLowerCase())<0;}).concat(getCustomAliments());
-  var cats=[...new Set(all.map(function(r){return r[8];}))].sort();
+  var cats=[...new Set(all.map(function(r){return r[9];}))].sort();
   function mkBtn(label,cat){var b=document.createElement('button');b.className='aliments-filter-btn'+(cat===alimentActiveCat?' active':'');b.textContent=label;b.onclick=function(){alimentActiveCat=cat;document.querySelectorAll('.aliments-filter-btn').forEach(function(x){x.classList.remove('active');});b.classList.add('active');renderAlimentsTable(document.getElementById('alimentsSearch').value);};bar.appendChild(b);}
   mkBtn(LANG==='en'?'All':'Tout','');cats.forEach(function(c){mkBtn(c,c);});
   renderAlimentsTable('');
@@ -1405,14 +1421,18 @@ function renderAlimentsTable(search){
   var tbody=document.getElementById('alimentsTbody');if(!tbody)return;
   var all=FODMAP_FULL.concat(getCustomAliments());
   var q=(search||'').toLowerCase();
-  var rows=all.filter(function(r){return(!q||r[0].toLowerCase().indexOf(q)>=0)&&(!alimentActiveCat||r[8]===alimentActiveCat);});
+  var rows=all.filter(function(r){return(!q||r[0].toLowerCase().indexOf(q)>=0)&&(!alimentActiveCat||r[9]===alimentActiveCat);});
   tbody.innerHTML='';
+  var fibreLabel=[LANG==='en'?'Low':'Faible',LANG==='en'?'Moderate':'Modéré',LANG==='en'?'High':'Riche'];
+  var fibreClass=['fibre-low','fibre-mod','fibre-high'];
   rows.forEach(function(r){
     var tr=document.createElement('tr');
     function cell(v){return'<td class="'+(v?'at-safe':'')+'">'+( v?'✓':'')+'</td>';}
-    tr.innerHTML='<td>'+r[0]+'</td><td>'+r[8]+'</td>'
+    var fb=r[8]||0;
+    tr.innerHTML='<td>'+r[0]+'</td><td>'+r[9]+'</td>'
       +cell(r[1])+cell(r[2])+cell(r[3])+cell(r[4])+cell(r[5])
-      +cell(r[6])+cell(r[7]);
+      +cell(r[6])+cell(r[7])
+      +'<td class="'+fibreClass[fb]+'">'+fibreLabel[fb]+'</td>';
     tbody.appendChild(tr);
   });
 }
@@ -1451,7 +1471,7 @@ function onAlimentInput(val){
       if(r[7])tags+='<span class="fodmap-tag ft-safe" style="font-size:9px">✓ OK</span>';
       else{for(var i=0;i<5;i++)if(r[i+1])tags+='<span class="fodmap-tag '+FODMAP_COLORS[i]+'" style="font-size:9px">'+getFodmapCats()[i]+'</span>';if(r[6])tags+='<span class="fodmap-tag ft-gluten" style="font-size:9px">Gluten</span>';}
     }
-    var subtitle=plat?'<span class="ac-meta" style="font-size:9px">'+plat.aliments.slice(0,4).join(', ')+(plat.aliments.length>4?'…':'')+'</span>':'<span class="ac-meta">'+(r?r[8]:'')+'</span>';
+    var subtitle=plat?'<span class="ac-meta" style="font-size:9px">'+plat.aliments.slice(0,4).join(', ')+(plat.aliments.length>4?'…':'')+'</span>':'<span class="ac-meta">'+(r?r[9]:'')+'</span>';
     var div=document.createElement('div');div.className='autocomplete-item';
     div.innerHTML='<span class="ac-name">'+name+'</span>'+subtitle+(tags?'<div class="ac-tags">'+tags+'</div>':'');
     div.addEventListener('mousedown',function(e){e.preventDefault();e.stopPropagation();
@@ -1536,8 +1556,8 @@ var FR={
   noAnalysis:'Pas assez de données.',
   analyse_corr:'📊 Corrélation aliments / troubles',analyse_warn:'aliment(s) potentiellement problématique(s)',analyse_selles:' selle(s) analysée(s)',
   L_alim_title:'🧬 Base FODMAP — Aliments',L_add_alim_title:'➕ Ajouter un aliment',
-  L_add_nom:'Nom',L_add_cat:'Catégorie',L_add_props:'Propriétés FODMAP',L_add_alim_btn:'💾 Ajouter à la base',
-  ath_nom:'Aliment',ath_cat:'Catégorie',ath_safe:'✓ OK',
+  L_add_nom:'Nom',L_add_cat:'Catégorie',L_add_props:'Propriétés FODMAP',L_add_fibres:'Teneur en fibres',L_add_alim_btn:'💾 Ajouter à la base',
+  ath_nom:'Aliment',ath_cat:'Catégorie',ath_safe:'✓ OK',ath_fibres:'Fibres',
   L_plat_create:'🍲 Créer un plat type',L_plat_nom:'Nom du plat',ph_plat_nom:'Ex: Biryani...',
   L_plat_aliments:'Aliments courants',L_plat_selectionnes:'Ingrédients sélectionnés',
   aucun_ingredient:'Aucun ingrédient sélectionné',L_plat_texte_libre:'Texte libre',ph_plat_input:'Ex: Garam masala...',
@@ -1615,8 +1635,8 @@ var EN={
   noAnalysis:'Not enough data.',
   analyse_corr:'📊 Food / trouble correlation',analyse_warn:'potentially problematic food(s)',analyse_selles:' stool(s) analysed',
   L_alim_title:'🧬 FODMAP Database',L_add_alim_title:'➕ Add a food',
-  L_add_nom:'Name',L_add_cat:'Category',L_add_props:'FODMAP properties',L_add_alim_btn:'💾 Add to database',
-  ath_nom:'Food',ath_cat:'Category',ath_safe:'✓ OK',
+  L_add_nom:'Name',L_add_cat:'Category',L_add_props:'FODMAP properties',L_add_fibres:'Fiber content',L_add_alim_btn:'💾 Add to database',
+  ath_nom:'Food',ath_cat:'Category',ath_safe:'✓ OK',ath_fibres:'Fiber',
   L_plat_create:'🍲 Create a meal type',L_plat_nom:'Meal name',ph_plat_nom:'E.g. Biryani...',
   L_plat_aliments:'Common foods',L_plat_selectionnes:'Selected ingredients',
   aucun_ingredient:'No ingredient selected',L_plat_texte_libre:'Free text',ph_plat_input:'E.g. Garam masala...',
@@ -1904,8 +1924,8 @@ function applyLang(){
   s('L_regles_title','L_regles_title');s('L_regles_cb','L_regles_cb');
   s('L_note_title','L_note_title');p('etatNote','ph_note');s('L_save_etat','L_save_etat');s('L_score_missing','L_score_missing');
   s('L_analyse_title','L_analyse_title');h('L_analyse_desc','L_analyse_desc');s('L_run_analyse','L_run_analyse');s('L_run_fodmap','L_run_fodmap');
-  s('L_alim_title','L_alim_title');s('L_add_alim_title','L_add_alim_title');s('L_add_nom','L_add_nom');s('L_add_cat','L_add_cat');s('L_add_props','L_add_props');s('L_add_alim_btn','L_add_alim_btn');
-  s('ath_nom','ath_nom');s('ath_cat','ath_cat');s('ath_safe','ath_safe');
+  s('L_alim_title','L_alim_title');s('L_add_alim_title','L_add_alim_title');s('L_add_nom','L_add_nom');s('L_add_cat','L_add_cat');s('L_add_props','L_add_props');s('L_add_fibres','L_add_fibres');s('L_add_alim_btn','L_add_alim_btn');
+  s('ath_nom','ath_nom');s('ath_cat','ath_cat');s('ath_safe','ath_safe');s('ath_fibres','ath_fibres');
   s('L_plat_create','L_plat_create');s('L_plat_nom','L_plat_nom');p('platNom','ph_plat_nom');
   s('L_plat_aliments','L_plat_aliments');s('L_plat_selectionnes','L_plat_selectionnes');s('L_plat_texte_libre','L_plat_texte_libre');p('platIngredientInput','ph_plat_input');
   s('L_plat_ajouter','L_plat_ajouter');s('L_save_plat','L_save_plat');s('L_plats_enregistres','L_plats_enregistres');
@@ -2496,7 +2516,7 @@ function onEditAlimInput(val, inputId, acId){
       else{var cats=getFodmapCats();for(var i=0;i<5;i++)if(r[i+1])tags+='<span class="fodmap-tag '+FODMAP_COLORS[i]+'" style="font-size:9px">'+cats[i]+'</span>';
         if(r[6])tags+='<span class="fodmap-tag ft-gluten" style="font-size:9px">Gluten</span>';}
     }
-    var subtitle=plat?'<span class="ac-meta" style="font-size:9px">'+plat.aliments.slice(0,4).join(', ')+(plat.aliments.length>4?'…':'')+'</span>':'<span class="ac-meta">'+(r?r[8]:'')+'</span>';
+    var subtitle=plat?'<span class="ac-meta" style="font-size:9px">'+plat.aliments.slice(0,4).join(', ')+(plat.aliments.length>4?'…':'')+'</span>':'<span class="ac-meta">'+(r?r[9]:'')+'</span>';
     var div=document.createElement('div');div.className='autocomplete-item';
     div.innerHTML='<span class="ac-name">'+name+'</span>'+subtitle+(tags?'<div class="ac-tags">'+tags+'</div>':'');
     div.addEventListener('mousedown',function(e){
@@ -2648,9 +2668,10 @@ function exportFodmapCSV(){
   var custom=getCustomAliments();
   var deleted=getDeletedAliments();
   var all=FODMAP_FULL.filter(function(r){return deleted.indexOf(r[0].toLowerCase())<0;}).concat(custom);
-  var rows=[['Aliment','Catégorie','Fructanes','GOS','Lactose','Fructose','Polyols','Gluten','SansFODMAP']];
+  var fibreLabelCsv=['Faible','Modérée','Riche'];
+  var rows=[['Aliment','Catégorie','Fructanes','GOS','Lactose','Fructose','Polyols','Gluten','SansFODMAP','Fibres']];
   all.forEach(function(r){
-    rows.push([r[0],r[8],r[1]?'1':'',r[2]?'1':'',r[3]?'1':'',r[4]?'1':'',r[5]?'1':'',r[6]?'1':'',r[7]?'1':'']);
+    rows.push([r[0],r[9],r[1]?'1':'',r[2]?'1':'',r[3]?'1':'',r[4]?'1':'',r[5]?'1':'',r[6]?'1':'',r[7]?'1':'',fibreLabelCsv[r[8]||0]]);
   });
   var csv=rows.map(function(r){return r.map(function(c){return'"'+String(c||'').replace(/"/g,'""')+'"';}).join(',');}).join('\n');
   var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
@@ -2675,14 +2696,16 @@ function importFodmapCSV(input){
     var iLact=header.indexOf('lactose'),iFruc=header.indexOf('fructose');
     var iPoly=header.indexOf('polyols'),iGlut=header.indexOf('gluten');
     var iSafe=header.indexOf('sansfodmap');if(iSafe<0)iSafe=header.indexOf('sans fodmap');
+    var iFibres=header.indexOf('fibres');
     if(iNom<0){if(msg)msg.innerHTML='<span style="color:var(--red)">⚠️ Colonne "Aliment" introuvable</span>';return;}
     function getV(parts,i){if(i<0||!parts[i])return 0;var v=parts[i].trim();return(v==='1'||v.toLowerCase()==='true'||v==='✅')?1:0;}
+    function getFibres(parts,i){if(i<0||!parts[i])return 0;var v=parts[i].trim().toLowerCase();if(v==='riche'||v==='2'||v==='high')return 2;if(v==='modérée'||v==='moderee'||v==='modéré'||v==='1'||v==='moderate')return 1;return 0;}
     var custom=getCustomAliments();var count=0;
     lines.slice(1).forEach(function(line){
       var parts=parseCSVLine(line);if(parts.length<2)return;
       var nom=(parts[iNom]||'').trim();if(!nom)return;
       var cat=(iCat>=0?(parts[iCat]||''):'Autre').trim()||'Autre';
-      var row=[nom,getV(parts,iFruct),getV(parts,iGos),getV(parts,iLact),getV(parts,iFruc),getV(parts,iPoly),getV(parts,iGlut),getV(parts,iSafe),cat];
+      var row=[nom,getV(parts,iFruct),getV(parts,iGos),getV(parts,iLact),getV(parts,iFruc),getV(parts,iPoly),getV(parts,iGlut),getV(parts,iSafe),getFibres(parts,iFibres),cat];
       var idx=custom.findIndex(function(r){return r[0].toLowerCase()===nom.toLowerCase();});
       if(idx>=0)custom[idx]=row;else{custom.push(row);count++;}
     });
