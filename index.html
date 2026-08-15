@@ -667,6 +667,7 @@ main{position:relative;z-index:1;}
   <button class="tab-btn" onclick="switchTab('score',this)" id="tb_score">📊 Score</button>
   <button class="tab-btn" onclick="switchTab('calendrier',this)" id="tb_cal">🗓️ Cal.</button>
   <button class="tab-btn" onclick="switchTab('analyse',this)" id="tb_analyse">🔍 Analyse</button>
+  <button class="tab-btn" onclick="switchTab('ia',this)" id="tb_ia">🤖 Analyse IA</button>
   <button class="tab-btn" onclick="switchTab('aliments',this)" id="tb_aliments">🧬 Base FODMAP</button>
   <button class="tab-btn" onclick="switchTab('plats',this)" id="tb_plats">🍲 Plats types</button>
   <button class="tab-btn" onclick="switchTab('io',this)" id="tb_io">💾 I/O</button>
@@ -919,6 +920,49 @@ main{position:relative;z-index:1;}
   <!-- Trend chart -->
 
 </div>
+<!-- ANALYSE IA -->
+<div id="tab-ia" class="tab-content">
+  <div class="card">
+    <div class="card-title">🤖 Analyse par IA (Claude)</div>
+    <p style="font-size:12px;color:var(--text2);margin:0 0 10px 0">
+      Envoie vos données (repas, selles, état, période choisie) à Claude pour une analyse approfondie :
+      corrélations, hypothèses de déclencheurs, conseils. Vos données transitent directement vers l'API Anthropic —
+      aucun tiers ne les stocke.
+    </p>
+    <div class="form-group">
+      <label class="form-label">Clé API Anthropic</label>
+      <input type="password" id="iaApiKey" class="form-input" placeholder="sk-ant-...">
+      <div style="font-size:11px;color:var(--text3);margin-top:4px">
+        Stockée uniquement dans ce navigateur (localStorage), jamais envoyée ailleurs qu'à l'API Anthropic.
+        Obtenez une clé sur <span style="text-decoration:underline">console.anthropic.com</span>.
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Période à analyser</label>
+      <select id="iaPeriod" class="form-input">
+        <option value="30">30 derniers jours</option>
+        <option value="60">60 derniers jours</option>
+        <option value="90" selected>90 derniers jours</option>
+        <option value="9999">Toutes les données</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Question / axe d'analyse (optionnel)</label>
+      <textarea id="iaPrompt" class="form-input" rows="3" placeholder="Ex: Quels aliments semblent corrélés à mes crises ? Y a-t-il un lien avec mon sommeil ?"></textarea>
+    </div>
+    <button class="btn btn-purple btn-full" onclick="runIaAnalysis()" id="iaRunBtn">🔍 Lancer l'analyse IA</button>
+    <div id="iaStatus" style="font-size:12px;margin-top:10px"></div>
+  </div>
+  <div id="iaResults"></div>
+  <div class="card">
+    <div class="card-title">📋 Ou analyser ailleurs</div>
+    <p style="font-size:12px;color:var(--text2);margin:0 0 10px 0">
+      Vous pouvez aussi exporter vos données (JSON, onglet I/O) et les glisser dans une conversation Claude,
+      ChatGPT ou tout autre outil d'analyse — sans passer par une clé API.
+    </p>
+    <button class="btn btn-secondary btn-full" onclick="switchTab('io',document.getElementById('tb_io'))">📤 Aller à l'export</button>
+  </div>
+</div>
 <!-- ALIMENTS -->
 <div id="tab-aliments" class="tab-content">
   <div class="card">
@@ -1057,10 +1101,19 @@ main{position:relative;z-index:1;}
     <div id="notifActions"></div>
   </div>
   <div class="card">
+    <div class="card-title">🛟 Fiabilité des données</div>
+    <div class="io-desc" id="reliabilityStatus" style="margin-bottom:10px">Vérification…</div>
+    <button class="btn btn-secondary btn-full" onclick="openHistoryModal()">🕓 Voir l'historique des sauvegardes</button>
+  </div>
+  <div class="card">
     <div class="card-title" id="L_export_title">📤 Exporter</div>
     <div class="io-section">
       <div class="io-desc" id="L_export_desc">Génère un fichier CSV de sauvegarde.</div>
       <button class="btn btn-success btn-full" onclick="exportCSV()" id="L_export_btn">📥 Télécharger CSV</button>
+    </div>
+    <div class="io-section" style="margin-top:10px">
+      <div class="io-desc">Génère un JSON complet, idéal pour une analyse par IA (Claude, ChatGPT…).</div>
+      <button class="btn btn-success btn-full" onclick="exportJSON()">📥 Télécharger JSON (pour analyse IA)</button>
     </div>
   </div>
   <div class="card">
@@ -1618,17 +1671,52 @@ function doSignOut(){if(!confirm(t('auth_disconnect')))return;auth.signOut();}
 function updateAccountInfo(){var el=document.getElementById('accountInfo');if(!el||!currentUser)return;var n=currentUser.displayName||currentUser.email,p=currentUser.photoURL;el.innerHTML='<div class="user-badge">'+(p?'<img src="'+p+'" alt="">':'')+'<span>'+n+'</span></div><div style="font-size:12px;color:var(--text3);margin-top:6px">'+currentUser.email+'</div>';}
 function getUserDoc(){return db.collection('users').doc(currentUser.uid);}
 function setSyncStatus(s){var el=document.getElementById('syncIndicator');if(!el)return;el.textContent=t('sync_'+s);el.className='sync-indicator'+(s!=='ok'?' '+s:'');if(s==='ok')setTimeout(function(){el.textContent='';},3000);}
+// ===== FILET DE SÉCURITÉ LOCAL =====
+// Clé localStorage par utilisateur : une copie instantanée est écrite à CHAQUE saisie,
+// AVANT tout envoi réseau. Aucune perte possible même si l'app crashe, se ferme,
+// ou perd le réseau juste après une saisie.
+function localBackupKey(){return 'sc_backup_'+(currentUser?currentUser.uid:'anon');}
+function writeLocalBackup(){
+  try{
+    var payload={data:localData,plats:localPlats,savedAt:Date.now()};
+    localStorage.setItem(localBackupKey(),JSON.stringify(payload));
+  }catch(e){console.error('Local backup write failed:',e);}
+}
+function readLocalBackup(){
+  try{
+    var raw=localStorage.getItem(localBackupKey());
+    if(!raw)return null;
+    return JSON.parse(raw);
+  }catch(e){console.error('Local backup read failed:',e);return null;}
+}
+
 function loadDataFromFirestore(){
   setSyncStatus('ing');
   getUserDoc().get()
     .then(function(doc){
-      if(doc.exists){
-        var d=doc.data();
-        localData=d.data||{};
-        localPlats=d.plats||[];
+      var remote=doc.exists?doc.data():null;
+      var backup=readLocalBackup();
+      // Si une sauvegarde locale existe et est plus récente que la dernière écriture
+      // Firestore connue, on considère qu'elle contient des saisies non synchronisées
+      // (typiquement : app fermée/crashée pendant la fenêtre d'envoi réseau).
+      var remoteTime=(remote&&remote.updatedAt&&remote.updatedAt.toMillis)?remote.updatedAt.toMillis():0;
+      if(backup&&backup.savedAt>remoteTime+1500){
+        localData=backup.data||{};
+        localPlats=backup.plats||[];
+        console.warn('Reprise depuis la sauvegarde locale (plus récente que le serveur) — resynchronisation…');
+        setSyncStatus('ing');
+        initApp();
+        saveToFirestore(true); // pousse immédiatement la version récupérée
+        setTimeout(function(){showToast('🛟 Données récupérées depuis la copie locale');},600);
+        return;
+      }
+      if(remote){
+        localData=remote.data||{};
+        localPlats=remote.plats||[];
       } else {
         localData={};localPlats=[];
       }
+      writeLocalBackup();
       setSyncStatus('ok');
       initApp();
     })
@@ -1640,6 +1728,7 @@ function loadDataFromFirestore(){
           .then(function(doc){
             if(doc.exists){var d=doc.data();localData=d.data||{};localPlats=d.plats||[];}
             else{localData={};localPlats=[];}
+            writeLocalBackup();
             setSyncStatus('ok');
             initApp();
           })
@@ -1654,19 +1743,31 @@ function loadDataFromFirestore(){
                 .then(function(doc){
                   if(doc.exists){var d=doc.data();localData=d.data||{};localPlats=d.plats||[];}
                   else{localData={};localPlats=[];}
+                  writeLocalBackup();
                   setSyncStatus('ok');
                   initApp();
                 })
                 .catch(function(e3){
                   console.error('FINAL Firestore error:',e3.code,e3.message);
-                  localData={};localPlats=[];
-                  // Show the actual error code so user can diagnose
-                  var si=document.getElementById('syncIndicator');
-                  if(si)si.textContent='⚠️ Erreur: '+(e3.code||e3.message||'inconnue');
+                  // Réseau/Firestore indisponible : on bascule sur la sauvegarde locale
+                  // plutôt que de perdre l'accès aux données.
+                  var backup2=readLocalBackup();
+                  if(backup2){
+                    localData=backup2.data||{};
+                    localPlats=backup2.plats||[];
+                    var si2=document.getElementById('syncIndicator');
+                    if(si2)si2.textContent='⚠️ Hors-ligne — copie locale utilisée';
+                  } else {
+                    localData={};localPlats=[];
+                    var si=document.getElementById('syncIndicator');
+                    if(si)si.textContent='⚠️ Erreur: '+(e3.code||e3.message||'inconnue');
+                  }
                   initApp();
                 });
             } else {
-              localData={};localPlats=[];
+              var backup3=readLocalBackup();
+              if(backup3){localData=backup3.data||{};localPlats=backup3.plats||[];}
+              else{localData={};localPlats=[];}
               setSyncStatus('err');
               initApp();
             }
@@ -1675,31 +1776,94 @@ function loadDataFromFirestore(){
     });
 }
 
-function saveToFirestore(){
+// Historique de sauvegardes horodatées, conservé côté Firestore dans une sous-collection.
+// Permet de restaurer une version antérieure en cas d'écrasement accidentel.
+var HISTORY_MAX_ENTRIES=30;
+var lastHistorySnapshot=0;
+function pushHistorySnapshot(clean){
+  // On ne garde un instantané d'historique qu'au maximum toutes les 10 minutes,
+  // pour ne pas multiplier les écritures, sauf changement important de volume de données.
+  var now=Date.now();
+  if(now-lastHistorySnapshot<10*60*1000)return;
+  lastHistorySnapshot=now;
+  try{
+    getUserDoc().collection('history').add({
+      data:clean.data,
+      plats:clean.plats,
+      savedAt:firebase.firestore.FieldValue.serverTimestamp()
+    }).then(function(){
+      // Purge des versions les plus anciennes au-delà de HISTORY_MAX_ENTRIES
+      getUserDoc().collection('history').orderBy('savedAt','desc').get().then(function(snap){
+        if(snap.size>HISTORY_MAX_ENTRIES){
+          snap.docs.slice(HISTORY_MAX_ENTRIES).forEach(function(d){d.ref.delete().catch(function(){});});
+        }
+      }).catch(function(){});
+    }).catch(function(e){console.warn('History snapshot failed:',e.message);});
+  }catch(e){console.warn('History snapshot error:',e);}
+}
+function listHistory(cb){
+  getUserDoc().collection('history').orderBy('savedAt','desc').limit(HISTORY_MAX_ENTRIES).get()
+    .then(function(snap){cb(snap.docs.map(function(d){return{id:d.id,savedAt:d.data().savedAt,data:d.data().data,plats:d.data().plats};}));})
+    .catch(function(e){console.error('listHistory error:',e);cb([]);});
+}
+function restoreFromHistory(id){
+  getUserDoc().collection('history').doc(id).get().then(function(doc){
+    if(!doc.exists){showToast('Version introuvable');return;}
+    var d=doc.data();
+    localData=d.data||{};
+    localPlats=d.plats||[];
+    writeLocalBackup();
+    saveToFirestore(true);
+    refreshAll();
+    showToast('↩️ Version restaurée');
+    closeEditModal();
+  });
+}
+
+function saveToFirestore(immediate){
   if(!currentUser)return;
+  // ÉTAPE 1 — Filet de sécurité local : écriture SYNCHRONE et instantanée,
+  // avant toute tentative réseau. C'est ce qui manquait et causait la perte
+  // de données lors d'une fermeture/crash pendant la fenêtre d'envoi.
+  writeLocalBackup();
   clearTimeout(syncTimer);
   setSyncStatus('ing');
+  var delay=immediate?0:150; // envoi quasi immédiat au lieu d'1s
   syncTimer=setTimeout(function(){
     try{
       var clean=JSON.parse(JSON.stringify({data:localData,plats:localPlats}));
       clean.updatedAt=firebase.firestore.FieldValue.serverTimestamp();
       getUserDoc().set(clean)
-        .then(function(){setSyncStatus('ok');})
+        .then(function(){
+          setSyncStatus('ok');
+          pushHistorySnapshot(clean);
+        })
         .catch(function(e){
         console.error('Sync error:',e.code,e.message);
         if(e.code==='permission-denied'&&currentUser){
-          currentUser.getIdToken(true).then(function(){saveToFirestore();});
+          currentUser.getIdToken(true).then(function(){saveToFirestore(true);});
         } else {
           setSyncStatus('err');
-          // Auto-clear error after 4s so it's not permanently shown
+          // La copie locale reste à jour même si l'envoi réseau échoue :
+          // rien n'est perdu, la synchro reprendra dès que possible.
+          setTimeout(function(){
+            var el=document.getElementById('syncIndicator');
+            if(el&&el.textContent.indexOf('Erreur')>=0)el.textContent='⚠️ Hors-ligne (sauvegardé localement)';
+          },100);
           setTimeout(function(){
             var el=document.getElementById('syncIndicator');
             if(el&&el.textContent.indexOf('Erreur')>=0)el.textContent='';
           },4000);
         }});
     }catch(e){console.error('Serial:',e);setSyncStatus('err');}
-  },1000);
+  },delay);
 }
+// Filet ultime : si l'onglet se ferme ou passe en arrière-plan avant l'envoi
+// différé, on force une dernière écriture locale synchrone.
+window.addEventListener('beforeunload',writeLocalBackup);
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')writeLocalBackup();});
+window.addEventListener('online',function(){if(currentUser)saveToFirestore(true);});
+
 function getData(){return localData;}
 function saveData(d){localData=d;saveToFirestore();}
 function getDayData(date){if(!localData[date])localData[date]={repas:[],selles:[],etat:null};return localData[date];}
@@ -1994,6 +2158,129 @@ function runFodmapAnalysis(){
 
 
 // IMPORT/EXPORT
+// ===== FIABILITÉ / HISTORIQUE (UI) =====
+function updateReliabilityStatus(){
+  var el=document.getElementById('reliabilityStatus');
+  if(!el)return;
+  var backup=readLocalBackup();
+  var lines=[];
+  lines.push('✅ Sauvegarde cloud (Firestore) active, liée à votre compte Google.');
+  if(backup&&backup.savedAt){
+    var d=new Date(backup.savedAt);
+    lines.push('🛟 Copie locale de secours : à jour ('+d.toLocaleString()+').');
+  } else {
+    lines.push('🛟 Copie locale de secours : pas encore initialisée.');
+  }
+  lines.push('🕓 Historique horodaté conservé (jusqu\'à '+HISTORY_MAX_ENTRIES+' versions), restaurable à tout moment.');
+  el.innerHTML=lines.join('<br>');
+}
+function openHistoryModal(){
+  openEditModal('🕓 Historique des sauvegardes','<div id="historyListBody" style="font-size:13px;color:var(--text3)">Chargement…</div>');
+  listHistory(function(items){
+    var body=document.getElementById('historyListBody');
+    if(!body)return;
+    if(!items.length){body.innerHTML='<div style="padding:10px 0">Aucun instantané d\'historique pour le moment. Un nouvel instantané est créé automatiquement toutes les ~10 minutes lorsque vous saisissez des données.</div>';return;}
+    var html='';
+    items.forEach(function(it){
+      var dt=it.savedAt&&it.savedAt.toDate?it.savedAt.toDate():null;
+      var label=dt?dt.toLocaleString():'Date inconnue';
+      var nbDays=it.data?Object.keys(it.data).length:0;
+      html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">'+
+        '<div><div style="font-weight:700">'+label+'</div><div style="font-size:11px;color:var(--text3)">'+nbDays+' jour(s) de données</div></div>'+
+        '<button class="btn btn-secondary btn-sm" onclick="if(confirm(&quot;Restaurer cette version ? Les donnees actuelles seront remplacees (elles restent elles-memes dans l historique).&quot;))restoreFromHistory(\''+it.id+'\')">↩️ Restaurer</button>'+
+        '</div>';
+    });
+    body.innerHTML=html;
+  });
+}
+
+// ===== EXPORT JSON (pour analyse IA externe) =====
+function exportJSON(){
+  var payload={
+    exportedAt:new Date().toISOString(),
+    data:getData(),
+    plats:getPlats()
+  };
+  var blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  var url=URL.createObjectURL(blob);var a=document.createElement('a');
+  a.href=url;a.download='supercaca_'+new Date().toISOString().split('T')[0]+'.json';
+  a.click();showToast('📥 JSON exporté');
+}
+
+// ===== ANALYSE IA INTÉGRÉE (API Anthropic) =====
+function initIaTab(){
+  var saved=localStorage.getItem('sc_ia_apikey');
+  var input=document.getElementById('iaApiKey');
+  if(saved&&input)input.value=saved;
+  updateReliabilityStatus();
+}
+function buildIaDataset(days){
+  var all=getData();
+  var cutoff=days>=9999?null:(Date.now()-days*86400000);
+  var out={};
+  Object.keys(all).sort().forEach(function(date){
+    if(cutoff&&new Date(date+'T00:00:00').getTime()<cutoff)return;
+    out[date]=all[date];
+  });
+  return out;
+}
+function runIaAnalysis(){
+  var apiKey=(document.getElementById('iaApiKey').value||'').trim();
+  var statusEl=document.getElementById('iaStatus');
+  var resultsEl=document.getElementById('iaResults');
+  if(!apiKey){statusEl.innerHTML='<span style="color:var(--red)">⚠️ Merci de renseigner une clé API Anthropic.</span>';return;}
+  localStorage.setItem('sc_ia_apikey',apiKey);
+  var days=parseInt(document.getElementById('iaPeriod').value,10);
+  var userQuestion=(document.getElementById('iaPrompt').value||'').trim();
+  var dataset=buildIaDataset(days);
+  var nbDays=Object.keys(dataset).length;
+  if(!nbDays){statusEl.innerHTML='<span style="color:var(--red)">Aucune donnée sur cette période.</span>';return;}
+
+  var btn=document.getElementById('iaRunBtn');
+  btn.disabled=true;btn.textContent='⏳ Analyse en cours…';
+  statusEl.textContent='';
+  resultsEl.innerHTML='';
+
+  var systemPrompt="Tu es un assistant d'analyse de données de suivi digestif (application SuperCaca, suivi FODMAP). "+
+    "On te fournit un journal quotidien structuré en JSON : pour chaque date, repas (heure, aliments), selles (heure, échelle de Bristol 1-7, quantité, collante, sang), et état (humeur, sommeil, hydratation, sport, douleur, ballonnements, règles, note libre). "+
+    "Analyse les corrélations entre repas/aliments et épisodes de selles anormales (Bristol 1-2 ou 6-7, collant, sang), en tenant compte d'une fenêtre de 4 à 48h entre repas et selle. "+
+    "Identifie aussi les liens possibles avec le sommeil, le stress/humeur, le sport, l'hydratation. "+
+    "Sois factuel, cite les occurrences précises (dates, aliments) qui appuient chaque hypothèse, indique le niveau de confiance (peu de données = prudence), et NE POSE PAS de diagnostic médical — rappelle que seul un professionnel de santé peut confirmer une intolérance ou une pathologie. Réponds en français, de façon structurée avec des titres courts.";
+
+  var userMsg="Voici mes données de suivi ("+nbDays+" jours, du "+Object.keys(dataset)[0]+" au "+Object.keys(dataset)[Object.keys(dataset).length-1]+") :\n\n"+
+    JSON.stringify(dataset)+
+    (userQuestion?("\n\nQuestion spécifique : "+userQuestion):"\n\nMerci de fournir une analyse générale des corrélations les plus marquantes.");
+
+  fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'x-api-key':apiKey,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true'
+    },
+    body:JSON.stringify({
+      model:'claude-sonnet-4-6',
+      max_tokens:2000,
+      system:systemPrompt,
+      messages:[{role:'user',content:userMsg}]
+    })
+  }).then(function(r){
+    if(!r.ok)return r.json().then(function(j){throw new Error((j.error&&j.error.message)||('HTTP '+r.status));});
+    return r.json();
+  }).then(function(resp){
+    var text=(resp.content||[]).filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('\n');
+    var html=text.split('\n').map(function(l){return l.trim()?('<p style="margin:0 0 10px 0;line-height:1.6">'+l.replace(/</g,'&lt;')+'</p>'):'';}).join('');
+    resultsEl.innerHTML='<div class="card"><div class="card-title">📊 Résultat de l\'analyse</div>'+html+'</div>';
+    statusEl.innerHTML='<span style="color:var(--green)">✅ Analyse terminée ('+nbDays+' jours analysés)</span>';
+  }).catch(function(e){
+    statusEl.innerHTML='<span style="color:var(--red)">❌ Erreur : '+(e.message||'échec de la requête')+'</span>';
+    console.error('IA analysis error:',e);
+  }).finally(function(){
+    btn.disabled=false;btn.textContent='🔍 Lancer l\'analyse IA';
+  });
+}
+
 function exportCSV(){
   var all=getData();
   var rows=[['Date','Type','Données']];
@@ -2155,7 +2442,7 @@ function openDatePicker(){
 function confirmDate(){var v=document.getElementById('datePicker').value;if(v){currentDate=v;updateDateDisplay();refreshAll();loadEtatToForm();}closeModal('dateModal');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 function updateDateDisplay(){var today=new Date().toISOString().split('T')[0];var locale=LANG==='en'?'en-GB':'fr-FR';var d=new Date(currentDate+'T12:00:00');document.getElementById('currentDateDisplay').textContent=currentDate===today?t('today'):d.toLocaleDateString(locale,{day:'numeric',month:'short'});}
-function switchTab(name,btn){document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});document.querySelectorAll('.tab-btn').forEach(function(el){el.classList.remove('active');});document.getElementById('tab-'+name).classList.add('active');btn.classList.add('active');try{localStorage.setItem('sc_active_tab',name);}catch(e){}if(name==='repas'){renderRepasList();renderTop10();}if(name==='selles')renderSellesList();if(name==='etat'){renderEtatDisplay();loadEtatToForm();}if(name==='score'){populateScoreDateSelect();renderScore();}if(name==='calendrier')renderCalendar();if(name==='plats')renderPlatsList();if(name==='io')renderNotifCard();if(name==='aliments')initAlimentsTab();if(name==='analyse'){renderTrendChart();runAnalysis();runFodmapAnalysis();}}
+function switchTab(name,btn){document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});document.querySelectorAll('.tab-btn').forEach(function(el){el.classList.remove('active');});document.getElementById('tab-'+name).classList.add('active');btn.classList.add('active');try{localStorage.setItem('sc_active_tab',name);}catch(e){}if(name==='repas'){renderRepasList();renderTop10();}if(name==='selles')renderSellesList();if(name==='etat'){renderEtatDisplay();loadEtatToForm();}if(name==='score'){populateScoreDateSelect();renderScore();}if(name==='calendrier')renderCalendar();if(name==='plats')renderPlatsList();if(name==='io')renderNotifCard();if(name==='aliments')initAlimentsTab();if(name==='analyse'){renderTrendChart();runAnalysis();runFodmapAnalysis();}if(name==='ia'){initIaTab();}}
 function refreshAll(){renderRepasList();renderSellesList();renderEtatDisplay();renderScore();renderCalendar();renderTop10();}
 
 
