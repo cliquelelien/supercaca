@@ -1411,11 +1411,18 @@ function addCustomAliment(){
   renderAlimentsTable('');showToast('✅ Aliment ajouté : '+nom);
 }
 
+// Combine la base FODMAP intégrée (moins les aliments supprimés par l'utilisateur)
+// avec les aliments personnalisés ajoutés manuellement.
+function getAllFodmapRows(){
+  var deleted=getDeletedAliments();
+  return FODMAP_FULL.filter(function(r){return deleted.indexOf(r[0].toLowerCase())<0;}).concat(getCustomAliments());
+}
+
 // Aliments table
 var alimentActiveCat='';
 function initAlimentsTab(){
   var bar=document.getElementById('alimentsCatBar');if(!bar||bar.dataset.init)return;bar.dataset.init='1';
-  var deleted=getDeletedAliments();var all=FODMAP_FULL.filter(function(r){return deleted.indexOf(r[0].toLowerCase())<0;}).concat(getCustomAliments());
+  var all=getAllFodmapRows();
   var cats=[...new Set(all.map(function(r){return r[9];}))].sort();
   function mkBtn(label,cat){var b=document.createElement('button');b.className='aliments-filter-btn'+(cat===alimentActiveCat?' active':'');b.textContent=label;b.onclick=function(){alimentActiveCat=cat;document.querySelectorAll('.aliments-filter-btn').forEach(function(x){x.classList.remove('active');});b.classList.add('active');renderAlimentsTable(document.getElementById('alimentsSearch').value);};bar.appendChild(b);}
   mkBtn(LANG==='en'?'All':'Tout','');cats.forEach(function(c){mkBtn(c,c);});
@@ -1424,7 +1431,7 @@ function initAlimentsTab(){
 function filterAliments(v){renderAlimentsTable(v);}
 function renderAlimentsTable(search){
   var tbody=document.getElementById('alimentsTbody');if(!tbody)return;
-  var all=FODMAP_FULL.concat(getCustomAliments());
+  var all=getAllFodmapRows();
   var q=(search||'').toLowerCase();
   var rows=all.filter(function(r){return(!q||r[0].toLowerCase().indexOf(q)>=0)&&(!alimentActiveCat||r[9]===alimentActiveCat);});
   tbody.innerHTML='';
@@ -1715,6 +1722,10 @@ function readLocalBackup(){
   }catch(e){console.error('Local backup read failed:',e);return null;}
 }
 
+// Horodatage de la dernière version cloud connue par cette session. Sert à
+// détecter si un autre appareil/onglet a écrit entre-temps (voir saveToFirestore).
+var lastKnownRemoteTime=0;
+
 function loadDataFromFirestore(){
   setSyncStatus('ing');
   getUserDoc().get()
@@ -1728,6 +1739,7 @@ function loadDataFromFirestore(){
       if(backup&&backup.savedAt>remoteTime+1500){
         localData=backup.data||{};
         localPlats=backup.plats||[];
+        lastKnownRemoteTime=remoteTime; // on connaît encore l'ancienne version cloud, pas la nouvelle qu'on va pousser
         console.warn('Reprise depuis la sauvegarde locale (plus récente que le serveur) — resynchronisation…');
         setSyncStatus('ing');
         initApp();
@@ -1741,6 +1753,7 @@ function loadDataFromFirestore(){
       } else {
         localData={};localPlats=[];
       }
+      lastKnownRemoteTime=remoteTime;
       writeLocalBackup();
       setSyncStatus('ok');
       initApp();
@@ -1751,8 +1764,8 @@ function loadDataFromFirestore(){
       setTimeout(function(){
         getUserDoc().get()
           .then(function(doc){
-            if(doc.exists){var d=doc.data();localData=d.data||{};localPlats=d.plats||[];}
-            else{localData={};localPlats=[];}
+            if(doc.exists){var d=doc.data();localData=d.data||{};localPlats=d.plats||[];lastKnownRemoteTime=(d.updatedAt&&d.updatedAt.toMillis)?d.updatedAt.toMillis():0;}
+            else{localData={};localPlats=[];lastKnownRemoteTime=0;}
             writeLocalBackup();
             setSyncStatus('ok');
             initApp();
@@ -1766,8 +1779,8 @@ function loadDataFromFirestore(){
                   return getUserDoc().get();
                 })
                 .then(function(doc){
-                  if(doc.exists){var d=doc.data();localData=d.data||{};localPlats=d.plats||[];}
-                  else{localData={};localPlats=[];}
+                  if(doc.exists){var d=doc.data();localData=d.data||{};localPlats=d.plats||[];lastKnownRemoteTime=(d.updatedAt&&d.updatedAt.toMillis)?d.updatedAt.toMillis():0;}
+                  else{localData={};localPlats=[];lastKnownRemoteTime=0;}
                   writeLocalBackup();
                   setSyncStatus('ok');
                   initApp();
@@ -1845,6 +1858,30 @@ function restoreFromHistory(id){
   });
 }
 
+// Garde-fou anti-écrasement : compare le volume de données qu'on s'apprête à
+// envoyer au cloud avec ce qui s'y trouve déjà. Si on s'apprête à remplacer une
+// base non-vide par quelque chose d'anormalement plus petit (ex: copie locale
+// vidée/corrompue par erreur), on bloque l'envoi silencieux et on alerte plutôt
+// que d'écraser des données réelles par du vide.
+function countEntries(d){
+  if(!d)return 0;
+  var n=0;
+  Object.keys(d).forEach(function(date){
+    var day=d[date];if(!day)return;
+    n+=(day.repas||[]).length+(day.selles||[]).length+(day.etat?1:0);
+  });
+  return n;
+}
+function isSuspiciousWipe(newData,remoteData){
+  var newN=countEntries(newData);
+  var remoteN=countEntries(remoteData);
+  // Suspect si le cloud contenait des données conséquentes et qu'on s'apprête
+  // à le remplacer par une version qui en a perdu plus de 50%, ou par du vide.
+  if(remoteN>=10&&newN<remoteN*0.5)return true;
+  if(remoteN>0&&newN===0)return true;
+  return false;
+}
+
 function saveToFirestore(immediate){
   if(!currentUser)return;
   // ÉTAPE 1 — Filet de sécurité local : écriture SYNCHRONE et instantanée,
@@ -1858,28 +1895,60 @@ function saveToFirestore(immediate){
     try{
       var clean=JSON.parse(JSON.stringify({data:localData,plats:localPlats}));
       clean.updatedAt=firebase.firestore.FieldValue.serverTimestamp();
-      getUserDoc().set(clean)
-        .then(function(){
-          setSyncStatus('ok');
-          pushHistorySnapshot(clean);
-        })
-        .catch(function(e){
-        console.error('Sync error:',e.code,e.message);
-        if(e.code==='permission-denied'&&currentUser){
-          currentUser.getIdToken(true).then(function(){saveToFirestore(true);});
-        } else {
+      // Vérification avant écrasement : on relit l'état actuel du cloud pour
+      // s'assurer qu'on ne va pas remplacer des données réelles par du vide.
+      getUserDoc().get().then(function(existingDoc){
+        var existing=existingDoc.exists?existingDoc.data():null;
+        var existingTime=(existing&&existing.updatedAt&&existing.updatedAt.toMillis)?existing.updatedAt.toMillis():0;
+        // Détection multi-appareils : si le cloud a été modifié depuis la dernière
+        // fois que CET appareil a chargé les données, un autre appareil/onglet a
+        // écrit entre-temps. Écraser maintenant effacerait ses saisies — on bloque
+        // et on recharge d'abord la version à jour.
+        if(existingTime>lastKnownRemoteTime+1500){
           setSyncStatus('err');
-          // La copie locale reste à jour même si l'envoi réseau échoue :
-          // rien n'est perdu, la synchro reprendra dès que possible.
-          setTimeout(function(){
-            var el=document.getElementById('syncIndicator');
-            if(el&&el.textContent.indexOf('Erreur')>=0)el.textContent='⚠️ Hors-ligne (sauvegardé localement)';
-          },100);
-          setTimeout(function(){
-            var el=document.getElementById('syncIndicator');
-            if(el&&el.textContent.indexOf('Erreur')>=0)el.textContent='';
-          },4000);
-        }});
+          var elV=document.getElementById('syncIndicator');
+          if(elV)elV.textContent='⚠️ Données plus récentes détectées ailleurs';
+          console.error('Écriture bloquée : le cloud a été modifié par un autre appareil/onglet depuis le dernier chargement.');
+          showToast('⚠️ Des données plus récentes existent (autre appareil/onglet). Rechargement en cours pour éviter d\'écraser vos saisies…');
+          setTimeout(function(){loadDataFromFirestore();},1200);
+          return;
+        }
+        if(existing&&isSuspiciousWipe(clean.data,existing.data)){
+          setSyncStatus('err');
+          var el=document.getElementById('syncIndicator');
+          if(el)el.textContent='⚠️ Sauvegarde bloquée (perte de données suspecte)';
+          console.error('Écrasement suspect bloqué : local a '+countEntries(clean.data)+' entrées, cloud en a '+countEntries(existing.data)+'.');
+          showToast('⚠️ Sauvegarde bloquée : vos données locales semblent incomplètes par rapport au cloud. Ouvrez l\'historique (onglet I/O) pour vérifier avant de continuer.');
+          return;
+        }
+        getUserDoc().set(clean)
+          .then(function(){
+            setSyncStatus('ok');
+            lastKnownRemoteTime=Date.now(); // approximation : le serveur vient d'accepter cette écriture
+            pushHistorySnapshot(clean);
+          })
+          .catch(function(e){
+          console.error('Sync error:',e.code,e.message);
+          if(e.code==='permission-denied'&&currentUser){
+            currentUser.getIdToken(true).then(function(){saveToFirestore(true);});
+          } else {
+            setSyncStatus('err');
+            // La copie locale reste à jour même si l'envoi réseau échoue :
+            // rien n'est perdu, la synchro reprendra dès que possible.
+            setTimeout(function(){
+              var el=document.getElementById('syncIndicator');
+              if(el&&el.textContent.indexOf('Erreur')>=0)el.textContent='⚠️ Hors-ligne (sauvegardé localement)';
+            },100);
+            setTimeout(function(){
+              var el=document.getElementById('syncIndicator');
+              if(el&&el.textContent.indexOf('Erreur')>=0)el.textContent='';
+            },4000);
+          }});
+      }).catch(function(e){
+        // Si on ne peut même pas relire l'existant (offline...), on procède
+        // à l'envoi normal : le filet local reste de toute façon intact.
+        getUserDoc().set(clean).then(function(){setSyncStatus('ok');pushHistorySnapshot(clean);}).catch(function(){setSyncStatus('err');});
+      });
     }catch(e){console.error('Serial:',e);setSyncStatus('err');}
   },delay);
 }
@@ -2266,6 +2335,22 @@ function buildIaDataset(days){
   });
   return out;
 }
+// Construit un résumé des aliments déjà consommés sur la période (nom -> nb occurrences),
+// et la liste des aliments connus de la base FODMAP jamais consommés — pour permettre
+// à l'IA de repérer les angles morts du suivi, pas seulement corréler ce qui est présent.
+function buildFoodCoverage(dataset){
+  var counts={};
+  Object.keys(dataset).forEach(function(date){
+    (dataset[date].repas||[]).forEach(function(r){
+      (r.aliments||[]).forEach(function(a){counts[a]=(counts[a]||0)+1;});
+    });
+  });
+  var allKnown=getAllFodmapRows().map(function(r){return r[0];});
+  var neverTested=allKnown.filter(function(n){return!counts[n];});
+  var testedOnce=Object.keys(counts).filter(function(n){return counts[n]===1;});
+  return{counts:counts,neverTested:neverTested,testedOnce:testedOnce};
+}
+
 function runIaAnalysis(){
   var apiKey=(document.getElementById('iaApiKey').value||'').trim();
   var statusEl=document.getElementById('iaStatus');
@@ -2283,14 +2368,20 @@ function runIaAnalysis(){
   statusEl.textContent='';
   resultsEl.innerHTML='';
 
+  var coverage=buildFoodCoverage(dataset);
+
   var systemPrompt="Tu es un assistant d'analyse de données de suivi digestif (application SuperCaca, suivi FODMAP). "+
     "On te fournit un journal quotidien structuré en JSON : pour chaque date, repas (heure, aliments), selles (heure, échelle de Bristol 1-7, quantité, collante, sang), et état (humeur, sommeil, hydratation, sport, douleur, ballonnements, règles, note libre). "+
     "Analyse les corrélations entre repas/aliments et épisodes de selles anormales (Bristol 1-2 ou 6-7, collant, sang), en tenant compte d'une fenêtre de 4 à 48h entre repas et selle. "+
     "Identifie aussi les liens possibles avec le sommeil, le stress/humeur, le sport, l'hydratation. "+
-    "Sois factuel, cite les occurrences précises (dates, aliments) qui appuient chaque hypothèse, indique le niveau de confiance (peu de données = prudence), et NE POSE PAS de diagnostic médical — rappelle que seul un professionnel de santé peut confirmer une intolérance ou une pathologie. Réponds en français, de façon structurée avec des titres courts.";
+    "Sois factuel, cite les occurrences précises (dates, aliments) qui appuient chaque hypothèse, indique le niveau de confiance (peu de données = prudence), et NE POSE PAS de diagnostic médical — rappelle que seul un professionnel de santé peut confirmer une intolérance ou une pathologie. Réponds en français, de façon structurée avec des titres courts.\n\n"+
+    "En complément de l'analyse des corrélations, termine TOUJOURS ta réponse par une section '## 🧪 Aliments à tester ensuite', avec 3 à 6 suggestions concrètes d'aliments à réintroduire ou tester dans les prochains jours pour affiner le diagnostic. Priorise selon ce qui te semble le plus utile parmi : (1) aliments jamais testés qui comblent un angle mort utile du suivi, (2) aliments testés une seule fois dont le résultat mériterait confirmation, (3) aliments suspectés déclencheurs à retester pour confirmer ou infirmer l'hypothèse. Pour chaque suggestion, indique en une phrase POURQUOI ce test est utile maintenant. Reste concis, pas de longue liste générique — priorise la qualité à la quantité. Ne suggère jamais un aliment déjà identifié comme clairement problématique (sang, douleur systématique) sans avertissement explicite de prudence.";
 
   var userMsg="Voici mes données de suivi ("+nbDays+" jours, du "+Object.keys(dataset)[0]+" au "+Object.keys(dataset)[Object.keys(dataset).length-1]+") :\n\n"+
     JSON.stringify(dataset)+
+    "\n\nRécapitulatif de couverture alimentaire sur la période (pour t'aider à repérer les angles morts) :\n"+
+    "- Aliments jamais testés dans ma base personnelle (échantillon, liste possiblement longue) : "+coverage.neverTested.slice(0,60).join(', ')+"\n"+
+    "- Aliments testés une seule fois sur la période (résultat non confirmé) : "+(coverage.testedOnce.join(', ')||'aucun')+
     (userQuestion?("\n\nQuestion spécifique : "+userQuestion):"\n\nMerci de fournir une analyse générale des corrélations les plus marquantes.");
 
   fetch('https://api.anthropic.com/v1/messages',{
@@ -2303,7 +2394,7 @@ function runIaAnalysis(){
     },
     body:JSON.stringify({
       model:'claude-sonnet-4-6',
-      max_tokens:2000,
+      max_tokens:2200,
       system:systemPrompt,
       messages:[{role:'user',content:userMsg}]
     })
@@ -2312,8 +2403,19 @@ function runIaAnalysis(){
     return r.json();
   }).then(function(resp){
     var text=(resp.content||[]).filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('\n');
-    var html=text.split('\n').map(function(l){return l.trim()?('<p style="margin:0 0 10px 0;line-height:1.6">'+l.replace(/</g,'&lt;')+'</p>'):'';}).join('');
-    resultsEl.innerHTML='<div class="card"><div class="card-title">📊 Résultat de l\'analyse</div>'+html+'</div>';
+    // Sépare la section "Aliments à tester" pour la mettre en avant visuellement
+    var splitIdx=text.search(/##\s*🧪\s*Aliments à tester/i);
+    var mainText=splitIdx>=0?text.slice(0,splitIdx):text;
+    var testText=splitIdx>=0?text.slice(splitIdx).replace(/##\s*🧪\s*Aliments à tester ensuite/i,''):'';
+    function toHtml(t){return t.split('\n').map(function(l){return l.trim()?('<p style="margin:0 0 10px 0;line-height:1.6">'+l.replace(/</g,'&lt;')+'</p>'):'';}).join('');}
+    var html='<div class="card"><div class="card-title">📊 Résultat de l\'analyse</div>'+toHtml(mainText)+'</div>';
+    if(testText.trim()){
+      html+='<div class="card" style="border:2px solid var(--purple,#7B5EA7);background:linear-gradient(135deg,rgba(123,94,167,0.06),transparent)">'+
+        '<div class="card-title">🧪 Aliments à tester ensuite</div>'+toHtml(testText)+
+        '<div style="font-size:11px;color:var(--text3);margin-top:6px">💡 Suggestions indicatives — à adapter selon votre ressenti et vos disponibilités. Aucune obligation.</div>'+
+        '</div>';
+    }
+    resultsEl.innerHTML=html;
     statusEl.innerHTML='<span style="color:var(--green)">✅ Analyse terminée ('+nbDays+' jours analysés)</span>';
   }).catch(function(e){
     statusEl.innerHTML='<span style="color:var(--red)">❌ Erreur : '+(e.message||'échec de la requête')+'</span>';
