@@ -1702,7 +1702,7 @@ function signInEmail(){hideAuthError();var email=document.getElementById('authEm
 function doSignOut(){if(!confirm(t('auth_disconnect')))return;auth.signOut();}
 function updateAccountInfo(){var el=document.getElementById('accountInfo');if(!el||!currentUser)return;var n=currentUser.displayName||currentUser.email,p=currentUser.photoURL;el.innerHTML='<div class="user-badge">'+(p?'<img src="'+p+'" alt="">':'')+'<span>'+n+'</span></div><div style="font-size:12px;color:var(--text3);margin-top:6px">'+currentUser.email+'</div>';}
 function getUserDoc(){return db.collection('users').doc(currentUser.uid);}
-function setSyncStatus(s){var el=document.getElementById('syncIndicator');if(!el)return;el.textContent=t('sync_'+s);el.className='sync-indicator'+(s!=='ok'?' '+s:'');if(s==='ok')setTimeout(function(){el.textContent='';},3000);}
+function setSyncStatus(s){var el=document.getElementById('syncIndicator');if(!el)return;el.textContent=t('sync_'+s);el.className='sync-indicator'+(s!=='ok'?' '+s:'');if(s==='ok'){hideOfflineBanner();setTimeout(function(){el.textContent='';},3000);}}
 // ===== FILET DE SÉCURITÉ LOCAL =====
 // Clé localStorage par utilisateur : une copie instantanée est écrite à CHAQUE saisie,
 // AVANT tout envoi réseau. Aucune perte possible même si l'app crashe, se ferme,
@@ -1731,22 +1731,12 @@ function loadDataFromFirestore(){
   getUserDoc().get()
     .then(function(doc){
       var remote=doc.exists?doc.data():null;
-      var backup=readLocalBackup();
-      // Si une sauvegarde locale existe et est plus récente que la dernière écriture
-      // Firestore connue, on considère qu'elle contient des saisies non synchronisées
-      // (typiquement : app fermée/crashée pendant la fenêtre d'envoi réseau).
       var remoteTime=(remote&&remote.updatedAt&&remote.updatedAt.toMillis)?remote.updatedAt.toMillis():0;
-      if(backup&&backup.savedAt>remoteTime+1500){
-        localData=backup.data||{};
-        localPlats=backup.plats||[];
-        lastKnownRemoteTime=remoteTime; // on connaît encore l'ancienne version cloud, pas la nouvelle qu'on va pousser
-        console.warn('Reprise depuis la sauvegarde locale (plus récente que le serveur) — resynchronisation…');
-        setSyncStatus('ing');
-        initApp();
-        saveToFirestore(true); // pousse immédiatement la version récupérée
-        setTimeout(function(){showToast('🛟 Données récupérées depuis la copie locale');},600);
-        return;
-      }
+      // Le cloud est TOUJOURS la source de vérité au chargement. On ne bascule
+      // jamais automatiquement sur la copie locale ici : un backup local peut être
+      // trompeur (écrit à chaque frappe, y compris juste après un chargement),
+      // et le comparer à l'horodatage serveur a causé par le passé un remplacement
+      // erroné de vraies données par une copie locale vide ou obsolète.
       if(remote){
         localData=remote.data||{};
         localPlats=remote.plats||[];
@@ -1787,31 +1777,53 @@ function loadDataFromFirestore(){
                 })
                 .catch(function(e3){
                   console.error('FINAL Firestore error:',e3.code,e3.message);
-                  // Réseau/Firestore indisponible : on bascule sur la sauvegarde locale
-                  // plutôt que de perdre l'accès aux données.
+                  // Réseau/Firestore VRAIMENT indisponible (3 tentatives échouées).
+                  // On N'ÉCRIT JAMAIS dans ce cas : on affiche la copie locale (si elle
+                  // existe) uniquement en LECTURE SEULE, avec un bandeau explicite,
+                  // pour ne jamais faire croire que l'app est à jour ni risquer d'écraser
+                  // le cloud avec une version incomplète une fois le réseau revenu.
+                  offlineMode=true;
                   var backup2=readLocalBackup();
                   if(backup2){
                     localData=backup2.data||{};
                     localPlats=backup2.plats||[];
-                    var si2=document.getElementById('syncIndicator');
-                    if(si2)si2.textContent='⚠️ Hors-ligne — copie locale utilisée';
                   } else {
                     localData={};localPlats=[];
-                    var si=document.getElementById('syncIndicator');
-                    if(si)si.textContent='⚠️ Erreur: '+(e3.code||e3.message||'inconnue');
                   }
                   initApp();
+                  showOfflineBanner();
                 });
             } else {
+              offlineMode=true;
               var backup3=readLocalBackup();
               if(backup3){localData=backup3.data||{};localPlats=backup3.plats||[];}
               else{localData={};localPlats=[];}
-              setSyncStatus('err');
               initApp();
+              showOfflineBanner();
             }
           });
       }, 2000);
     });
+}
+// Mode hors-ligne : bloque toute saisie et affiche un bandeau clair et permanent,
+// pour éviter qu'une copie locale incomplète ne soit prise pour les vraies données
+// ou, pire, n'écrase le cloud une fois le réseau revenu.
+var offlineMode=false;
+function showOfflineBanner(){
+  var el=document.getElementById('offlineBanner');
+  if(!el){
+    el=document.createElement('div');
+    el.id='offlineBanner';
+    el.style.cssText='position:sticky;top:0;z-index:9999;background:#C0392B;color:#fff;padding:10px 14px;font-size:13px;text-align:center;font-weight:700;';
+    document.body.insertBefore(el,document.body.firstChild);
+  }
+  el.innerHTML='📡 Pas de connexion — données non confirmées à jour. La saisie est bloquée pour votre sécurité. <button onclick="loadDataFromFirestore()" style="margin-left:8px;background:#fff;color:#C0392B;border:none;border-radius:6px;padding:4px 10px;font-weight:700">🔄 Réessayer</button>';
+  el.style.display='block';
+}
+function hideOfflineBanner(){
+  offlineMode=false;
+  var el=document.getElementById('offlineBanner');
+  if(el)el.style.display='none';
 }
 
 // Historique de sauvegardes horodatées, conservé côté Firestore dans une sous-collection.
@@ -1888,6 +1900,16 @@ function saveToFirestore(immediate){
   // avant toute tentative réseau. C'est ce qui manquait et causait la perte
   // de données lors d'une fermeture/crash pendant la fenêtre d'envoi.
   writeLocalBackup();
+  // Si l'app n'a pas pu confirmer être à jour avec le cloud (pas de réseau au
+  // dernier chargement), on n'envoie RIEN vers Firestore. Cela évite d'écraser
+  // de vraies données avec une version locale potentiellement incomplète —
+  // la saisie reste protégée localement (ci-dessus) en attendant le réseau.
+  if(offlineMode){
+    setSyncStatus('err');
+    var elO=document.getElementById('syncIndicator');
+    if(elO)elO.textContent='📡 Hors-ligne — non sauvegardé sur le cloud pour l\'instant';
+    return;
+  }
   clearTimeout(syncTimer);
   setSyncStatus('ing');
   var delay=immediate?0:150; // envoi quasi immédiat au lieu d'1s
