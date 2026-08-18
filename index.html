@@ -1893,6 +1893,26 @@ function isSuspiciousWipe(newData,remoteData){
   if(remoteN>0&&newN===0)return true;
   return false;
 }
+// Détecte la disparition silencieuse d'un ou plusieurs JOURS précis qui avaient
+// des données dans le cloud, même si le volume TOTAL semble correct (ex: un jour
+// perdu compensé par d'autres saisies ailleurs — invisible au seul comptage global).
+// On ignore volontairement le jour courant (aujourd'hui), car le vider/réduire
+// en cours de saisie est un usage normal (ex: suppression d'un repas mal saisi).
+function findVanishedDays(newData,remoteData){
+  if(!remoteData)return[];
+  var today=todayStr();
+  var vanished=[];
+  Object.keys(remoteData).forEach(function(date){
+    if(date===today)return;
+    var oldDay=remoteData[date];
+    var oldCount=(oldDay.repas||[]).length+(oldDay.selles||[]).length+(oldDay.etat?1:0);
+    if(oldCount===0)return;
+    var newDay=newData[date];
+    var newCount=newDay?((newDay.repas||[]).length+(newDay.selles||[]).length+(newDay.etat?1:0)):0;
+    if(newCount===0)vanished.push(date);
+  });
+  return vanished;
+}
 
 function saveToFirestore(immediate){
   if(!currentUser)return;
@@ -1942,6 +1962,17 @@ function saveToFirestore(immediate){
           console.error('Écrasement suspect bloqué : local a '+countEntries(clean.data)+' entrées, cloud en a '+countEntries(existing.data)+'.');
           showToast('⚠️ Sauvegarde bloquée : vos données locales semblent incomplètes par rapport au cloud. Ouvrez l\'historique (onglet I/O) pour vérifier avant de continuer.');
           return;
+        }
+        if(existing){
+          var vanished=findVanishedDays(clean.data,existing.data);
+          if(vanished.length){
+            setSyncStatus('err');
+            var elD=document.getElementById('syncIndicator');
+            if(elD)elD.textContent='⚠️ Jour(s) disparu(s) détecté(s) : '+vanished.join(', ');
+            console.error('Écriture bloquée : les jours suivants avaient des données dans le cloud mais en sont dépourvus dans la version à envoyer :',vanished);
+            showToast('⚠️ Sauvegarde bloquée : les données du '+vanished.join(', ')+' semblent avoir disparu localement. Ouvrez l\'historique (onglet I/O) pour vérifier avant de continuer.');
+            return;
+          }
         }
         getUserDoc().set(clean)
           .then(function(){
