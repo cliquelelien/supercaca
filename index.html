@@ -487,6 +487,7 @@ main{position:relative;z-index:1;}
 .ft-fructose{background:#FCE4EC;color:#880E4F;}
 .ft-polyols{background:#E8F5E9;color:#1B5E20;}
 .ft-gluten{background:#FFFDE7;color:#F57F17;}
+.ft-fibres{background:#EFEBE9;color:#5D4037;}
 .ft-safe{background:#E8F5E9;color:#2E7D32;}
 .food-common-btn .fodmap-dots{font-size:8px;margin-left:3px;opacity:0.7;}
 .fodmap-summary{background:var(--card);border-radius:14px;padding:12px 14px;margin-bottom:10px;border:1px solid var(--border);}
@@ -722,7 +723,10 @@ main{position:relative;z-index:1;}
         <button class="btn btn-primary btn-full" onclick="saveRepas()" id="L_save_repas">💾 Enregistrer le repas</button>
   </div>
   <div class="entries-list">
-    <div class="entries-title"><span id="L_repas_jour">📋 Repas du jour</span> <span id="repasCount" style="font-weight:400"></span></div>
+    <div class="entries-title" style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+      <span><span id="L_repas_jour">📋 Repas du jour</span> <span id="repasCount" style="font-weight:400"></span></span>
+      <button class="btn btn-secondary btn-sm" id="pasteRepasBtn" style="display:none;white-space:nowrap" onclick="pasteRepas()">📋 <span id="L_coller_repas">Coller</span></button>
+    </div>
     <div id="repasList"></div>
   </div>
 </div>
@@ -893,6 +897,7 @@ main{position:relative;z-index:1;}
       <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:3px;background:#F44336;display:inline-block;border-radius:2px"></span><span id="L_trend_selles">Consistance selles</span></span>
       <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:3px;background:#4CAF50;display:inline-block;border-radius:2px"></span><span id="L_trend_sport">Activité sportive</span></span>
       <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:3px;background:#FFC107;display:inline-block;border-radius:2px"></span><span id="L_trend_alim">Charge alimentaire FODMAP</span></span>
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:3px;background:#8D6E63;display:inline-block;border-radius:2px"></span><span id="L_trend_fibres">Fibres</span></span>
     </div>
     <div style="position:relative;height:260px">
       <canvas id="trendChart"></canvas>
@@ -911,6 +916,9 @@ main{position:relative;z-index:1;}
       <button class="trend-toggle-btn active" data-curve="3" style="border-color:#FFC107;color:#FFC107" onclick="toggleCurve(this,3)">
         <span style="display:inline-block;width:12px;height:3px;background:#FFC107;border-radius:2px;vertical-align:middle;margin-right:4px"></span><span id="tgl_fodmap">FODMAP</span>
       </button>
+      <button class="trend-toggle-btn active" data-curve="4" style="border-color:#8D6E63;color:#8D6E63" onclick="toggleCurve(this,4)">
+        <span style="display:inline-block;width:12px;height:3px;background:#8D6E63;border-radius:2px;vertical-align:middle;margin-right:4px"></span><span id="tgl_fibres">Fibres</span>
+      </button>
     </div>
     <div style="margin-top:14px;background:var(--bg2);border-radius:12px;padding:12px;font-size:11px;color:var(--text2);line-height:1.7" id="L_trend_note">
       <div style="font-weight:800;margin-bottom:6px;font-size:12px">📖 Logique de points</div>
@@ -920,10 +928,10 @@ main{position:relative;z-index:1;}
       <div style="margin-top:6px"><span style="color:#2196F3;font-weight:700">🔵 Humeur</span> — Votre saisie directe de 1 à 5.</div>
       <div style="margin-top:6px"><span style="color:#4CAF50;font-weight:700">🟢 Activité sportive</span> — 💤 Aucune=0 · 🚶 Marche=1 · 🚴 Vélo/Cardio=2 · 🏃 Endurance/Muscu=3</div>
       <div style="margin-top:6px"><span style="color:#FFC107;font-weight:700">🟡 Charge FODMAP</span> — Somme pondérée des FODMAP consommés avant chaque selle (fenêtre 4–48h), normalisée sur 5. Plus c'est haut, plus la charge alimentaire FODMAP était élevée.</div>
+      <div style="margin-top:6px"><span style="color:#8D6E63;font-weight:700">🟤 Fibres</span> — Teneur moyenne en fibres des aliments consommés dans la journée (0=faible → 5=riche).</div>
     </div>
   </div>
   <div id="fodmapAnalysis"></div>
-  <div id="analysisResults"></div>
   <!-- Trend chart -->
 
 </div>
@@ -1461,8 +1469,69 @@ function renderFodmapIndicator(){
   if(!hasFod&&safe>0)html+='<div class="fodmap-ok">✅ '+(LANG==='en'?'No FODMAP detected.':'Aucun FODMAP détecté.')+'</div>';
   for(var i=0;i<5;i++){if(cats[i]>0)html+='<div class="fodmap-bar-row"><span class="fodmap-bar-label fodmap-tag '+FODMAP_COLORS[i]+'">'+cnames[i]+'</span><div class="fodmap-bar-track"><div style="width:'+Math.min(100,cats[i]*30)+'%;height:100%;border-radius:4px;background:currentColor;opacity:0.5"></div></div><span class="fodmap-bar-count">×'+cats[i]+'</span></div>';}
   if(gluten>0)html+='<div class="fodmap-bar-row"><span class="fodmap-bar-label fodmap-tag ft-gluten">Gluten</span><div class="fodmap-bar-track"><div style="width:'+Math.min(100,gluten*30)+'%;height:100%;border-radius:4px;background:currentColor;opacity:0.5"></div></div><span class="fodmap-bar-count">×'+gluten+'</span></div>';
-  if(unknown.length)html+='<div style="font-size:11px;color:var(--text3);margin-top:6px">⚠️ '+(LANG==='en'?'Not in FODMAP database: ':'Non répertorié : ')+unknown.join(', ')+'</div>';
+  if(unknown.length){
+    html+='<div style="font-size:11px;color:var(--text3);margin-top:6px">⚠️ '+(LANG==='en'?'Not in FODMAP database: ':'Non répertorié : ')+'</div>';
+    html+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px">';
+    unknown.forEach(function(name){
+      html+='<button type="button" class="btn btn-secondary btn-sm quick-add-alim-btn" data-name="'+name.replace(/"/g,'&quot;')+'" style="font-size:11px;padding:4px 9px">➕ '+name+'</button>';
+    });
+    html+='</div>';
+  }
   html+='</div>';el.innerHTML=html;el.style.display='block';
+  el.querySelectorAll('.quick-add-alim-btn').forEach(function(b){b.addEventListener('click',function(){openQuickAddAliment(this.getAttribute('data-name'));});});
+}
+
+// AJOUT RAPIDE D'UN ALIMENT NON RECONNU — accessible directement depuis le repas
+// (bouton affiché à côté de chaque aliment saisi mais absent de la base FODMAP),
+// sans devoir aller dans l'onglet Base FODMAP. Réutilise la même logique
+// d'enregistrement que le formulaire complet (addCustomAliment).
+function openQuickAddAliment(name){
+  var catOptions=['Boissons','Céréales','Condiments','Édulcorants','Fruits','Laitages','Légumes','Oléagineux','Plats préparés','Protéines','Sucres/Édulcorants','Autre'];
+  var catHtml=catOptions.map(function(c){return'<option value="'+c+'"'+(c==='Légumes'?' selected':'')+'>'+c+'</option>';}).join('');
+  var body='<div class="form-group"><label class="form-label">'+t('L_add_nom')+'</label><input type="text" id="qaNom" class="form-input" value="'+name.replace(/"/g,'&quot;')+'"></div>'
+    +'<div class="form-group"><label class="form-label">'+t('L_add_cat')+'</label><select id="qaCat" class="form-input">'+catHtml+'</select></div>'
+    +'<div class="form-group"><label class="form-label">'+t('L_add_props')+'</label><div class="fodmap-check-grid">'
+    +'<label class="fodmap-check-item"><input type="checkbox" id="qa_fruct"> <span class="fodmap-tag ft-fructanes">Fructanes</span></label>'
+    +'<label class="fodmap-check-item"><input type="checkbox" id="qa_gos"> <span class="fodmap-tag ft-gos">GOS</span></label>'
+    +'<label class="fodmap-check-item"><input type="checkbox" id="qa_lact"> <span class="fodmap-tag ft-lactose">Lactose</span></label>'
+    +'<label class="fodmap-check-item"><input type="checkbox" id="qa_fruc"> <span class="fodmap-tag ft-fructose">Fructose</span></label>'
+    +'<label class="fodmap-check-item"><input type="checkbox" id="qa_poly"> <span class="fodmap-tag ft-polyols">Polyols</span></label>'
+    +'<label class="fodmap-check-item"><input type="checkbox" id="qa_glut"> <span class="fodmap-tag ft-gluten">Gluten</span></label>'
+    +'<label class="fodmap-check-item"><input type="checkbox" id="qa_safe"> <span class="fodmap-tag ft-safe">✓ Sans FODMAP</span></label>'
+    +'</div></div>'
+    +'<div class="form-group"><label class="form-label">'+t('L_add_fibres')+'</label><select id="qa_fibres" class="form-input">'
+    +'<option value="0">'+(LANG==='en'?'Low (< 1.5g/100g)':'Faible (&lt; 1.5g/100g)')+'</option>'
+    +'<option value="1">'+(LANG==='en'?'Moderate (1.5–3g/100g)':'Modérée (1.5–3g/100g)')+'</option>'
+    +'<option value="2">'+(LANG==='en'?'High (> 3g/100g)':'Riche (&gt; 3g/100g)')+'</option>'
+    +'</select></div>'
+    +'<button class="btn btn-purple btn-full" onclick="saveQuickAddAliment(\''+name.replace(/'/g,"\\'")+'\')">💾 '+t('L_add_alim_btn')+'</button>';
+  openEditModal('➕ '+t('L_add_alim_title'),body);
+}
+function saveQuickAddAliment(originalName){
+  var nom=document.getElementById('qaNom').value.trim();if(!nom)return showToast('📝 Indiquez un nom');
+  var cat=document.getElementById('qaCat').value;
+  var r=[nom,
+    document.getElementById('qa_fruct').checked?1:0,
+    document.getElementById('qa_gos').checked?1:0,
+    document.getElementById('qa_lact').checked?1:0,
+    document.getElementById('qa_fruc').checked?1:0,
+    document.getElementById('qa_poly').checked?1:0,
+    document.getElementById('qa_glut').checked?1:0,
+    document.getElementById('qa_safe').checked?1:0,
+    parseInt(document.getElementById('qa_fibres').value,10)||0,
+    cat];
+  var custom=getCustomAliments();var idx=custom.findIndex(function(x){return x[0].toLowerCase()===nom.toLowerCase();});
+  if(idx>=0)custom[idx]=r;else custom.push(r);
+  saveCustomAliments(custom);buildFodmapMap();
+  closeEditModal();
+  // Si le nom saisi dans le repas diffère de celui enregistré (ex: correction de casse/accents),
+  // on met à jour l'aliment sélectionné pour qu'il matche désormais la base.
+  if(typeof selectedFoods!=='undefined'){
+    var i=selectedFoods.indexOf(originalName);
+    if(i>=0)selectedFoods[i]=nom;
+  }
+  renderSelectedFoods();
+  showToast('✅ Aliment ajouté : '+nom);
 }
 
 // Autocomplete
@@ -1583,6 +1652,7 @@ var FR={
   L_date_title:'📅 Choisir une date',L_confirmer:'Confirmer',L_annuler:'Annuler',
   tRepas:'✅ Repas enregistré !',tSelle:'✅ Selle enregistrée !',tEtat:'✅ État enregistré !',
   tDelRepas:'🗑️ Repas supprimé',tDelSelle:'🗑️ Selle supprimée',tDelEtat:'🗑️ État supprimé',
+  L_copier_repas:'Copier ce repas',tRepasCopie:'Repas copié — changez de jour puis collez',tRepasColle:'Repas collé',L_coller_repas:'Coller',
   tPlat:'✅ Plat enregistré !',tDelPlat:'🗑️ Plat supprimé',tExport:'📥 Export CSV téléchargé !',
   tImport:' entrées importées !',tReset:'🗑️ Données effacées',tPlatApply:'pré-rempli !',
   confirmDelEtat:"Supprimer l'état général de cette journée ?",confirmDelPlat:'Remplacer ce plat ?',
@@ -1662,6 +1732,7 @@ var EN={
   L_date_title:'📅 Choose a date',L_confirmer:'Confirm',L_annuler:'Cancel',
   tRepas:'✅ Meal saved!',tSelle:'✅ Stool saved!',tEtat:'✅ Status saved!',
   tDelRepas:'🗑️ Meal deleted',tDelSelle:'🗑️ Stool deleted',tDelEtat:'🗑️ Status deleted',
+  L_copier_repas:'Copy this meal',tRepasCopie:'Meal copied — switch day then paste',tRepasColle:'Meal pasted',L_coller_repas:'Paste',
   tPlat:'✅ Meal saved!',tDelPlat:'🗑️ Meal deleted',tExport:'📥 CSV downloaded!',
   tImport:' entries imported!',tReset:'🗑️ Data cleared',tPlatApply:'pre-filled!',
   confirmDelEtat:"Delete today's status?",confirmDelPlat:'Replace this meal?',
@@ -2094,24 +2165,41 @@ function renderTop10(){
   var top10=getTop10Foods();var sec=document.getElementById('top10Section');var con=document.getElementById('foodTop10');var lbl=document.getElementById('L_top10_label');
   if(!sec||!con)return;if(!top10.length){sec.style.display='none';return;}
   sec.style.display='block';if(lbl)lbl.textContent=t('L_top10_label');con.innerHTML='';
-  top10.forEach(function(name){var btn=document.createElement('button');btn.className='food-common-btn';btn.setAttribute('data-name',name);btn.innerHTML='⭐ '+name;if(selectedFoods.indexOf(name)>=0)btn.classList.add('sel');btn.addEventListener('click',function(){var idx=selectedFoods.indexOf(name);if(idx>=0){selectedFoods.splice(idx,1);btn.classList.remove('sel');}else{selectedFoods.push(name);btn.classList.add('sel');}renderSelectedFoods();});con.appendChild(btn);});
+  top10.forEach(function(name){var btn=document.createElement('button');btn.type='button';btn.className='food-common-btn';btn.setAttribute('data-name',name);btn.innerHTML='⭐ '+name;if(selectedFoods.indexOf(name)>=0)btn.classList.add('sel');con.appendChild(btn);});
 }
 
 // FOOD GRIDS — use FODMAP_FULL names with emoji from FOOD_QUICK mapping
+// Utilise la délégation d'événements (un seul listener sur le conteneur) plutôt que
+// d'attacher un handler par bouton : ceci évite tout risque de listener orphelin/obsolète
+// lors des re-rendus fréquents (changement de jour, sauvegarde, changement de langue…),
+// qui pouvait faire que le clic sur une icône d'aliment fréquent ne soit pas pris en compte.
 function makeFoodGrid(cid,list){
   var c=document.getElementById(cid);if(!c)return;c.innerHTML='';
   FOOD_QUICK.forEach(function(name,i){
     var em=FOOD_EM[i]||'🍽️';
     var hasFod=false;var r=getFodmapRow(name);if(r)hasFod=r[1]||r[2]||r[3]||r[4]||r[5];
-    var btn=document.createElement('button');btn.className='food-common-btn';btn.setAttribute('data-name',name);
+    var btn=document.createElement('button');btn.type='button';btn.className='food-common-btn';btn.setAttribute('data-name',name);
     btn.innerHTML='<span class="food-em">'+em+'</span>'+name+(hasFod?'<span style="font-size:8px;margin-left:2px;opacity:0.6">●</span>':'');
     if(list.indexOf(name)>=0)btn.classList.add('sel');
-    btn.addEventListener('click',function(){var idx=list.indexOf(name);if(idx>=0){list.splice(idx,1);btn.classList.remove('sel');}else{list.push(name);btn.classList.add('sel');}if(list===selectedFoods)renderSelectedFoods();else renderPlatSelectedFoods();});
     c.appendChild(btn);
   });
 }
-function initFoodCommon(){makeFoodGrid('foodCommon',selectedFoods);}
-function initPlatFoodCommon(){makeFoodGrid('platFoodCommon',platSelectedFoods);}
+// Délégation : un seul listener par conteneur, attaché une fois pour toutes,
+// qui fonctionne quel que soit le contenu régénéré dynamiquement à l'intérieur.
+function bindFoodGridDelegation(cid,getList,onChange){
+  var c=document.getElementById(cid);if(!c||c._scBound)return;c._scBound=true;
+  c.addEventListener('click',function(e){
+    var btn=e.target.closest('.food-common-btn');if(!btn||!c.contains(btn))return;
+    var name=btn.getAttribute('data-name');if(!name)return;
+    var list=getList();
+    var idx=list.indexOf(name);
+    if(idx>=0){list.splice(idx,1);btn.classList.remove('sel');}
+    else{list.push(name);btn.classList.add('sel');}
+    onChange();
+  });
+}
+function initFoodCommon(){makeFoodGrid('foodCommon',selectedFoods);bindFoodGridDelegation('foodCommon',function(){return selectedFoods;},renderSelectedFoods);bindFoodGridDelegation('foodTop10',function(){return selectedFoods;},renderSelectedFoods);}
+function initPlatFoodCommon(){makeFoodGrid('platFoodCommon',platSelectedFoods);bindFoodGridDelegation('platFoodCommon',function(){return platSelectedFoods;},renderPlatSelectedFoods);}
 
 function addFoodFromInput(){
   var inp=document.getElementById('repasAlimentInput');
@@ -2146,8 +2234,15 @@ var selectedFoods=[],platSelectedFoods=[],calYear=new Date().getFullYear(),calMo
 
 // REPAS
 function saveRepas(){var h=document.getElementById('repasHeure').value;if(!h)return showToast(t('errHeure'));if(!selectedFoods.length)return showToast(t('errAliment'));var day=getDayData(currentDate);day.repas.push({heure:h,aliments:selectedFoods.slice(),id:Date.now()});saveDayData(currentDate,day);selectedFoods=[];renderSelectedFoods();document.getElementById('repasHeure').value='';document.getElementById('platSearch').value='';document.querySelectorAll('#foodCommon .food-common-btn,#foodTop10 .food-common-btn').forEach(function(b){b.classList.remove('sel');});renderRepasList();renderTop10();showToast(t('tRepas'));}
-function renderRepasList(){var day=getDayData(currentDate);var c=document.getElementById('repasList');var sorted=day.repas.slice().sort(function(a,b){return a.heure.localeCompare(b.heure);});var cnt=document.getElementById('repasCount');if(cnt)cnt.textContent=sorted.length?'('+sorted.length+')':'';if(!sorted.length){c.innerHTML='<div class="empty-state"><div class="empty-icon">🍽️</div><div class="empty-text">'+t('noRepas')+'</div></div>';return;}c.innerHTML='';sorted.forEach(function(r){var div=document.createElement('div');div.className='entry-item';div.innerHTML='<span class="entry-time">'+r.heure+'</span><div class="entry-body"><div class="entry-main">'+r.aliments.join(', ')+'</div></div><div style="display:flex;gap:5px"><button class="entry-edit" data-id="'+r.id+'">✏️</button><button class="entry-delete" data-id="'+r.id+'">🗑</button></div>';div.querySelector('.entry-edit').addEventListener('click',function(){openEditRepas(parseFloat(this.getAttribute('data-id')));});div.querySelector('.entry-delete').addEventListener('click',function(){deleteRepas(parseFloat(this.getAttribute('data-id')));});c.appendChild(div);});}
+function renderRepasList(){var day=getDayData(currentDate);var c=document.getElementById('repasList');var sorted=day.repas.slice().sort(function(a,b){return a.heure.localeCompare(b.heure);});var cnt=document.getElementById('repasCount');if(cnt)cnt.textContent=sorted.length?'('+sorted.length+')':'';var pasteBtn=document.getElementById('pasteRepasBtn');if(pasteBtn)pasteBtn.style.display=copiedRepas?'inline-flex':'none';if(!sorted.length){c.innerHTML='<div class="empty-state"><div class="empty-icon">🍽️</div><div class="empty-text">'+t('noRepas')+'</div></div>';return;}c.innerHTML='';sorted.forEach(function(r){var div=document.createElement('div');div.className='entry-item';div.innerHTML='<span class="entry-time">'+r.heure+'</span><div class="entry-body"><div class="entry-main">'+r.aliments.join(', ')+'</div></div><div style="display:flex;gap:5px"><button class="entry-copy" data-id="'+r.id+'" title="'+t('L_copier_repas')+'">📋</button><button class="entry-edit" data-id="'+r.id+'">✏️</button><button class="entry-delete" data-id="'+r.id+'">🗑</button></div>';div.querySelector('.entry-copy').addEventListener('click',function(){copyRepas(parseFloat(this.getAttribute('data-id')));});div.querySelector('.entry-edit').addEventListener('click',function(){openEditRepas(parseFloat(this.getAttribute('data-id')));});div.querySelector('.entry-delete').addEventListener('click',function(){deleteRepas(parseFloat(this.getAttribute('data-id')));});c.appendChild(div);});}
 function deleteRepas(id){var day=getDayData(currentDate);day.repas=day.repas.filter(function(r){return r.id!==id;});saveDayData(currentDate,day);renderRepasList();showToast(t('tDelRepas'));}
+// COPIER / COLLER UN REPAS — permet de dupliquer un repas vers un autre jour.
+// Le repas copié est mémorisé (heure + aliments) ; un bouton "Coller" apparaît
+// alors dans la liste tant qu'un repas est en mémoire, pour le coller sur le
+// jour actuellement affiché (changez de jour puis collez).
+var copiedRepas=null;
+function copyRepas(id){var day=getDayData(currentDate);var r=day.repas.find(function(x){return x.id===id;});if(!r)return;copiedRepas={heure:r.heure,aliments:r.aliments.slice()};showToast('📋 '+t('tRepasCopie'));renderRepasList();}
+function pasteRepas(){if(!copiedRepas)return;var day=getDayData(currentDate);day.repas.push({heure:copiedRepas.heure,aliments:copiedRepas.aliments.slice(),id:Date.now()});saveDayData(currentDate,day);renderRepasList();renderTop10();showToast('✅ '+t('tRepasColle'));}
 
 // SELLES
 function saveSelle(){var h=document.getElementById('selleHeure').value;if(!h)return showToast(t('errHeure'));var bEl=document.querySelector('input[name="bristol"]:checked');if(!bEl)return showToast(t('errBristol'));var qEl=document.querySelector('input[name="selleQty"]:checked');var day=getDayData(currentDate);day.selles.push({heure:h,bristol:parseInt(bEl.value),quantite:qEl?parseInt(qEl.value):null,collante:document.getElementById('sColles').checked,sang:document.getElementById('sSang').checked,id:Date.now()});saveDayData(currentDate,day);document.getElementById('selleHeure').value='';bEl.checked=false;if(qEl)qEl.checked=false;['sColles','sSang'].forEach(function(id){document.getElementById(id).checked=false;});['cbColles','cbSang'].forEach(function(id){var el=document.getElementById(id);if(!el)return;el.classList.remove('checked');var v=el.querySelector('.checkbox-visual');if(v){v.style.background='var(--card)';v.style.borderColor='var(--border2)';v.innerHTML='';}});renderSellesList();showToast(t('tSelle'));}
@@ -2199,7 +2294,6 @@ function renderCalDayDetail(ds){var day=getDayData(ds);var c=document.getElement
 // ANALYSE
 
 // ===== ANALYSE =====
-function runAnalysis(){var all=getData();var foodStats={};Object.keys(all).sort().forEach(function(date){var day=all[date];if(!day.repas||!day.repas.length)return;day.repas.forEach(function(repas){var rt=new Date(date+'T'+repas.heure+':00').getTime();repas.aliments.forEach(function(food){if(!foodStats[food])foodStats[food]={events:0,badEvents:0};var t1=new Date(new Date(date+'T12:00:00').getTime()+86400000).toISOString().split('T')[0];var t2=new Date(new Date(date+'T12:00:00').getTime()+2*86400000).toISOString().split('T')[0];[date,t1,t2].forEach(function(cd){var cday=all[cd];if(!cday||!cday.selles)return;cday.selles.forEach(function(s){var diff=new Date(cd+'T'+s.heure+':00').getTime()-rt;if(diff>=12*3600000&&diff<=48*3600000){foodStats[food].events++;if(s.bristol>=5||s.collante||s.sang)foodStats[food].badEvents++;}});});});});});var foods=Object.entries(foodStats).filter(function(e){return e[1].events>=1;}).map(function(e){return{name:e[0],events:e[1].events,badRate:e[1].badEvents/e[1].events};}).sort(function(a,b){return b.badRate-a.badRate;});var c=document.getElementById('analysisResults');if(!foods.length){c.innerHTML='<div class="card"><div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">'+t('noAnalysis')+'</div></div></div>';return;}var prob=foods.filter(function(f){return f.badRate>=0.5;});var html='';if(prob.length)html+='<div class="food-warning">⚠️ <strong>'+prob.length+' '+t('analyse_warn')+'</strong></div>';html+='<div class="card"><div class="card-title">'+t('analyse_corr')+'</div>';foods.forEach(function(f){var pct=Math.round(f.badRate*100),rc=pct>=50?'rank-bad':pct>=25?'rank-ok':'rank-good',bc=pct>=50?'bar-red':pct>=25?'bar-yellow':'bar-green';html+='<div class="food-analysis-item"><div class="food-rank '+rc+'">'+pct+'%</div><div class="food-score-bar"><div class="food-name">'+f.name+'</div><div class="food-occurrences">'+f.events+t('analyse_selles')+'</div><div class="food-bar-wrap"><div class="food-bar-fill '+bc+'" style="width:'+pct+'%"></div></div></div></div>';});html+='</div>';c.innerHTML=html;}
 
 // FODMAP MATRIX
 function runFodmapAnalysis(){
@@ -2207,9 +2301,9 @@ function runFodmapAnalysis(){
   var allDates=Object.keys(all).sort();
   var stoolDays=allDates.filter(function(d){return all[d].selles&&all[d].selles.length>0;});
   if(!stoolDays.length){el.innerHTML='<div class="card"><div class="empty-state"><div class="empty-icon">🧬</div><div class="empty-text">'+t('noAnalysis')+'</div></div></div>';return;}
-  var cats=FODMAP_CATS.concat(['Gluten']);
-  var catsD=(LANG==='en'?FODMAP_CATS_EN:FODMAP_CATS).concat(['Gluten']);
-  var colors=FODMAP_COLORS.concat(['ft-gluten']);
+  var cats=FODMAP_CATS.concat(['Gluten','Fibres']);
+  var catsD=(LANG==='en'?FODMAP_CATS_EN:FODMAP_CATS).concat(['Gluten',LANG==='en'?'Fiber':'Fibres']);
+  var colors=FODMAP_COLORS.concat(['ft-gluten','ft-fibres']);
   var BN=getBN();var today=todayStr();
   var dayInfo={};
   stoolDays.forEach(function(date){
@@ -2247,6 +2341,7 @@ function runFodmapAnalysis(){
           var fd=getFodmapRow(name);if(!fd)return;
           for(var i=0;i<5;i++){if(fd[i+1]){loads[FODMAP_CATS[i]].score+=1;if(loads[FODMAP_CATS[i]].foods.indexOf(name)<0)loads[FODMAP_CATS[i]].foods.push(name);}}
           if(fd[6]){loads['Gluten'].score+=1;if(loads['Gluten'].foods.indexOf(name)<0)loads['Gluten'].foods.push(name);}
+          if(fd[8]){loads['Fibres'].score+=fd[8];if(loads['Fibres'].foods.indexOf(name)<0)loads['Fibres'].foods.push(name);}
         });
       });});
     });;
@@ -2541,7 +2636,7 @@ function exportCSV(){
   Object.keys(all).sort().forEach(function(date){
     var day=all[date];
     (day.repas||[]).forEach(function(r){
-      var data=r.heure+' | '+r.aliments.join(' / ');
+      var data=r.heure+' | '+r.aliments.join(', ');
       rows.push([date,'Repas',data]);
     });
     (day.selles||[]).forEach(function(s){
@@ -2549,7 +2644,7 @@ function exportCSV(){
       if(s.quantite)parts.push('Qte:'+s.quantite);
       if(s.collante)parts.push('collante');
       if(s.sang)parts.push('sang');
-      rows.push([date,'Selle',s.heure+' | '+parts.join(' / ')]);
+      rows.push([date,'Selle',s.heure+' | '+parts.join(', ')]);
     });
     if(day.etat){
       var e=day.etat;var parts=[];
@@ -2561,7 +2656,7 @@ function exportCSV(){
       if(e.ballons)parts.push('Ballons'+(e.ballonsHeure?' '+e.ballonsHeure:''));
       if(e.regles)parts.push('Regles');
       if(e.note)parts.push('Note:'+e.note);
-      rows.push([date,'Etat',parts.join(' / ')]);
+      rows.push([date,'Etat',parts.join(', ')]);
     }
     var res=calculateScore(day);
     if(res)rows.push([date,'Score',String(res.score)+'/10 '+getScoreEmoji(res.score)]);
@@ -2651,7 +2746,7 @@ function openEditModal(title,bodyHtml){
 function openEditRepas(id){var day=getDayData(currentDate);var r=day.repas.find(function(x){return x.id===id;});if(!r)return;openEditModal('✏️ '+t('L_repas_title'),
   '<div class="form-group"><label class="form-label">'+t('L_repas_heure')+'</label><input type="time" id="editRepasHeure" class="form-input" value="'+r.heure+'"></div>'
   +'<div class="form-group autocomplete-wrap"><label class="form-label">'+t('L_texte_libre')+'</label>'
-  +'<input type="text" id="editRepasAlim" class="form-input" oninput="onEditAlimInput(this.value,\'editRepasAlim\',\'editRepasAC\')" autocomplete="off" value="'+r.aliments.join(' / ')+'">'
+  +'<input type="text" id="editRepasAlim" class="form-input" oninput="onEditAlimInput(this.value,\'editRepasAlim\',\'editRepasAC\')" autocomplete="off" value="'+r.aliments.join(', ')+'">'
   +'<div class="autocomplete-list" id="editRepasAC" style="display:none"></div></div>'
   +'<button class="btn btn-primary btn-full" onclick="saveEditRepas('+id+')">💾 '+t('L_confirmer')+'</button>');}
 function saveEditRepas(id){var h=document.getElementById('editRepasHeure').value;if(!h)return showToast(t('errHeure'));var alims=document.getElementById('editRepasAlim').value.split(/\s*[\/,]\s*/).map(function(s){return s.trim();}).filter(Boolean);if(!alims.length)return showToast(t('errAliment'));var day=getDayData(currentDate);day.repas=day.repas.map(function(r){return r.id===id?{heure:h,aliments:alims,id:id}:r;});saveDayData(currentDate,day);document.getElementById('editModal').style.display='none';renderRepasList();renderTop10();showToast('✅');}
@@ -2660,7 +2755,7 @@ function saveEditSelle(id){var h=document.getElementById('editSelleHeure').value
 function openEditPlat(id){var plat=getPlats().find(function(p){return p.id===id;});if(!plat)return;openEditModal('✏️ '+t('L_plat_create'),
   '<div class="form-group"><label class="form-label">'+t('L_plat_nom')+'</label><input type="text" id="editPlatNom" class="form-input" value="'+plat.nom+'"></div>'
   +'<div class="form-group autocomplete-wrap"><label class="form-label">'+t('L_plat_selectionnes')+'</label>'
-  +'<input type="text" id="editPlatAlim" class="form-input" oninput="onEditAlimInput(this.value,\'editPlatAlim\',\'editPlatAC\')" autocomplete="off" value="'+plat.aliments.join(' / ')+'">'
+  +'<input type="text" id="editPlatAlim" class="form-input" oninput="onEditAlimInput(this.value,\'editPlatAlim\',\'editPlatAC\')" autocomplete="off" value="'+plat.aliments.join(', ')+'">'
   +'<div class="autocomplete-list" id="editPlatAC" style="display:none"></div></div>'
   +'<button class="btn btn-primary btn-full" onclick="saveEditPlat('+id+')">💾 '+t('L_confirmer')+'</button>');}
 function saveEditPlat(id){var nom=document.getElementById('editPlatNom').value.trim();if(!nom)return showToast(t('errPlatNom'));var alims=document.getElementById('editPlatAlim').value.split(/\s*[\/,]\s*/).map(function(s){return s.trim();}).filter(Boolean);if(!alims.length)return showToast(t('errPlatIng'));savePlats(getPlats().map(function(p){return p.id===id?{nom:nom,aliments:alims,id:id}:p;}));document.getElementById('editModal').style.display='none';renderPlatsList();showToast('✅');}
@@ -2696,7 +2791,7 @@ function openDatePicker(){
 function confirmDate(){var v=document.getElementById('datePicker').value;if(v){currentDate=v;updateDateDisplay();refreshAll();loadEtatToForm();}closeModal('dateModal');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 function updateDateDisplay(){var today=todayStr();var locale=LANG==='en'?'en-GB':'fr-FR';var d=new Date(currentDate+'T12:00:00');document.getElementById('currentDateDisplay').textContent=currentDate===today?t('today'):d.toLocaleDateString(locale,{day:'numeric',month:'short'});}
-function switchTab(name,btn){document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});document.querySelectorAll('.tab-btn').forEach(function(el){el.classList.remove('active');});document.getElementById('tab-'+name).classList.add('active');btn.classList.add('active');try{localStorage.setItem('sc_active_tab',name);}catch(e){}if(name==='repas'){renderRepasList();renderTop10();}if(name==='selles')renderSellesList();if(name==='etat'){renderEtatDisplay();loadEtatToForm();}if(name==='score'){populateScoreDateSelect();renderScore();}if(name==='calendrier')renderCalendar();if(name==='plats')renderPlatsList();if(name==='io'){renderNotifCard();updateReliabilityStatus();}if(name==='aliments')initAlimentsTab();if(name==='analyse'){renderTrendChart();runAnalysis();runFodmapAnalysis();}if(name==='ia'){initIaTab();}}
+function switchTab(name,btn){document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});document.querySelectorAll('.tab-btn').forEach(function(el){el.classList.remove('active');});document.getElementById('tab-'+name).classList.add('active');btn.classList.add('active');try{localStorage.setItem('sc_active_tab',name);}catch(e){}if(name==='repas'){renderRepasList();renderTop10();}if(name==='selles')renderSellesList();if(name==='etat'){renderEtatDisplay();loadEtatToForm();}if(name==='score'){populateScoreDateSelect();renderScore();}if(name==='calendrier')renderCalendar();if(name==='plats')renderPlatsList();if(name==='io'){renderNotifCard();updateReliabilityStatus();}if(name==='aliments')initAlimentsTab();if(name==='analyse'){renderTrendChart();runFodmapAnalysis();}if(name==='ia'){initIaTab();}}
 function refreshAll(){renderRepasList();renderSellesList();renderEtatDisplay();renderScore();renderCalendar();renderTop10();}
 
 
@@ -2760,11 +2855,11 @@ function onEditAlimInput(val, inputId, acId){
         // For plat in edit context: expand ingredients
         var existing=inp.value?inp.value.split(/\s*[\/,]\s*/).map(function(s){return s.trim();}).filter(Boolean):[];
         plat.aliments.forEach(function(a){if(existing.indexOf(a)<0)existing.push(a);});
-        inp.value=existing.join(' / ')+' / ';
+        inp.value=existing.join(', ')+', ';
       } else {
         var ps=inp.value.split(/\s*[\/,]\s*/);
         ps[ps.length-1]=name;
-        inp.value=ps.join(' / ')+' / ';
+        inp.value=ps.join(', ')+', ';
       }
       ac.style.display='none';inp.focus();
     });
@@ -2953,7 +3048,7 @@ function importFodmapCSV(input){
 }
 
 // ===== CURVE TOGGLES =====
-var curveVisible=[true,true,true,true];
+var curveVisible=[true,true,true,true,true];
 function toggleCurve(btn,idx){
   curveVisible[idx]=!curveVisible[idx];
   if(curveVisible[idx])btn.classList.add('active');
@@ -3012,7 +3107,7 @@ function renderTrendChart(){
   canvas.style.display='block';
   var spScore={aucun:0,marche:1,velo:2,cardio:2,endurance:3,musculation:3};
   var bScore={'1':0,'2':2,'3':5,'4':5,'5':3,'6':0,'7':0};
-  var labels=[],humeurD=[],sellesD=[],sportD=[],fodmapD=[];
+  var labels=[],humeurD=[],sellesD=[],sportD=[],fodmapD=[],fibresD=[];
   days.forEach(function(ds){
     var day=all[ds];
     var locale=LANG==='en'?'en-GB':'fr-FR';
@@ -3041,6 +3136,19 @@ function renderTrendChart(){
       // Normalize: 0 = no FODMAP, 5 = heavy FODMAP day
       // Cap at 10 FODMAP-hits → 5 points
       fodmapD.push(total>0?Math.min(5,Math.round(fodmapCount/2*10)/10):0);
+    }
+    // Fibres: teneur moyenne (0=faible,1=modéré,2=riche) des aliments du jour, normalisée sur 5
+    {
+      var fibreSum=0,fibreTotal=0;
+      (day.repas||[]).forEach(function(r){
+        (r.aliments||[]).forEach(function(name){
+          var fd=getFodmapRow(name);
+          if(!fd)return;
+          fibreSum+=(fd[8]||0);
+          fibreTotal++;
+        });
+      });
+      fibresD.push(fibreTotal>0?Math.round((fibreSum/fibreTotal)*(5/2)*10)/10:0);
     }
   });
   // Fill selles gaps: interpolate between known values
@@ -3076,7 +3184,8 @@ function renderTrendChart(){
       {data:humeurD,       color:'#2196F3', label:LANG==='en'?'Mood':'Humeur'},
       {data:sellesInterp,  color:'#F44336', label:LANG==='en'?'Consistency':'Selles', dotOnly:sellesD},
       {data:sportD,        color:'#4CAF50', label:LANG==='en'?'Activity':'Sport'},
-      {data:fodmapD,       color:'#FFC107', label:'FODMAP'}
+      {data:fodmapD,       color:'#FFC107', label:'FODMAP'},
+      {data:fibresD,       color:'#8D6E63', label:LANG==='en'?'Fiber':'Fibres'}
     ];
     var visibleSeries=allSeries.filter(function(s,i){return curveVisible[i];});
     drawTrendCanvas(canvas,labels,visibleSeries);
