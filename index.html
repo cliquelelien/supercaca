@@ -932,6 +932,7 @@ main{position:relative;z-index:1;}
     </div>
   </div>
   <div id="fodmapAnalysis"></div>
+  <div id="fodmapDailyIntake"></div>
   <!-- Trend chart -->
 
 </div>
@@ -1666,7 +1667,7 @@ var FR={
   notif_denied:'🚫 Notifications bloquées.',notif_none:'❌ Notifications non supportées.',
   notif_ask:'Rappel à <strong>21h chaque jour</strong>.',notif_btn:'🔔 Activer le rappel 21h',
   auth_fill:'Veuillez renseigner email et mot de passe.',auth_disconnect:'Se déconnecter ?',
-  fodmap_matrix_title:'🧬 Matrice journalière',
+  fodmap_matrix_title:'🧬 Matrice des caca',
   fodmap_legend:'',
   fodmap_indicator_col:'Indicateur',fodmap_sticky:'Collante',fodmap_blood:'Sang'
 };
@@ -1746,7 +1747,7 @@ var EN={
   notif_denied:'🚫 Notifications blocked.',notif_none:'❌ Notifications not supported.',
   notif_ask:'Reminder at <strong>9pm every day</strong>.',notif_btn:'🔔 Enable daily reminder',
   auth_fill:'Please enter your email and password.',auth_disconnect:'Sign out?',
-  fodmap_matrix_title:'🧬 Daily matrix',
+  fodmap_matrix_title:'🧬 Poop matrix',
   fodmap_legend:'',
   fodmap_indicator_col:'Indicator',fodmap_sticky:'Sticky',fodmap_blood:'Blood'
 };
@@ -2321,6 +2322,77 @@ function getStoolFoodWindow(allDates,all,date,s){
   }
   return{wStart:wStart,wEnd:wEnd};
 }
+// MATRICE JOURNALIÈRE DE CONSOMMATION — indépendante des selles : pour chaque jour (colonne),
+// indique la charge de chaque catégorie FODMAP/Gluten/Fibres consommée ce jour-là (ligne).
+// Complémentaire de la "Matrice des caca" qui, elle, relie l'impact des aliments aux selles
+// via une fenêtre glissante 4-48h.
+function renderFodmapDailyIntake(){
+  var all=getData();var el=document.getElementById('fodmapDailyIntake');if(!el)return;
+  var allDates=Object.keys(all).sort().filter(function(d){return all[d].repas&&all[d].repas.length;});
+  if(!allDates.length){el.innerHTML='';return;}
+  // Limite aux 30 derniers jours ayant des repas, pour rester lisible
+  var days=allDates.slice(-30);
+  var cats=FODMAP_CATS.concat(['Gluten','Fibres']);
+  var catsD=(LANG==='en'?FODMAP_CATS_EN:FODMAP_CATS).concat(['Gluten',LANG==='en'?'Fiber':'Fibres']);
+  var colors=FODMAP_COLORS.concat(['ft-gluten','ft-fibres']);
+  function fmtDateShort(ds){var locale=LANG==='en'?'en-GB':'fr-FR';return new Date(ds+'T12:00:00').toLocaleDateString(locale,{day:'numeric',month:'short'});}
+  // Calcule pour chaque jour la charge par catégorie (compte d'aliments porteurs de la propriété,
+  // Fibres = somme des niveaux 0/1/2, comme dans le graphique de tendance)
+  var dayLoads={};
+  days.forEach(function(d){
+    var loads={};cats.forEach(function(c){loads[c]={score:0,foods:[]};});
+    (all[d].repas||[]).forEach(function(r){
+      (r.aliments||[]).forEach(function(name){
+        var fd=getFodmapRow(name);if(!fd)return;
+        for(var i=0;i<5;i++){if(fd[i+1]){loads[FODMAP_CATS[i]].score+=1;if(loads[FODMAP_CATS[i]].foods.indexOf(name)<0)loads[FODMAP_CATS[i]].foods.push(name);}}
+        if(fd[6]){loads['Gluten'].score+=1;if(loads['Gluten'].foods.indexOf(name)<0)loads['Gluten'].foods.push(name);}
+        if(fd[8]){loads['Fibres'].score+=fd[8];if(loads['Fibres'].foods.indexOf(name)<0)loads['Fibres'].foods.push(name);}
+      });
+    });
+    dayLoads[d]=loads;
+  });
+  var html='<div class="card"><div class="card-title">'+(LANG==='en'?'🍽️ Daily matrix':'🍽️ Matrice journalière')+'</div>'
+    +'<div style="font-size:11px;color:var(--text3);margin-bottom:8px">'+(LANG==='en'?'What you ate each day, by FODMAP category — independent of stools.':'Ce que vous avez mangé chaque jour, par catégorie FODMAP — indépendamment des selles.')+'</div>'
+    +'<div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table style="border-collapse:collapse;min-width:100%;font-size:11px">'
+    +'<thead><tr>'
+    +'<th style="background:var(--primary-pale);color:var(--primary2);font-weight:800;padding:6px 8px;border:1px solid var(--border);position:sticky;left:0;z-index:3;min-width:110px">'+t('fodmap_indicator_col')+'</th>';
+  var today=todayStr();var BN=getBN();
+  days.forEach(function(d){html+='<th style="background:var(--primary-pale);color:var(--primary2);font-weight:800;padding:6px 8px;border:1px solid var(--border);text-align:center;white-space:nowrap'+(d===today?';font-size:12px;color:var(--accent)':'')+'">'+fmtDateShort(d)+'</th>';});
+  html+='</tr></thead><tbody>';
+  // Bristol
+  html+='<tr><th style="background:var(--primary-soft);font-weight:700;padding:5px 8px;border:1px solid var(--border);position:sticky;left:0;text-align:left">🚽 Bristol</th>';
+  days.forEach(function(d){var selles=(all[d].selles||[]);var cell=selles.length?selles.map(function(s){return BRISTOL_EM[s.bristol]+'<span style="font-size:9px"> '+BN[s.bristol]+'</span>';}).join('<br>'):'<span style="color:var(--text3)">–</span>';html+='<td style="border:1px solid var(--border);padding:5px 7px;text-align:center;font-size:14px">'+cell+'</td>';});
+  html+='</tr>';
+  // Collante
+  html+='<tr><th style="background:#FFF3E0;font-weight:700;padding:5px 8px;border:1px solid var(--border);position:sticky;left:0;text-align:left">🩹 '+t('fodmap_sticky')+'</th>';
+  days.forEach(function(d){var has=(all[d].selles||[]).some(function(s){return s.collante;});html+='<td style="border:1px solid var(--border);padding:5px 7px;text-align:center;color:'+(has?'var(--red)':'var(--text3)')+';font-weight:'+(has?'900':'400')+'">'+(has?'●':'–')+'</td>';});
+  html+='</tr>';
+  // Sang
+  html+='<tr><th style="background:#FFF3E0;font-weight:700;padding:5px 8px;border:1px solid var(--border);position:sticky;left:0;text-align:left">🩸 '+t('fodmap_blood')+'</th>';
+  days.forEach(function(d){var has=(all[d].selles||[]).some(function(s){return s.sang;});html+='<td style="border:1px solid var(--border);padding:5px 7px;text-align:center;color:'+(has?'var(--red)':'var(--text3)')+';font-weight:'+(has?'900':'400')+'">'+(has?'●':'–')+'</td>';});
+  html+='</tr>';
+  // Separator
+  html+='<tr><td colspan="'+(days.length+1)+'" style="background:var(--border);padding:1px;border:none"></td></tr>';
+  cats.forEach(function(cat,ci){
+    html+='<tr><th style="background:var(--bg2);font-weight:700;padding:5px 8px;border:1px solid var(--border);position:sticky;left:0;text-align:left"><span class="fodmap-tag '+colors[ci]+'" style="font-size:10px">'+catsD[ci]+'</span></th>';
+    days.forEach(function(d){
+      var lo=dayLoads[d][cat];var score=Math.round(lo.score*100)/100;var foods=lo.foods;
+      var bg=score>2?'#FFEBEE':score>1?'#FFF3E0':score>0?'#E8F5E9':'';
+      var col=score>2?'#C62828':score>1?'#E65100':score>0?'#2E7D32':'var(--text3)';
+      var cell=score>0
+        ?'<strong style="color:'+col+'">'+score+'</strong>'+(foods.length?'<div style="font-size:9px;color:var(--text3);white-space:normal;max-width:80px;line-height:1.2">'+foods.join(', ')+'</div>':'')
+        :'<span style="color:var(--text3)">–</span>';
+      html+='<td style="border:1px solid var(--border);padding:5px 7px;text-align:center;background:'+bg+'">'+cell+'</td>';
+    });
+    html+='</tr>';
+  });
+  html+='</tbody></table></div></div>';
+  el.innerHTML=html;
+  setTimeout(function(){
+    var wrap=el.querySelector('div[style*="overflow-x"]');
+    if(wrap)wrap.scrollLeft=wrap.scrollWidth;
+  },200);
+}
 function runFodmapAnalysis(){
   var all=getData();var el=document.getElementById('fodmapAnalysis');
   var allDates=Object.keys(all).sort();
@@ -2797,7 +2869,7 @@ function openDatePicker(){
 function confirmDate(){var v=document.getElementById('datePicker').value;if(v){currentDate=v;updateDateDisplay();refreshAll();loadEtatToForm();}closeModal('dateModal');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 function updateDateDisplay(){var today=todayStr();var locale=LANG==='en'?'en-GB':'fr-FR';var d=new Date(currentDate+'T12:00:00');document.getElementById('currentDateDisplay').textContent=currentDate===today?t('today'):d.toLocaleDateString(locale,{day:'numeric',month:'short'});}
-function switchTab(name,btn){document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});document.querySelectorAll('.tab-btn').forEach(function(el){el.classList.remove('active');});document.getElementById('tab-'+name).classList.add('active');btn.classList.add('active');try{localStorage.setItem('sc_active_tab',name);}catch(e){}if(name==='repas'){renderRepasList();renderTop10();}if(name==='selles')renderSellesList();if(name==='etat'){renderEtatDisplay();loadEtatToForm();}if(name==='score'){populateScoreDateSelect();renderScore();}if(name==='calendrier')renderCalendar();if(name==='plats')renderPlatsList();if(name==='io'){renderNotifCard();updateReliabilityStatus();}if(name==='aliments')initAlimentsTab();if(name==='analyse'){renderTrendChart();runFodmapAnalysis();}if(name==='ia'){initIaTab();}}
+function switchTab(name,btn){document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});document.querySelectorAll('.tab-btn').forEach(function(el){el.classList.remove('active');});document.getElementById('tab-'+name).classList.add('active');btn.classList.add('active');try{localStorage.setItem('sc_active_tab',name);}catch(e){}if(name==='repas'){renderRepasList();renderTop10();}if(name==='selles')renderSellesList();if(name==='etat'){renderEtatDisplay();loadEtatToForm();}if(name==='score'){populateScoreDateSelect();renderScore();}if(name==='calendrier')renderCalendar();if(name==='plats')renderPlatsList();if(name==='io'){renderNotifCard();updateReliabilityStatus();}if(name==='aliments')initAlimentsTab();if(name==='analyse'){renderTrendChart();runFodmapAnalysis();renderFodmapDailyIntake();}if(name==='ia'){initIaTab();}}
 function refreshAll(){renderRepasList();renderSellesList();renderEtatDisplay();renderScore();renderCalendar();renderTop10();}
 
 
