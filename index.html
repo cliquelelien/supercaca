@@ -928,7 +928,7 @@ main{position:relative;z-index:1;}
       <div style="margin-top:6px"><span style="color:#2196F3;font-weight:700">🔵 Humeur</span> — Votre saisie directe de 1 à 5.</div>
       <div style="margin-top:6px"><span style="color:#4CAF50;font-weight:700">🟢 Activité sportive</span> — 💤 Aucune=0 · 🚶 Marche=1 · 🚴 Vélo/Cardio=2 · 🏃 Endurance/Muscu=3</div>
       <div style="margin-top:6px"><span style="color:#FFC107;font-weight:700">🟡 Charge FODMAP</span> — Somme pondérée des FODMAP consommés avant chaque selle (fenêtre 4–48h), normalisée sur 5. Plus c'est haut, plus la charge alimentaire FODMAP était élevée.</div>
-      <div style="margin-top:6px"><span style="color:#8D6E63;font-weight:700">🟤 Fibres</span> — Teneur moyenne en fibres des aliments consommés dans la journée (0=faible → 5=riche).</div>
+      <div style="margin-top:6px"><span style="color:#8D6E63;font-weight:700">🟤 Fibres</span> — Charge en fibres du jour : somme des niveaux de fibres (faible=0, modéré=1, riche=2) de chaque aliment consommé dans la journée, plafonnée à 5.</div>
     </div>
   </div>
   <div id="fodmapAnalysis"></div>
@@ -1666,7 +1666,7 @@ var FR={
   notif_denied:'🚫 Notifications bloquées.',notif_none:'❌ Notifications non supportées.',
   notif_ask:'Rappel à <strong>21h chaque jour</strong>.',notif_btn:'🔔 Activer le rappel 21h',
   auth_fill:'Veuillez renseigner email et mot de passe.',auth_disconnect:'Se déconnecter ?',
-  fodmap_matrix_title:'🧬 FODMAP × Selles — Matrice par jour',
+  fodmap_matrix_title:'🧬 Matrice journalière',
   fodmap_legend:'',
   fodmap_indicator_col:'Indicateur',fodmap_sticky:'Collante',fodmap_blood:'Sang'
 };
@@ -1746,7 +1746,7 @@ var EN={
   notif_denied:'🚫 Notifications blocked.',notif_none:'❌ Notifications not supported.',
   notif_ask:'Reminder at <strong>9pm every day</strong>.',notif_btn:'🔔 Enable daily reminder',
   auth_fill:'Please enter your email and password.',auth_disconnect:'Sign out?',
-  fodmap_matrix_title:'🧬 FODMAP × Stools — Day-by-day matrix',
+  fodmap_matrix_title:'🧬 Daily matrix',
   fodmap_legend:'',
   fodmap_indicator_col:'Indicator',fodmap_sticky:'Sticky',fodmap_blood:'Blood'
 };
@@ -2296,6 +2296,31 @@ function renderCalDayDetail(ds){var day=getDayData(ds);var c=document.getElement
 // ===== ANALYSE =====
 
 // FODMAP MATRIX
+// Calcule la fenêtre d'aliments (4h à 48h avant une selle, ou depuis la selle précédente)
+// associée à une selle donnée. Réutilisée par la matrice ET le graphique de tendance
+// pour que le "poids fibres" du jour reflète la même fenêtre dans les deux vues.
+function getStoolFoodWindow(allDates,all,date,s){
+  var sTs=new Date(date+'T'+s.heure+':00').getTime();
+  var wEnd=sTs-4*3600000;
+  var prevSts=null;
+  allDates.slice().reverse().forEach(function(d){
+    if(prevSts)return;
+    (all[d].selles||[]).slice().reverse().forEach(function(ps){
+      if(prevSts)return;
+      var pTs=new Date(d+'T'+ps.heure+':00').getTime();
+      if(pTs<sTs){prevSts=pTs;}
+    });
+  });
+  var wStart;
+  if(prevSts && (sTs-prevSts)<48*3600000){
+    wStart=sTs-48*3600000;
+  } else if(prevSts){
+    wStart=prevSts-4*3600000;
+  } else {
+    wStart=sTs-48*3600000;
+  }
+  return{wStart:wStart,wEnd:wEnd};
+}
 function runFodmapAnalysis(){
   var all=getData();var el=document.getElementById('fodmapAnalysis');
   var allDates=Object.keys(all).sort();
@@ -2311,29 +2336,8 @@ function runFodmapAnalysis(){
     var sellesSummary=day.selles.map(function(s){return{bristol:s.bristol,collante:s.collante,sang:s.sang};});
     var loads={};cats.forEach(function(c){loads[c]={score:0,foods:[],fibreSum:0};});
     day.selles.forEach(function(s){
-      var sTs=new Date(date+'T'+s.heure+':00').getTime();
-      var wEnd=sTs-4*3600000;
-      // Find previous stool timestamp
-      var prevSts=null;
-      allDates.slice().reverse().forEach(function(d){
-        if(prevSts)return;
-        (all[d].selles||[]).slice().reverse().forEach(function(ps){
-          if(prevSts)return;
-          var pTs=new Date(d+'T'+ps.heure+':00').getTime();
-          if(pTs<sTs){prevSts=pTs;}
-        });
-      });
-      // Window logic:
-      // prev stool < 48h ago → standard window: sTs-48h to sTs-4h
-      // prev stool > 48h ago (or none) → from prevSts-4h to sTs-4h (capture all since last stool)
-      var wStart;
-      if(prevSts && (sTs-prevSts)<48*3600000){
-        wStart=sTs-48*3600000;          // standard 48h window
-      } else if(prevSts){
-        wStart=prevSts-4*3600000;       // 4h before last stool
-      } else {
-        wStart=sTs-48*3600000;          // no previous stool → default 48h
-      }
+      var win=getStoolFoodWindow(allDates,all,date,s);
+      var wStart=win.wStart,wEnd=win.wEnd;
       allDates.forEach(function(d){var dd=all[d];if(!dd.repas)return;dd.repas.forEach(function(r){
         var rTs=new Date(d+'T'+r.heure+':00').getTime();
         if(rTs<wStart||rTs>wEnd)return;
@@ -3139,18 +3143,19 @@ function renderTrendChart(){
       // Cap at 10 FODMAP-hits → 5 points
       fodmapD.push(total>0?Math.min(5,Math.round(fodmapCount/2*10)/10):0);
     }
-    // Fibres: teneur moyenne (0=faible,1=modéré,2=riche) des aliments du jour, normalisée sur 5
+    // Fibres — consommation journalière réelle : somme des niveaux de fibres (0=faible,1=modéré,2=riche)
+    // de tous les aliments mangés ce jour-là (jour civil, indépendant des selles), plafonnée à 5.
+    // Plus il y a d'aliments riches en fibres consommés dans la journée, plus le score monte vers 5.
     {
-      var fibreSum=0,fibreTotal=0;
+      var fibreLoad=0;
       (day.repas||[]).forEach(function(r){
         (r.aliments||[]).forEach(function(name){
           var fd=getFodmapRow(name);
           if(!fd)return;
-          fibreSum+=(fd[8]||0);
-          fibreTotal++;
+          fibreLoad+=(fd[8]||0);
         });
       });
-      fibresD.push(fibreTotal>0?Math.round((fibreSum/fibreTotal)*(5/2)*10)/10:0);
+      fibresD.push(Math.min(5,Math.round(fibreLoad*10)/10));
     }
   });
   // Fill selles gaps: interpolate between known values
