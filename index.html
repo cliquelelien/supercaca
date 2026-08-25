@@ -931,8 +931,13 @@ main{position:relative;z-index:1;}
       <div style="margin-top:6px"><span style="color:#8D6E63;font-weight:700">🟤 Fibres</span> — Charge en fibres du jour : somme des niveaux de fibres (faible=0, modéré=1, riche=2) de chaque aliment consommé dans la journée, plafonnée à 5.</div>
     </div>
   </div>
-  <div id="fodmapAnalysis"></div>
   <div id="fodmapDailyIntake"></div>
+  <div class="card" style="text-align:center">
+    <button class="btn btn-secondary btn-full" onclick="runFodmapAnalysis();this.style.display='none'">
+      <span id="L_show_fodmap_matrix">🧬 Afficher la matrice des caca</span>
+    </button>
+  </div>
+  <div id="fodmapAnalysis"></div>
   <!-- Trend chart -->
 
 </div>
@@ -2869,7 +2874,7 @@ function openDatePicker(){
 function confirmDate(){var v=document.getElementById('datePicker').value;if(v){currentDate=v;updateDateDisplay();refreshAll();loadEtatToForm();}closeModal('dateModal');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 function updateDateDisplay(){var today=todayStr();var locale=LANG==='en'?'en-GB':'fr-FR';var d=new Date(currentDate+'T12:00:00');document.getElementById('currentDateDisplay').textContent=currentDate===today?t('today'):d.toLocaleDateString(locale,{day:'numeric',month:'short'});}
-function switchTab(name,btn){document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});document.querySelectorAll('.tab-btn').forEach(function(el){el.classList.remove('active');});document.getElementById('tab-'+name).classList.add('active');btn.classList.add('active');try{localStorage.setItem('sc_active_tab',name);}catch(e){}if(name==='repas'){renderRepasList();renderTop10();}if(name==='selles')renderSellesList();if(name==='etat'){renderEtatDisplay();loadEtatToForm();}if(name==='score'){populateScoreDateSelect();renderScore();}if(name==='calendrier')renderCalendar();if(name==='plats')renderPlatsList();if(name==='io'){renderNotifCard();updateReliabilityStatus();}if(name==='aliments')initAlimentsTab();if(name==='analyse'){renderTrendChart();runFodmapAnalysis();renderFodmapDailyIntake();}if(name==='ia'){initIaTab();}}
+function switchTab(name,btn){document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});document.querySelectorAll('.tab-btn').forEach(function(el){el.classList.remove('active');});document.getElementById('tab-'+name).classList.add('active');btn.classList.add('active');try{localStorage.setItem('sc_active_tab',name);}catch(e){}if(name==='repas'){renderRepasList();renderTop10();}if(name==='selles')renderSellesList();if(name==='etat'){renderEtatDisplay();loadEtatToForm();}if(name==='score'){populateScoreDateSelect();renderScore();}if(name==='calendrier')renderCalendar();if(name==='plats')renderPlatsList();if(name==='io'){renderNotifCard();updateReliabilityStatus();}if(name==='aliments')initAlimentsTab();if(name==='analyse'){renderTrendChart();renderFodmapDailyIntake();}if(name==='ia'){initIaTab();}}
 function refreshAll(){renderRepasList();renderSellesList();renderEtatDisplay();renderScore();renderCalendar();renderTop10();}
 
 
@@ -3230,30 +3235,23 @@ function renderTrendChart(){
       fibresD.push(Math.min(5,Math.round(fibreLoad*10)/10));
     }
   });
-  // Fill selles gaps: interpolate between known values
-  var sellesFilled=sellesD.slice();
-  // Forward fill then backward fill
-  var last=null;
-  for(var fi=0;fi<sellesFilled.length;fi++){
-    if(sellesFilled[fi]!==null)last=sellesFilled[fi];
-    else if(last!==null)sellesFilled[fi]=last;
-  }
-  last=null;
-  for(var fi=sellesFilled.length-1;fi>=0;fi--){
-    if(sellesFilled[fi]!==null)last=sellesFilled[fi];
-    else if(last!==null)sellesFilled[fi]=last;
-  }
-  // Linear interpolation between measured points
-  var sellesInterp=sellesFilled.slice();
-  for(var fi=0;fi<sellesInterp.length;fi++){
-    if(sellesD[fi]===null){
-      // Find prev and next known values
-      var prev=-1,next=-1;
-      for(var pi=fi-1;pi>=0;pi--){if(sellesD[pi]!==null){prev=pi;break;}}
-      for(var ni=fi+1;ni<sellesD.length;ni++){if(sellesD[ni]!==null){next=ni;break;}}
-      if(prev>=0&&next>=0){
-        var t=(fi-prev)/(next-prev);
-        sellesInterp[fi]=Math.round((sellesD[prev]*(1-t)+sellesD[next]*t)*10)/10;
+  // Fill selles gaps: interpolate between known values.
+  // On ne comble QUE les trous strictement entre deux jours mesurés — jamais avant le
+  // premier ni après le dernier jour ayant une selle réelle, pour éviter qu'un plateau
+  // ou un point ne semble apparaître un jour sans selle en début/fin de période.
+  var firstKnown=-1,lastKnown=-1;
+  for(var fi=0;fi<sellesD.length;fi++){if(sellesD[fi]!==null){if(firstKnown<0)firstKnown=fi;lastKnown=fi;}}
+  var sellesInterp=sellesD.slice();
+  if(firstKnown>=0){
+    for(var fi=firstKnown;fi<=lastKnown;fi++){
+      if(sellesInterp[fi]===null){
+        var prev=-1,next=-1;
+        for(var pi=fi-1;pi>=firstKnown;pi--){if(sellesD[pi]!==null){prev=pi;break;}}
+        for(var ni=fi+1;ni<=lastKnown;ni++){if(sellesD[ni]!==null){next=ni;break;}}
+        if(prev>=0&&next>=0){
+          var tt=(fi-prev)/(next-prev);
+          sellesInterp[fi]=Math.round((sellesD[prev]*(1-tt)+sellesD[next]*tt)*10)/10;
+        }
       }
     }
   }
