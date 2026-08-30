@@ -258,14 +258,17 @@ main{position:relative;z-index:1;}
    FOOD CHIPS & GRID
    ============================================================ */
 .food-chips{display:flex;flex-wrap:wrap;gap:5px;min-height:34px;align-items:flex-start;padding:4px 0;}
-.repas-table{width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed;}
-.repas-table th{text-align:center;padding:6px 3px;color:var(--text3);font-weight:700;border-bottom:2px solid var(--border);white-space:nowrap;position:sticky;top:0;background:var(--card);font-size:10px;}
-.repas-table th.rt-th-date{text-align:left;min-width:64px;}
-.repas-table td{padding:5px 3px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.35;text-align:center;min-width:46px;font-size:15px;}
-.repas-table td.rt-date{white-space:nowrap;font-weight:700;color:var(--text2);text-align:left;font-size:11px;}
-.repas-table td.rt-empty{color:var(--text3);opacity:0.35;}
+.repas-table{width:max-content;min-width:100%;border-collapse:collapse;font-size:11px;}
+.repas-table th{text-align:center;padding:6px 4px;color:var(--text3);font-weight:700;border-bottom:2px solid var(--border);white-space:nowrap;position:sticky;top:0;background:var(--card);font-size:10px;width:110px;}
+.repas-table th.rt-th-date{text-align:left;width:76px;position:sticky;left:0;z-index:2;background:var(--card);}
+.repas-table td{padding:5px 4px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);vertical-align:top;line-height:1.3;text-align:left;width:110px;font-size:10.5px;word-break:break-word;}
+.repas-table td.rt-date{white-space:nowrap;font-weight:700;color:var(--text2);text-align:left;font-size:11px;position:sticky;left:0;background:var(--card);z-index:1;}
+.repas-table tr.rt-today td.rt-date{background:var(--bg2);}
+.repas-table td.rt-empty{color:var(--text3);opacity:0.35;text-align:center;}
 .repas-table tr.rt-today td{background:var(--bg2);}
 .repas-table tr:hover td{background:var(--bg2);}
+.rt-repas-detail{color:var(--text);}
+.rt-selle-detail{color:var(--text2);margin-top:2px;font-size:10px;}
 .rt-cell-repas{cursor:pointer;}
 .rt-cell-repas:hover{opacity:0.7;}
 .food-chip{background:var(--accent);border-radius:20px;padding:4px 11px;font-size:12px;font-weight:700;color:white;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:5px;}
@@ -981,6 +984,22 @@ main{position:relative;z-index:1;}
 <!-- ANALYSE IA -->
 <div id="tab-ia" class="tab-content">
   <div class="card">
+    <div class="card-title" id="L_gemini_key_title">🍽️ Saisie repas par IA (Gemini, gratuit)</div>
+    <p style="font-size:12px;color:var(--text2);margin:0 0 10px 0" id="L_gemini_key_desc">
+      Clé utilisée par la saisie simplifiée dans l'onglet Repas (texte libre et photo). Google Gemini propose un
+      niveau gratuit suffisant pour cet usage.
+    </p>
+    <div class="form-group">
+      <label class="form-label" id="L_gemini_key_label">Clé API Gemini</label>
+      <input type="password" id="geminiApiKey" class="form-input" placeholder="AIza...">
+      <div style="font-size:11px;color:var(--text3);margin-top:4px" id="L_gemini_key_hint">
+        Stockée uniquement dans ce navigateur (localStorage). Obtenez une clé gratuite sur
+        <span style="text-decoration:underline">aistudio.google.com/apikey</span>.
+      </div>
+    </div>
+    <button class="btn btn-secondary btn-full" onclick="saveGeminiApiKey()" id="L_gemini_key_save">💾 Enregistrer la clé Gemini</button>
+  </div>
+  <div class="card">
     <div class="card-title">🤖 Analyse par IA (Claude)</div>
     <p style="font-size:12px;color:var(--text2);margin:0 0 10px 0">
       Envoie vos données (repas, selles, état, période choisie) à Claude pour une analyse approfondie :
@@ -1677,6 +1696,7 @@ var FR={
   regleLabel:'🌸 Règles',noteLabel:'📝',
   tag_collante:'🩹 Collante',tag_sang:'🩸 Sang',tag_douleur:'😣 Douleur',tag_ballons:'🎈 Ballons',
   L_rt_date:'Date',L_repas_table_title:'🍽️ Repas & selles — 30 derniers jours',L_repas_table_desc:'Chaque colonne = tranche de 2h. 🍽️ repas · 💩 selle.',
+  L_gemini_key_title:'🍽️ Saisie repas par IA (Gemini, gratuit)',L_gemini_key_desc:'Clé utilisée par la saisie simplifiée dans l\'onglet Repas (texte libre et photo). Google Gemini propose un niveau gratuit suffisant pour cet usage.',L_gemini_key_label:'Clé API Gemini',L_gemini_key_hint:'Stockée uniquement dans ce navigateur (localStorage). Obtenez une clé gratuite sur aistudio.google.com/apikey.',L_gemini_key_save:'💾 Enregistrer la clé Gemini',
   L_analyse_title:'🔍 Analyse alimentaire',L_analyse_desc:'Corrélation aliments / selles 12–48h après.',
   L_run_analyse:"🔍 Lancer l'analyse",L_run_fodmap:'🧬 Matrice FODMAP × Selles',L_trend_title:'📈 Tendances sur 30 jours',L_trend_humeur:'Humeur',L_trend_selles:'Consistance selles',L_trend_sport:'Activité sportive',L_trend_alim:'Charge FODMAP',L_trend_note:'Consistance : 5=idéale (Bristol 3-4) · Sport : 0=aucun→3=intensif · FODMAP : charge pondérée/2',
   noAnalysis:'Pas assez de données.',
@@ -1759,6 +1779,7 @@ var EN={
   regleLabel:'🌸 Period',noteLabel:'📝',
   tag_collante:'🩹 Sticky',tag_sang:'🩸 Blood',tag_douleur:'😣 Pain',tag_ballons:'🎈 Bloating',
   L_rt_date:'Date',L_repas_table_title:'🍽️ Meals & stools — last 30 days',L_repas_table_desc:'Each column = 2h slot. 🍽️ meal · 💩 stool.',
+  L_gemini_key_title:'🍽️ AI meal entry (Gemini, free)',L_gemini_key_desc:'Key used by the simplified entry in the Meals tab (free text and photo). Google Gemini offers a free tier that\'s enough for this.',L_gemini_key_label:'Gemini API key',L_gemini_key_hint:'Stored only in this browser (localStorage). Get a free key at aistudio.google.com/apikey.',L_gemini_key_save:'💾 Save Gemini key',
   L_analyse_title:'🔍 Food analysis',L_analyse_desc:'Food / stool correlation 12–48h later.',
   L_run_analyse:'🔍 Run analysis',L_run_fodmap:'🧬 FODMAP × Stools matrix',L_trend_title:'📈 30-day trends',L_trend_humeur:'Mood',L_trend_selles:'Stool consistency',L_trend_sport:'Physical activity',L_trend_alim:'FODMAP load',L_trend_note:'Consistency: 5=ideal (Bristol 3-4) · Activity: 0=none→3=intense · FODMAP: weighted load/2',
   noAnalysis:'Not enough data.',
@@ -2171,6 +2192,7 @@ function applyLang(){
   s('L_note_title','L_note_title');p('etatNote','ph_note');s('L_save_etat','L_save_etat');s('L_score_missing','L_score_missing');
   s('L_analyse_title','L_analyse_title');h('L_analyse_desc','L_analyse_desc');s('L_run_analyse','L_run_analyse');s('L_run_fodmap','L_run_fodmap');
   s('L_repas_table_title','L_repas_table_title');h('L_repas_table_desc','L_repas_table_desc');
+  s('L_gemini_key_title','L_gemini_key_title');h('L_gemini_key_desc','L_gemini_key_desc');s('L_gemini_key_label','L_gemini_key_label');h('L_gemini_key_hint','L_gemini_key_hint');s('L_gemini_key_save','L_gemini_key_save');
   s('L_alim_title','L_alim_title');s('L_add_alim_title','L_add_alim_title');s('L_add_nom','L_add_nom');s('L_add_cat','L_add_cat');s('L_add_props','L_add_props');s('L_add_fibres','L_add_fibres');s('L_add_alim_btn','L_add_alim_btn');
   s('ath_nom','ath_nom');s('ath_cat','ath_cat');s('ath_safe','ath_safe');s('ath_fibres','ath_fibres');
   s('L_plat_create','L_plat_create');s('L_plat_nom','L_plat_nom');p('platNom','ph_plat_nom');
@@ -2257,12 +2279,12 @@ function addFoodFromInput(){
   renderSelectedFoods();inp.value='';
 }
 
-// ===== SAISIE REPAS SIMPLIFIÉE PAR IA (texte libre ou photo -> liste d'aliments) =====
-function getIaApiKey(){return(localStorage.getItem('sc_ia_apikey')||'').trim();}
+// ===== SAISIE REPAS SIMPLIFIÉE PAR IA (texte libre ou photo -> liste d'aliments) — via Google Gemini (gratuit) =====
+function getGeminiApiKey(){return(localStorage.getItem('sc_gemini_apikey')||'').trim();}
 function iaRepasNoKeyMsg(){
   return LANG==='en'
-    ?'⚠️ Add your Anthropic API key first in the "AI Analysis" tab.'
-    :'⚠️ Renseignez d\'abord votre clé API Anthropic dans l\'onglet "Analyse IA".';
+    ?'⚠️ Add your free Gemini API key first in the "AI Analysis" tab (get one at aistudio.google.com/apikey).'
+    :'⚠️ Renseignez d\'abord votre clé API Gemini (gratuite) dans l\'onglet "Analyse IA" — à obtenir sur aistudio.google.com/apikey.';
 }
 function setIaRepasStatus(html){var el=document.getElementById('iaRepasStatus');if(el)el.innerHTML=html;}
 // Ajoute les aliments extraits à la sélection courante, en évitant les doublons, puis rafraîchit l'UI.
@@ -2285,16 +2307,22 @@ var IA_REPAS_SYSTEM="Tu extrais une liste d'aliments à partir d'une description
   "Chaque nom d'aliment doit être court, au singulier, en français, avec la première lettre en majuscule (ex: 'Poulet', 'Riz', 'Tomate', 'Parmesan'), sans quantité ni unité. "+
   "Décompose les plats composés en leurs ingrédients principaux visibles ou mentionnés (ex: 'pâtes carbonara' -> Pâtes, Lardons, Œuf, Parmesan). "+
   "Ignore l'eau plate. Si rien n'est identifiable, réponds {\"aliments\":[]}.";
-function parseIaRepasResponse(resp){
-  var text=(resp.content||[]).filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('\n').trim();
+var GEMINI_MODEL='gemini-2.0-flash';
+function parseGeminiRepasResponse(resp){
+  var text=((resp.candidates||[])[0]||{}).content;
+  text=text&&text.parts?text.parts.map(function(p){return p.text||'';}).join('\n'):'';
+  text=(text||'').trim();
   var jsonStr=text;
   var m=text.match(/\{[\s\S]*\}/);
   if(m)jsonStr=m[0];
   var parsed=JSON.parse(jsonStr);
   return(parsed&&parsed.aliments)||[];
 }
+function geminiErrorMessage(j,status){
+  return(j&&j.error&&j.error.message)||('HTTP '+status);
+}
 function runIaRepasText(){
-  var apiKey=getIaApiKey();
+  var apiKey=getGeminiApiKey();
   if(!apiKey){setIaRepasStatus('<span style="color:var(--red)">'+iaRepasNoKeyMsg()+'</span>');return;}
   var inp=document.getElementById('iaRepasTextInput');
   var desc=(inp.value||'').trim();
@@ -2302,15 +2330,19 @@ function runIaRepasText(){
   var btn=document.getElementById('iaRepasTextBtn');
   btn.disabled=true;btn.textContent='⏳';
   setIaRepasStatus(LANG==='en'?'Analysing…':'Analyse en cours…');
-  fetch('https://api.anthropic.com/v1/messages',{
+  fetch('https://generativelanguage.googleapis.com/v1beta/models/'+GEMINI_MODEL+':generateContent?key='+encodeURIComponent(apiKey),{
     method:'POST',
-    headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-    body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:500,system:IA_REPAS_SYSTEM,messages:[{role:'user',content:desc}]})
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      systemInstruction:{parts:[{text:IA_REPAS_SYSTEM}]},
+      contents:[{role:'user',parts:[{text:desc}]}],
+      generationConfig:{maxOutputTokens:500,responseMimeType:'application/json'}
+    })
   }).then(function(r){
-    if(!r.ok)return r.json().then(function(j){throw new Error((j.error&&j.error.message)||('HTTP '+r.status));});
+    if(!r.ok)return r.json().then(function(j){throw new Error(geminiErrorMessage(j,r.status));});
     return r.json();
   }).then(function(resp){
-    var aliments=parseIaRepasResponse(resp);
+    var aliments=parseGeminiRepasResponse(resp);
     var added=applyIaRepasFoods(aliments);
     if(added){setIaRepasStatus('<span style="color:var(--green)">✅ '+added+' '+(LANG==='en'?'food(s) added: ':'aliment(s) ajouté(s) : ')+aliments.join(', ')+'</span>');inp.value='';}
     else{setIaRepasStatus('<span style="color:var(--text3)">'+(LANG==='en'?'No food identified.':'Aucun aliment identifié.')+'</span>');}
@@ -2329,25 +2361,29 @@ function fileToBase64(file){
 }
 function runIaRepasPhoto(file){
   if(!file)return;
-  var apiKey=getIaApiKey();
+  var apiKey=getGeminiApiKey();
   if(!apiKey){setIaRepasStatus('<span style="color:var(--red)">'+iaRepasNoKeyMsg()+'</span>');return;}
   var nameEl=document.getElementById('iaRepasPhotoName');if(nameEl)nameEl.textContent=file.name;
   setIaRepasStatus(LANG==='en'?'Analysing photo…':'Analyse de la photo en cours…');
   var mediaType=file.type||'image/jpeg';
   fileToBase64(file).then(function(b64){
-    return fetch('https://api.anthropic.com/v1/messages',{
+    return fetch('https://generativelanguage.googleapis.com/v1beta/models/'+GEMINI_MODEL+':generateContent?key='+encodeURIComponent(apiKey),{
       method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:500,system:IA_REPAS_SYSTEM,messages:[{role:'user',content:[
-        {type:'image',source:{type:'base64',media_type:mediaType,data:b64}},
-        {type:'text',text:LANG==='en'?'Identify the foods in this meal photo.':'Identifie les aliments de ce repas en photo.'}
-      ]}]})
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        systemInstruction:{parts:[{text:IA_REPAS_SYSTEM}]},
+        contents:[{role:'user',parts:[
+          {inlineData:{mimeType:mediaType,data:b64}},
+          {text:LANG==='en'?'Identify the foods in this meal photo.':'Identifie les aliments de ce repas en photo.'}
+        ]}],
+        generationConfig:{maxOutputTokens:500,responseMimeType:'application/json'}
+      })
     });
   }).then(function(r){
-    if(!r.ok)return r.json().then(function(j){throw new Error((j.error&&j.error.message)||('HTTP '+r.status));});
+    if(!r.ok)return r.json().then(function(j){throw new Error(geminiErrorMessage(j,r.status));});
     return r.json();
   }).then(function(resp){
-    var aliments=parseIaRepasResponse(resp);
+    var aliments=parseGeminiRepasResponse(resp);
     var added=applyIaRepasFoods(aliments);
     if(added)setIaRepasStatus('<span style="color:var(--green)">✅ '+added+' '+(LANG==='en'?'food(s) added: ':'aliment(s) ajouté(s) : ')+aliments.join(', ')+'</span>');
     else setIaRepasStatus('<span style="color:var(--text3)">'+(LANG==='en'?'No food identified.':'Aucun aliment identifié.')+'</span>');
@@ -2528,10 +2564,14 @@ function renderRepasTable(){
       slot.repas.forEach(function(r){titleParts.push((r.heure||'')+' 🍽️ '+(r.aliments||[]).join(', '));});
       slot.selles.forEach(function(se){titleParts.push((se.heure||'')+' 💩 Bristol '+se.bristol+(se.sang?' (sang)':''));});
       var cellHtml='';
-      if(slot.repas.length)cellHtml+='<div>🍽️'+(slot.repas.length>1?'×'+slot.repas.length:'')+'</div>';
+      if(slot.repas.length){
+        var alimentsTxt=slot.repas.map(function(r){return(r.aliments||[]).join(', ');}).join(' + ');
+        cellHtml+='<div class="rt-repas-detail">🍽️ '+alimentsTxt.replace(/</g,'&lt;')+'</div>';
+      }
       if(slot.selles.length){
         var hasSang=slot.selles.some(function(se){return se.sang;});
-        cellHtml+='<div>💩'+(hasSang?'🩸':'')+(slot.selles.length>1?'×'+slot.selles.length:'')+'</div>';
+        var bristolTxt=slot.selles.map(function(se){return 'B'+se.bristol;}).join(', ');
+        cellHtml+='<div class="rt-selle-detail">💩'+(hasSang?'🩸':'')+' '+bristolTxt+'</div>';
       }
       html+='<td class="rt-cell-repas" title="'+titleParts.join(' | ').replace(/"/g,'&quot;')+'" onclick="selectCalDay(\''+ds+'\');switchTabByName(\'calendrier\')">'+cellHtml+'</td>';
     });
@@ -2770,7 +2810,15 @@ function initIaTab(){
   var saved=localStorage.getItem('sc_ia_apikey');
   var input=document.getElementById('iaApiKey');
   if(saved&&input)input.value=saved;
+  var savedGemini=localStorage.getItem('sc_gemini_apikey');
+  var geminiInput=document.getElementById('geminiApiKey');
+  if(savedGemini&&geminiInput)geminiInput.value=savedGemini;
   updateReliabilityStatus();
+}
+function saveGeminiApiKey(){
+  var apiKey=(document.getElementById('geminiApiKey').value||'').trim();
+  localStorage.setItem('sc_gemini_apikey',apiKey);
+  showToast(LANG==='en'?'✅ Gemini key saved':'✅ Clé Gemini enregistrée');
 }
 function buildIaDataset(days){
   var all=getData();
