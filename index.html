@@ -258,6 +258,16 @@ main{position:relative;z-index:1;}
    FOOD CHIPS & GRID
    ============================================================ */
 .food-chips{display:flex;flex-wrap:wrap;gap:5px;min-height:34px;align-items:flex-start;padding:4px 0;}
+.repas-table{width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed;}
+.repas-table th{text-align:center;padding:6px 3px;color:var(--text3);font-weight:700;border-bottom:2px solid var(--border);white-space:nowrap;position:sticky;top:0;background:var(--card);font-size:10px;}
+.repas-table th.rt-th-date{text-align:left;min-width:64px;}
+.repas-table td{padding:5px 3px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.35;text-align:center;min-width:46px;font-size:15px;}
+.repas-table td.rt-date{white-space:nowrap;font-weight:700;color:var(--text2);text-align:left;font-size:11px;}
+.repas-table td.rt-empty{color:var(--text3);opacity:0.35;}
+.repas-table tr.rt-today td{background:var(--bg2);}
+.repas-table tr:hover td{background:var(--bg2);}
+.rt-cell-repas{cursor:pointer;}
+.rt-cell-repas:hover{opacity:0.7;}
 .food-chip{background:var(--accent);border-radius:20px;padding:4px 11px;font-size:12px;font-weight:700;color:white;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:5px;}
 .food-chip:hover{background:var(--accent2);}
 .food-common{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:5px;}
@@ -720,6 +730,20 @@ main{position:relative;z-index:1;}
       <input type="text" id="platSearch" class="form-input" oninput="onPlatSearch(this.value)" autocomplete="off">
       <div class="plat-suggest-list" id="platSuggestList" style="display:none"></div>
     </div>
+    <div class="form-group ia-repas-box" style="border:1px dashed var(--border2);border-radius:12px;padding:10px;margin-top:4px">
+      <label class="form-label" id="L_ia_repas_title">🤖 Saisie simplifiée par IA (optionnel)</label>
+      <div style="font-size:11px;color:var(--text2);margin-bottom:8px" id="L_ia_repas_desc">Décrivez votre repas en une phrase, ou envoyez une photo — l'IA identifie les aliments et les ajoute à la sélection.</div>
+      <div class="input-with-btn" style="margin-bottom:8px">
+        <input type="text" id="iaRepasTextInput" class="form-input" autocomplete="off" placeholder="Ex: pâtes carbonara avec un peu de parmesan et une pomme">
+        <button class="btn btn-purple btn-sm" onclick="runIaRepasText()" id="iaRepasTextBtn">✨ Analyser</button>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn btn-secondary btn-sm" onclick="document.getElementById('iaRepasPhotoInput').click()" id="L_ia_repas_photo_btn">📷 Photo du repas</button>
+        <input type="file" id="iaRepasPhotoInput" accept="image/*" capture="environment" style="display:none" onchange="runIaRepasPhoto(this.files[0])">
+        <span id="iaRepasPhotoName" style="font-size:11px;color:var(--text3)"></span>
+      </div>
+      <div id="iaRepasStatus" style="font-size:11px;margin-top:6px"></div>
+    </div>
         <button class="btn btn-primary btn-full" onclick="saveRepas()" id="L_save_repas">💾 Enregistrer le repas</button>
   </div>
   <div class="entries-list">
@@ -889,6 +913,19 @@ main{position:relative;z-index:1;}
 </div>
 <!-- ANALYSE -->
 <div id="tab-analyse" class="tab-content">
+
+  <div class="card" id="repasTableCard">
+    <div class="card-title" id="L_repas_table_title">🍽️ Repas &amp; selles — 30 derniers jours</div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:8px" id="L_repas_table_desc">Chaque colonne = tranche de 2h. 🍽️ repas · 💩 selle.</div>
+    <div style="overflow-x:auto">
+      <table class="repas-table" id="repasTable">
+        <thead>
+          <tr id="repasTableHead"></tr>
+        </thead>
+        <tbody id="repasTableBody"></tbody>
+      </table>
+    </div>
+  </div>
 
   <div class="card" id="trendChartCard" style="display:none">
     <div class="card-title" id="L_trend_title">📈 Tendances sur 30 jours</div>
@@ -1600,6 +1637,7 @@ var FR={
   L_repas_title:'🍽️ Enregistrer un repas',L_repas_heure:'Heure du repas',
   L_now_repas:'⏱️ Maintenant',L_now_selle:'⏱️ Maintenant',
   L_plat_search:'Chercher un plat type',ph_plat_search:'Ex: Biryani...',
+  L_ia_repas_title:'🤖 Saisie simplifiée par IA (optionnel)',L_ia_repas_desc:'Décrivez votre repas en une phrase, ou envoyez une photo — l\'IA identifie les aliments et les ajoute à la sélection.',L_ia_repas_photo_btn:'📷 Photo du repas',
   L_aliments_courants:'Aliments courants',L_selectionnes:'Sélectionnés',
   aucun_aliment:'Aucun aliment sélectionné',L_top10_label:'⭐ Mes aliments fréquents',
   L_texte_libre:'Texte libre (saisie prédictive)',ph_texte_libre:'Ex: Poulet, Riz...',
@@ -1638,6 +1676,7 @@ var FR={
   cal_calcul:'📐 Calcul du score',cal_nodata:'Aucune donnée pour ce jour',
   regleLabel:'🌸 Règles',noteLabel:'📝',
   tag_collante:'🩹 Collante',tag_sang:'🩸 Sang',tag_douleur:'😣 Douleur',tag_ballons:'🎈 Ballons',
+  L_rt_date:'Date',L_repas_table_title:'🍽️ Repas & selles — 30 derniers jours',L_repas_table_desc:'Chaque colonne = tranche de 2h. 🍽️ repas · 💩 selle.',
   L_analyse_title:'🔍 Analyse alimentaire',L_analyse_desc:'Corrélation aliments / selles 12–48h après.',
   L_run_analyse:"🔍 Lancer l'analyse",L_run_fodmap:'🧬 Matrice FODMAP × Selles',L_trend_title:'📈 Tendances sur 30 jours',L_trend_humeur:'Humeur',L_trend_selles:'Consistance selles',L_trend_sport:'Activité sportive',L_trend_alim:'Charge FODMAP',L_trend_note:'Consistance : 5=idéale (Bristol 3-4) · Sport : 0=aucun→3=intensif · FODMAP : charge pondérée/2',
   noAnalysis:'Pas assez de données.',
@@ -1683,6 +1722,7 @@ var EN={
   today:'Today',
   L_repas_title:'🍽️ Record a meal',L_repas_heure:'Meal time',L_now_repas:'⏱️ Now',L_now_selle:'⏱️ Now',
   L_plat_search:'Search a meal type',ph_plat_search:'E.g. Biryani...',
+  L_ia_repas_title:'🤖 AI-simplified entry (optional)',L_ia_repas_desc:'Describe your meal in one sentence, or send a photo — AI identifies the foods and adds them to the selection.',L_ia_repas_photo_btn:'📷 Photo of meal',
   L_aliments_courants:'Common foods',L_selectionnes:'Selected',aucun_aliment:'No food selected',
   L_top10_label:'⭐ My frequent foods',L_texte_libre:'Free text (predictive)',ph_texte_libre:'E.g. Chicken, Rice...',
   L_ajouter:'+ Add',L_save_repas:'💾 Save meal',L_repas_jour:'📋 Today meals',noRepas:'No meals recorded',
@@ -1718,6 +1758,7 @@ var EN={
   cal_calcul:'📐 Score breakdown',cal_nodata:'No data for this day',
   regleLabel:'🌸 Period',noteLabel:'📝',
   tag_collante:'🩹 Sticky',tag_sang:'🩸 Blood',tag_douleur:'😣 Pain',tag_ballons:'🎈 Bloating',
+  L_rt_date:'Date',L_repas_table_title:'🍽️ Meals & stools — last 30 days',L_repas_table_desc:'Each column = 2h slot. 🍽️ meal · 💩 stool.',
   L_analyse_title:'🔍 Food analysis',L_analyse_desc:'Food / stool correlation 12–48h later.',
   L_run_analyse:'🔍 Run analysis',L_run_fodmap:'🧬 FODMAP × Stools matrix',L_trend_title:'📈 30-day trends',L_trend_humeur:'Mood',L_trend_selles:'Stool consistency',L_trend_sport:'Physical activity',L_trend_alim:'FODMAP load',L_trend_note:'Consistency: 5=ideal (Bristol 3-4) · Activity: 0=none→3=intense · FODMAP: weighted load/2',
   noAnalysis:'Not enough data.',
@@ -2100,7 +2141,7 @@ function toggleTheme(){var dark=document.documentElement.getAttribute('data-them
 function initTheme(){var s=localStorage.getItem('supercaca_theme')||'light';document.documentElement.setAttribute('data-theme',s);document.getElementById('themeColorMeta').content=s==='dark'?'#050D18':'#1565C0';}
 
 // LANG
-function toggleLang(){LANG=LANG==='fr'?'en':'fr';localStorage.setItem('sc_lang',LANG);applyLang();initFoodCommon();initPlatFoodCommon();renderTop10();renderRepasList();renderSellesList();renderEtatDisplay();renderPlatsList();renderScore();renderCalendar();if(selectedCalDate)renderCalDayDetail(selectedCalDate);setTimeout(function(){if(document.getElementById('tab-score').classList.contains('active'))renderScore();},50);}
+function toggleLang(){LANG=LANG==='fr'?'en':'fr';localStorage.setItem('sc_lang',LANG);applyLang();initFoodCommon();initPlatFoodCommon();renderTop10();renderRepasList();renderSellesList();renderEtatDisplay();renderPlatsList();renderScore();renderCalendar();if(document.getElementById('tab-analyse').classList.contains('active'))renderRepasTable();if(selectedCalDate)renderCalDayDetail(selectedCalDate);setTimeout(function(){if(document.getElementById('tab-score').classList.contains('active'))renderScore();},50);}
 function applyLang(){
   function s(id,k){var el=document.getElementById(id);if(el)el.textContent=t(k);}
   function h(id,k){var el=document.getElementById(id);if(el)el.innerHTML=t(k);}
@@ -2110,6 +2151,7 @@ function applyLang(){
   ['repas','selles','etat','score','cal','analyse','aliments','plats','io'].forEach(function(n){s('tb_'+n,'tb_'+n);});
   s('L_repas_title','L_repas_title');s('L_repas_heure','L_repas_heure');s('L_now_repas','L_now_repas');
   s('L_plat_search','L_plat_search');p('platSearch','ph_plat_search');
+  s('L_ia_repas_title','L_ia_repas_title');h('L_ia_repas_desc','L_ia_repas_desc');s('L_ia_repas_photo_btn','L_ia_repas_photo_btn');
   s('L_aliments_courants','L_aliments_courants');s('L_selectionnes','L_selectionnes');s('L_top10_label','L_top10_label');
   s('L_texte_libre','L_texte_libre');p('repasAlimentInput','ph_texte_libre');
   s('L_ajouter','L_ajouter');s('L_save_repas','L_save_repas');s('L_repas_jour','L_repas_jour');
@@ -2128,6 +2170,7 @@ function applyLang(){
   s('L_regles_title','L_regles_title');s('L_regles_cb','L_regles_cb');
   s('L_note_title','L_note_title');p('etatNote','ph_note');s('L_save_etat','L_save_etat');s('L_score_missing','L_score_missing');
   s('L_analyse_title','L_analyse_title');h('L_analyse_desc','L_analyse_desc');s('L_run_analyse','L_run_analyse');s('L_run_fodmap','L_run_fodmap');
+  s('L_repas_table_title','L_repas_table_title');h('L_repas_table_desc','L_repas_table_desc');
   s('L_alim_title','L_alim_title');s('L_add_alim_title','L_add_alim_title');s('L_add_nom','L_add_nom');s('L_add_cat','L_add_cat');s('L_add_props','L_add_props');s('L_add_fibres','L_add_fibres');s('L_add_alim_btn','L_add_alim_btn');
   s('ath_nom','ath_nom');s('ath_cat','ath_cat');s('ath_safe','ath_safe');s('ath_fibres','ath_fibres');
   s('L_plat_create','L_plat_create');s('L_plat_nom','L_plat_nom');p('platNom','ph_plat_nom');
@@ -2212,6 +2255,108 @@ function addFoodFromInput(){
   var ac=document.getElementById('repasAC');if(ac)ac.style.display='none';
   inp.value.split(',').map(function(s){return s.trim();}).filter(Boolean).forEach(function(v){if(selectedFoods.indexOf(v)<0)selectedFoods.push(v);});
   renderSelectedFoods();inp.value='';
+}
+
+// ===== SAISIE REPAS SIMPLIFIÉE PAR IA (texte libre ou photo -> liste d'aliments) =====
+function getIaApiKey(){return(localStorage.getItem('sc_ia_apikey')||'').trim();}
+function iaRepasNoKeyMsg(){
+  return LANG==='en'
+    ?'⚠️ Add your Anthropic API key first in the "AI Analysis" tab.'
+    :'⚠️ Renseignez d\'abord votre clé API Anthropic dans l\'onglet "Analyse IA".';
+}
+function setIaRepasStatus(html){var el=document.getElementById('iaRepasStatus');if(el)el.innerHTML=html;}
+// Ajoute les aliments extraits à la sélection courante, en évitant les doublons, puis rafraîchit l'UI.
+function applyIaRepasFoods(list){
+  if(!list||!list.length)return 0;
+  var added=0;
+  list.forEach(function(name){
+    name=(name||'').toString().trim();
+    if(!name)return;
+    if(selectedFoods.indexOf(name)<0){selectedFoods.push(name);added++;}
+  });
+  renderSelectedFoods();
+  document.querySelectorAll('#foodCommon .food-common-btn,#foodTop10 .food-common-btn').forEach(function(b){
+    if(selectedFoods.indexOf(b.getAttribute('data-name'))>=0)b.classList.add('sel');else b.classList.remove('sel');
+  });
+  return added;
+}
+var IA_REPAS_SYSTEM="Tu extrais une liste d'aliments à partir d'une description de repas (texte ou photo), pour une application de suivi digestif FODMAP. "+
+  "Réponds UNIQUEMENT avec un objet JSON valide, sans texte autour, sans balises markdown, de la forme : {\"aliments\":[\"nom1\",\"nom2\",...]}. "+
+  "Chaque nom d'aliment doit être court, au singulier, en français, avec la première lettre en majuscule (ex: 'Poulet', 'Riz', 'Tomate', 'Parmesan'), sans quantité ni unité. "+
+  "Décompose les plats composés en leurs ingrédients principaux visibles ou mentionnés (ex: 'pâtes carbonara' -> Pâtes, Lardons, Œuf, Parmesan). "+
+  "Ignore l'eau plate. Si rien n'est identifiable, réponds {\"aliments\":[]}.";
+function parseIaRepasResponse(resp){
+  var text=(resp.content||[]).filter(function(b){return b.type==='text';}).map(function(b){return b.text;}).join('\n').trim();
+  var jsonStr=text;
+  var m=text.match(/\{[\s\S]*\}/);
+  if(m)jsonStr=m[0];
+  var parsed=JSON.parse(jsonStr);
+  return(parsed&&parsed.aliments)||[];
+}
+function runIaRepasText(){
+  var apiKey=getIaApiKey();
+  if(!apiKey){setIaRepasStatus('<span style="color:var(--red)">'+iaRepasNoKeyMsg()+'</span>');return;}
+  var inp=document.getElementById('iaRepasTextInput');
+  var desc=(inp.value||'').trim();
+  if(!desc){setIaRepasStatus('<span style="color:var(--red)">'+(LANG==='en'?'Describe your meal first.':'Décrivez d\'abord votre repas.')+'</span>');return;}
+  var btn=document.getElementById('iaRepasTextBtn');
+  btn.disabled=true;btn.textContent='⏳';
+  setIaRepasStatus(LANG==='en'?'Analysing…':'Analyse en cours…');
+  fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:500,system:IA_REPAS_SYSTEM,messages:[{role:'user',content:desc}]})
+  }).then(function(r){
+    if(!r.ok)return r.json().then(function(j){throw new Error((j.error&&j.error.message)||('HTTP '+r.status));});
+    return r.json();
+  }).then(function(resp){
+    var aliments=parseIaRepasResponse(resp);
+    var added=applyIaRepasFoods(aliments);
+    if(added){setIaRepasStatus('<span style="color:var(--green)">✅ '+added+' '+(LANG==='en'?'food(s) added: ':'aliment(s) ajouté(s) : ')+aliments.join(', ')+'</span>');inp.value='';}
+    else{setIaRepasStatus('<span style="color:var(--text3)">'+(LANG==='en'?'No food identified.':'Aucun aliment identifié.')+'</span>');}
+  }).catch(function(e){
+    setIaRepasStatus('<span style="color:var(--red)">❌ '+(e.message||(LANG==='en'?'Request failed':'Échec de la requête'))+'</span>');
+    console.error('IA repas text error:',e);
+  }).finally(function(){btn.disabled=false;btn.textContent='✨ '+(LANG==='en'?'Analyse':'Analyser');});
+}
+function fileToBase64(file){
+  return new Promise(function(resolve,reject){
+    var r=new FileReader();
+    r.onload=function(){resolve(r.result.split(',')[1]);};
+    r.onerror=function(){reject(new Error('read failed'));};
+    r.readAsDataURL(file);
+  });
+}
+function runIaRepasPhoto(file){
+  if(!file)return;
+  var apiKey=getIaApiKey();
+  if(!apiKey){setIaRepasStatus('<span style="color:var(--red)">'+iaRepasNoKeyMsg()+'</span>');return;}
+  var nameEl=document.getElementById('iaRepasPhotoName');if(nameEl)nameEl.textContent=file.name;
+  setIaRepasStatus(LANG==='en'?'Analysing photo…':'Analyse de la photo en cours…');
+  var mediaType=file.type||'image/jpeg';
+  fileToBase64(file).then(function(b64){
+    return fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:500,system:IA_REPAS_SYSTEM,messages:[{role:'user',content:[
+        {type:'image',source:{type:'base64',media_type:mediaType,data:b64}},
+        {type:'text',text:LANG==='en'?'Identify the foods in this meal photo.':'Identifie les aliments de ce repas en photo.'}
+      ]}]})
+    });
+  }).then(function(r){
+    if(!r.ok)return r.json().then(function(j){throw new Error((j.error&&j.error.message)||('HTTP '+r.status));});
+    return r.json();
+  }).then(function(resp){
+    var aliments=parseIaRepasResponse(resp);
+    var added=applyIaRepasFoods(aliments);
+    if(added)setIaRepasStatus('<span style="color:var(--green)">✅ '+added+' '+(LANG==='en'?'food(s) added: ':'aliment(s) ajouté(s) : ')+aliments.join(', ')+'</span>');
+    else setIaRepasStatus('<span style="color:var(--text3)">'+(LANG==='en'?'No food identified.':'Aucun aliment identifié.')+'</span>');
+  }).catch(function(e){
+    setIaRepasStatus('<span style="color:var(--red)">❌ '+(e.message||(LANG==='en'?'Request failed':'Échec de la requête'))+'</span>');
+    console.error('IA repas photo error:',e);
+  }).finally(function(){
+    var input=document.getElementById('iaRepasPhotoInput');if(input)input.value='';
+  });
 }
 function renderSelectedFoods(){
   var c=document.getElementById('selectedFoodsChips');
@@ -2326,6 +2471,77 @@ function getStoolFoodWindow(allDates,all,date,s){
     wStart=sTs-48*3600000;
   }
   return{wStart:wStart,wEnd:wEnd};
+}
+// TABLEAU JOUR × TRANCHE HORAIRE (30 derniers jours, fenêtre glissante) — affiche repas 🍽️ et selles 💩
+// dans la tranche de 2h correspondante, pour une vue d'ensemble rapide des habitudes.
+var RT_SLOT_H=2; // largeur d'une tranche horaire en heures
+function rtSlotIndex(heure){
+  if(!heure)return null;
+  var h=parseInt(heure.split(':')[0],10);
+  if(isNaN(h))return null;
+  return Math.floor(h/RT_SLOT_H);
+}
+function renderRepasTable(){
+  var head=document.getElementById('repasTableHead');
+  var body=document.getElementById('repasTableBody');
+  if(!head||!body)return;
+  var nbSlots=24/RT_SLOT_H;
+  var headHtml='<th class="rt-th-date" id="L_rt_date">'+t('L_rt_date')+'</th>';
+  for(var s=0;s<nbSlots;s++){
+    var h0=s*RT_SLOT_H,h1=h0+RT_SLOT_H;
+    headHtml+='<th>'+String(h0).padStart(2,'0')+'-'+String(h1).padStart(2,'0')+'</th>';
+  }
+  head.innerHTML=headHtml;
+
+  var all=getData();
+  var today=new Date();
+  var todayS=todayStr();
+  var rows=[];
+  for(var i=29;i>=0;i--){
+    var d=new Date(today);d.setDate(d.getDate()-i);
+    var ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    rows.push(ds);
+  }
+  function fmtDateShortRt(ds){var locale=LANG==='en'?'en-GB':'fr-FR';return new Date(ds+'T12:00:00').toLocaleDateString(locale,{weekday:'short',day:'numeric',month:'short'});}
+
+  var html='';
+  rows.forEach(function(ds){
+    var dd=all[ds]||{repas:[],selles:[]};
+    var slots=[];
+    for(var s=0;s<nbSlots;s++)slots.push({repas:[],selles:[]});
+    (dd.repas||[]).forEach(function(r){
+      var idx=rtSlotIndex(r.heure);
+      if(idx===null||idx<0||idx>=nbSlots)return;
+      slots[idx].repas.push(r);
+    });
+    (dd.selles||[]).forEach(function(se){
+      var idx=rtSlotIndex(se.heure);
+      if(idx===null||idx<0||idx>=nbSlots)return;
+      slots[idx].selles.push(se);
+    });
+    var rowCls=ds===todayS?' rt-today':'';
+    html+='<tr class="'+rowCls.trim()+'">';
+    html+='<td class="rt-date">'+fmtDateShortRt(ds)+'</td>';
+    slots.forEach(function(slot){
+      if(!slot.repas.length&&!slot.selles.length){html+='<td class="rt-empty">·</td>';return;}
+      var titleParts=[];
+      slot.repas.forEach(function(r){titleParts.push((r.heure||'')+' 🍽️ '+(r.aliments||[]).join(', '));});
+      slot.selles.forEach(function(se){titleParts.push((se.heure||'')+' 💩 Bristol '+se.bristol+(se.sang?' (sang)':''));});
+      var cellHtml='';
+      if(slot.repas.length)cellHtml+='<div>🍽️'+(slot.repas.length>1?'×'+slot.repas.length:'')+'</div>';
+      if(slot.selles.length){
+        var hasSang=slot.selles.some(function(se){return se.sang;});
+        cellHtml+='<div>💩'+(hasSang?'🩸':'')+(slot.selles.length>1?'×'+slot.selles.length:'')+'</div>';
+      }
+      html+='<td class="rt-cell-repas" title="'+titleParts.join(' | ').replace(/"/g,'&quot;')+'" onclick="selectCalDay(\''+ds+'\');switchTabByName(\'calendrier\')">'+cellHtml+'</td>';
+    });
+    html+='</tr>';
+  });
+  body.innerHTML=html||'';
+}
+function switchTabByName(name){
+  var btn=document.getElementById('tb_'+name);
+  if(btn)switchTab(name,btn);
 }
 // MATRICE JOURNALIÈRE DE CONSOMMATION — indépendante des selles : pour chaque jour (colonne),
 // indique la charge de chaque catégorie FODMAP/Gluten/Fibres consommée ce jour-là (ligne).
@@ -2874,7 +3090,7 @@ function openDatePicker(){
 function confirmDate(){var v=document.getElementById('datePicker').value;if(v){currentDate=v;updateDateDisplay();refreshAll();loadEtatToForm();}closeModal('dateModal');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 function updateDateDisplay(){var today=todayStr();var locale=LANG==='en'?'en-GB':'fr-FR';var d=new Date(currentDate+'T12:00:00');document.getElementById('currentDateDisplay').textContent=currentDate===today?t('today'):d.toLocaleDateString(locale,{day:'numeric',month:'short'});}
-function switchTab(name,btn){document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});document.querySelectorAll('.tab-btn').forEach(function(el){el.classList.remove('active');});document.getElementById('tab-'+name).classList.add('active');btn.classList.add('active');try{localStorage.setItem('sc_active_tab',name);}catch(e){}if(name==='repas'){renderRepasList();renderTop10();}if(name==='selles')renderSellesList();if(name==='etat'){renderEtatDisplay();loadEtatToForm();}if(name==='score'){populateScoreDateSelect();renderScore();}if(name==='calendrier')renderCalendar();if(name==='plats')renderPlatsList();if(name==='io'){renderNotifCard();updateReliabilityStatus();}if(name==='aliments')initAlimentsTab();if(name==='analyse'){renderTrendChart();renderFodmapDailyIntake();}if(name==='ia'){initIaTab();}}
+function switchTab(name,btn){document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});document.querySelectorAll('.tab-btn').forEach(function(el){el.classList.remove('active');});document.getElementById('tab-'+name).classList.add('active');btn.classList.add('active');try{localStorage.setItem('sc_active_tab',name);}catch(e){}if(name==='repas'){renderRepasList();renderTop10();}if(name==='selles')renderSellesList();if(name==='etat'){renderEtatDisplay();loadEtatToForm();}if(name==='score'){populateScoreDateSelect();renderScore();}if(name==='calendrier')renderCalendar();if(name==='plats')renderPlatsList();if(name==='io'){renderNotifCard();updateReliabilityStatus();}if(name==='aliments')initAlimentsTab();if(name==='analyse'){renderRepasTable();renderTrendChart();renderFodmapDailyIntake();}if(name==='ia'){initIaTab();}}
 function refreshAll(){renderRepasList();renderSellesList();renderEtatDisplay();renderScore();renderCalendar();renderTop10();}
 
 
